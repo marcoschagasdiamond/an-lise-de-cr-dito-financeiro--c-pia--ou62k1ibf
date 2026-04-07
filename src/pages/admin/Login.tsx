@@ -48,6 +48,7 @@ export default function AdminLogin() {
         localStorage.setItem('admin_token', data.token)
         localStorage.setItem('custom_jwt_token', data.token)
         localStorage.setItem('user_info', JSON.stringify(data.user))
+        window.dispatchEvent(new Event('auth-change'))
         toast.success('Login efetuado com sucesso!')
         setTimeout(() => {
           navigate('/admin/dashboard')

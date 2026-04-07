@@ -69,6 +69,7 @@ export default function LoginParceiro() {
         } else {
           localStorage.setItem('custom_jwt_token', data.token)
           localStorage.setItem('user_info', JSON.stringify(data.user))
+          window.dispatchEvent(new Event('auth-change'))
           setTimeout(() => navigate('/portal/parceiro'), 0)
         }
       } else {
