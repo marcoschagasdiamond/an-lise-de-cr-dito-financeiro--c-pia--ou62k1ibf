@@ -19,7 +19,9 @@ export default function AdminLogin() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session || token) {
-        navigate('/admin/dashboard', { replace: true })
+        setTimeout(() => {
+          navigate('/admin/dashboard', { replace: true })
+        }, 0)
       }
     })
   }, [navigate])
@@ -37,7 +39,9 @@ export default function AdminLogin() {
 
       if (!authError && authData.session) {
         toast.success('Login efetuado com sucesso!')
-        navigate('/admin/dashboard')
+        setTimeout(() => {
+          navigate('/admin/dashboard')
+        }, 0)
         setIsLoading(false)
         return
       }
@@ -56,7 +60,9 @@ export default function AdminLogin() {
       if (data?.token) {
         localStorage.setItem('admin_token', data.token)
         toast.success('Login efetuado com sucesso!')
-        navigate('/admin/dashboard')
+        setTimeout(() => {
+          navigate('/admin/dashboard')
+        }, 0)
       } else {
         toast.error('Credenciais inválidas.')
       }
