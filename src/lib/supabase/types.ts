@@ -41,6 +41,123 @@ export type Database = {
           },
         ]
       }
+      balanco_patrimonial: {
+        Row: {
+          ano: number | null
+          ativo_circulante: Json | null
+          ativo_nao_circulante: Json | null
+          data_criacao: string | null
+          id: string
+          passivo_circulante: Json | null
+          passivo_nao_circulante: Json | null
+          patrimonio_liquido: Json | null
+          projeto_id: string | null
+        }
+        Insert: {
+          ano?: number | null
+          ativo_circulante?: Json | null
+          ativo_nao_circulante?: Json | null
+          data_criacao?: string | null
+          id?: string
+          passivo_circulante?: Json | null
+          passivo_nao_circulante?: Json | null
+          patrimonio_liquido?: Json | null
+          projeto_id?: string | null
+        }
+        Update: {
+          ano?: number | null
+          ativo_circulante?: Json | null
+          ativo_nao_circulante?: Json | null
+          data_criacao?: string | null
+          id?: string
+          passivo_circulante?: Json | null
+          passivo_nao_circulante?: Json | null
+          patrimonio_liquido?: Json | null
+          projeto_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'balanco_patrimonial_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      cenarios_financiamento: {
+        Row: {
+          ativo: boolean | null
+          dados_cenario: Json | null
+          data_criacao: string | null
+          id: string
+          projeto_id: string | null
+          tipo_cenario: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          dados_cenario?: Json | null
+          data_criacao?: string | null
+          id?: string
+          projeto_id?: string | null
+          tipo_cenario?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          dados_cenario?: Json | null
+          data_criacao?: string | null
+          id?: string
+          projeto_id?: string | null
+          tipo_cenario?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'cenarios_financiamento_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      cenarios_investimento: {
+        Row: {
+          data_criacao: string | null
+          descricao: string | null
+          id: string
+          nome_cenario: string | null
+          parametros: Json | null
+          projeto_id: string | null
+          resultados: Json | null
+        }
+        Insert: {
+          data_criacao?: string | null
+          descricao?: string | null
+          id?: string
+          nome_cenario?: string | null
+          parametros?: Json | null
+          projeto_id?: string | null
+          resultados?: Json | null
+        }
+        Update: {
+          data_criacao?: string | null
+          descricao?: string | null
+          id?: string
+          nome_cenario?: string | null
+          parametros?: Json | null
+          projeto_id?: string | null
+          resultados?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'cenarios_investimento_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       clientes: {
         Row: {
           cnpj: string | null
@@ -116,6 +233,200 @@ export type Database = {
             columns: ['cliente_id']
             isOneToOne: false
             referencedRelation: 'clientes'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      dre: {
+        Row: {
+          ano: number | null
+          custos_vendas: number | null
+          data_criacao: string | null
+          deducoes: number | null
+          despesas_financeiras: Json | null
+          despesas_operacionais: Json | null
+          ebitda: number | null
+          ebitda_percentual: number | null
+          id: string
+          lucratividade: number | null
+          lucro_liquido: number | null
+          projeto_id: string | null
+          provisao_ir_csll: number | null
+          receita_bruta: number | null
+          receita_liquida: number | null
+          resultado_operacional: number | null
+          resultado_operacional_bruto: number | null
+        }
+        Insert: {
+          ano?: number | null
+          custos_vendas?: number | null
+          data_criacao?: string | null
+          deducoes?: number | null
+          despesas_financeiras?: Json | null
+          despesas_operacionais?: Json | null
+          ebitda?: number | null
+          ebitda_percentual?: number | null
+          id?: string
+          lucratividade?: number | null
+          lucro_liquido?: number | null
+          projeto_id?: string | null
+          provisao_ir_csll?: number | null
+          receita_bruta?: number | null
+          receita_liquida?: number | null
+          resultado_operacional?: number | null
+          resultado_operacional_bruto?: number | null
+        }
+        Update: {
+          ano?: number | null
+          custos_vendas?: number | null
+          data_criacao?: string | null
+          deducoes?: number | null
+          despesas_financeiras?: Json | null
+          despesas_operacionais?: Json | null
+          ebitda?: number | null
+          ebitda_percentual?: number | null
+          id?: string
+          lucratividade?: number | null
+          lucro_liquido?: number | null
+          projeto_id?: string | null
+          provisao_ir_csll?: number | null
+          receita_bruta?: number | null
+          receita_liquida?: number | null
+          resultado_operacional?: number | null
+          resultado_operacional_bruto?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'dre_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      fluxo_caixa: {
+        Row: {
+          ano: number | null
+          data_criacao: string | null
+          entradas: Json | null
+          id: string
+          projeto_id: string | null
+          saidas: Json | null
+          saldo_final: number | null
+          saldo_inicial: number | null
+        }
+        Insert: {
+          ano?: number | null
+          data_criacao?: string | null
+          entradas?: Json | null
+          id?: string
+          projeto_id?: string | null
+          saidas?: Json | null
+          saldo_final?: number | null
+          saldo_inicial?: number | null
+        }
+        Update: {
+          ano?: number | null
+          data_criacao?: string | null
+          entradas?: Json | null
+          id?: string
+          projeto_id?: string | null
+          saidas?: Json | null
+          saldo_final?: number | null
+          saldo_inicial?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'fluxo_caixa_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      indicadores_financeiros: {
+        Row: {
+          ano: number | null
+          data_criacao: string | null
+          id: string
+          margem_liquida: number | null
+          payback: number | null
+          projeto_id: string | null
+          roa: number | null
+          roe: number | null
+          tir: number | null
+          vpl_10anos: number | null
+          vpl_5anos: number | null
+        }
+        Insert: {
+          ano?: number | null
+          data_criacao?: string | null
+          id?: string
+          margem_liquida?: number | null
+          payback?: number | null
+          projeto_id?: string | null
+          roa?: number | null
+          roe?: number | null
+          tir?: number | null
+          vpl_10anos?: number | null
+          vpl_5anos?: number | null
+        }
+        Update: {
+          ano?: number | null
+          data_criacao?: string | null
+          id?: string
+          margem_liquida?: number | null
+          payback?: number | null
+          projeto_id?: string | null
+          roa?: number | null
+          roe?: number | null
+          tir?: number | null
+          vpl_10anos?: number | null
+          vpl_5anos?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'indicadores_financeiros_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      investimentos: {
+        Row: {
+          data_criacao: string | null
+          descricao: string | null
+          id: string
+          projeto_id: string | null
+          tipo_investimento: string | null
+          valor: number | null
+        }
+        Insert: {
+          data_criacao?: string | null
+          descricao?: string | null
+          id?: string
+          projeto_id?: string | null
+          tipo_investimento?: string | null
+          valor?: number | null
+        }
+        Update: {
+          data_criacao?: string | null
+          descricao?: string | null
+          id?: string
+          projeto_id?: string | null
+          tipo_investimento?: string | null
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'investimentos_projeto_id_fkey'
+            columns: ['projeto_id']
+            isOneToOne: false
+            referencedRelation: 'projetos'
             referencedColumns: ['id']
           },
         ]
@@ -420,6 +731,31 @@ export const Constants = {
 //   nome: text (nullable)
 //   permissoes: jsonb (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: balanco_patrimonial
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   ano: integer (nullable)
+//   ativo_circulante: jsonb (nullable)
+//   ativo_nao_circulante: jsonb (nullable)
+//   passivo_circulante: jsonb (nullable)
+//   passivo_nao_circulante: jsonb (nullable)
+//   patrimonio_liquido: jsonb (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: cenarios_financiamento
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   tipo_cenario: text (nullable)
+//   ativo: boolean (nullable, default: true)
+//   dados_cenario: jsonb (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: cenarios_investimento
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   nome_cenario: text (nullable)
+//   descricao: text (nullable)
+//   parametros: jsonb (nullable)
+//   resultados: jsonb (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
 // Table: clientes
 //   id: uuid (not null, default: gen_random_uuid())
 //   usuario_id: uuid (nullable)
@@ -437,6 +773,52 @@ export const Constants = {
 //   riscos_identificados: jsonb (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
 //   data_atualizacao: timestamp with time zone (nullable, default: now())
+// Table: dre
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   ano: integer (nullable)
+//   receita_bruta: numeric (nullable)
+//   deducoes: numeric (nullable)
+//   receita_liquida: numeric (nullable)
+//   custos_vendas: numeric (nullable)
+//   resultado_operacional_bruto: numeric (nullable)
+//   despesas_operacionais: jsonb (nullable)
+//   despesas_financeiras: jsonb (nullable)
+//   resultado_operacional: numeric (nullable)
+//   provisao_ir_csll: numeric (nullable)
+//   lucro_liquido: numeric (nullable)
+//   ebitda: numeric (nullable)
+//   ebitda_percentual: numeric (nullable)
+//   lucratividade: numeric (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: fluxo_caixa
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   ano: integer (nullable)
+//   saldo_inicial: numeric (nullable)
+//   entradas: jsonb (nullable)
+//   saidas: jsonb (nullable)
+//   saldo_final: numeric (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: indicadores_financeiros
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   ano: integer (nullable)
+//   tir: numeric (nullable)
+//   vpl_5anos: numeric (nullable)
+//   vpl_10anos: numeric (nullable)
+//   payback: numeric (nullable)
+//   margem_liquida: numeric (nullable)
+//   roe: numeric (nullable)
+//   roa: numeric (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: investimentos
+//   id: uuid (not null, default: gen_random_uuid())
+//   projeto_id: uuid (nullable)
+//   tipo_investimento: text (nullable)
+//   valor: numeric (nullable)
+//   descricao: text (nullable)
+//   data_criacao: timestamp with time zone (nullable, default: now())
 // Table: parceiros
 //   id: uuid (not null, default: gen_random_uuid())
 //   usuario_id: uuid (nullable)
@@ -475,6 +857,16 @@ export const Constants = {
 // Table: administradores
 //   PRIMARY KEY administradores_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY administradores_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+// Table: balanco_patrimonial
+//   PRIMARY KEY balanco_patrimonial_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY balanco_patrimonial_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+// Table: cenarios_financiamento
+//   PRIMARY KEY cenarios_financiamento_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY cenarios_financiamento_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+//   CHECK cenarios_financiamento_tipo_cenario_check: CHECK ((tipo_cenario = ANY (ARRAY['emprestimo'::text, 'investidor'::text, 'cotas'::text])))
+// Table: cenarios_investimento
+//   PRIMARY KEY cenarios_investimento_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY cenarios_investimento_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
 // Table: clientes
 //   PRIMARY KEY clientes_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY clientes_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
@@ -482,6 +874,18 @@ export const Constants = {
 //   FOREIGN KEY diagnosticos_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY diagnosticos_pkey: PRIMARY KEY (id)
 //   CHECK diagnosticos_tipo_diagnostico_check: CHECK ((tipo_diagnostico = ANY (ARRAY['juridico'::text, 'tributario'::text, 'fiscal'::text, 'contabil'::text, 'financeiro'::text])))
+// Table: dre
+//   PRIMARY KEY dre_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY dre_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+// Table: fluxo_caixa
+//   PRIMARY KEY fluxo_caixa_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY fluxo_caixa_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+// Table: indicadores_financeiros
+//   PRIMARY KEY indicadores_financeiros_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY indicadores_financeiros_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+// Table: investimentos
+//   PRIMARY KEY investimentos_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY investimentos_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
 // Table: parceiros
 //   PRIMARY KEY parceiros_pkey: PRIMARY KEY (id)
 //   CHECK parceiros_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text, 'pendente'::text])))
@@ -502,12 +906,40 @@ export const Constants = {
 //   Policy "authenticated_all_administradores" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+// Table: balanco_patrimonial
+//   Policy "authenticated_all_balanco" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: cenarios_financiamento
+//   Policy "authenticated_all_cenarios_fin" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: cenarios_investimento
+//   Policy "authenticated_all_cenarios_inv" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
 // Table: clientes
 //   Policy "authenticated_all_clientes" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
 // Table: diagnosticos
 //   Policy "authenticated_all_diagnosticos" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: dre
+//   Policy "authenticated_all_dre" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: fluxo_caixa
+//   Policy "authenticated_all_fluxo" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: indicadores_financeiros
+//   Policy "authenticated_all_indicadores" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: investimentos
+//   Policy "authenticated_all_investimentos" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
 // Table: parceiros
