@@ -5,7 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { FinancialProvider } from '@/store/main'
 import { EconomicProvider } from '@/stores/economic'
 import { PaymentCapacityMLProvider } from '@/stores/payment-capacity-ml'
-import { AuthProvider } from '@/hooks/use-auth'
+import { AuthProvider, useAuth } from '@/hooks/use-auth'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 import Layout from '@/components/Layout'
@@ -69,6 +69,23 @@ import PortalParceiroDashboard from '@/pages/portal-parceiro/Dashboard'
 import NotFound from '@/pages/NotFound'
 import SolicitarParceria from '@/pages/SolicitarParceria'
 
+const RootRedirect = () => {
+  const { user, loading } = useAuth()
+  if (loading) return null
+
+  if (user) {
+    if (user.role === 'administrador' || user.role === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />
+    }
+    if (user.role === 'parceiro') {
+      return <Navigate to="/portal/parceiro" replace />
+    }
+    return <Navigate to="/portal-cliente/dashboard" replace />
+  }
+
+  return <Navigate to="/consult-plan/home" replace />
+}
+
 const App = () => (
   <AuthProvider>
     <FinancialProvider>
@@ -87,7 +104,7 @@ const App = () => (
 
                 <Route element={<Layout />}>
                   {/* Public routes */}
-                  <Route path="/" element={<Navigate to="/consult-plan/home" replace />} />
+                  <Route path="/" element={<RootRedirect />} />
                   <Route path="/consult-plan/home" element={<ConsultHome />} />
                   <Route path="/consult-plan/funding" element={<ConsultFunding />} />
                   <Route path="/consult-plan/entregaveis" element={<ConsultEntregaveis />} />
