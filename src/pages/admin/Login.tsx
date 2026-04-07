@@ -14,6 +14,8 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
+  // Desativado temporariamente para evitar loop de renderização (tela piscando) e redirecionamento automático
+  /*
   useEffect(() => {
     const token = localStorage.getItem('admin_token')
 
@@ -25,6 +27,7 @@ export default function AdminLogin() {
       }
     })
   }, [navigate])
+  */
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,7 +45,6 @@ export default function AdminLogin() {
         setTimeout(() => {
           navigate('/admin/dashboard')
         }, 0)
-        setIsLoading(false)
         return
       }
 
@@ -65,12 +67,12 @@ export default function AdminLogin() {
         }, 0)
       } else {
         toast.error('Credenciais inválidas.')
+        setIsLoading(false)
       }
     } catch (err) {
       toast.error('Ocorreu um erro inesperado ao tentar fazer login.')
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   return (
