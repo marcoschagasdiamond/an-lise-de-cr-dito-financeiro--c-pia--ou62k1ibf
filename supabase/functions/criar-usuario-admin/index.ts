@@ -70,7 +70,18 @@ Deno.serve(async (req: Request) => {
         })
       }
 
-      const isValid = bcrypt.compareSync('Mac318180', existingUser.senha_hash)
+      let isValid = false
+      // Valida caso a senha esteja como texto plano acidentalmente no banco
+      if (existingUser.senha_hash === password) {
+        isValid = true
+      } else {
+        try {
+          isValid = bcrypt.compareSync(password, existingUser.senha_hash)
+        } catch (e) {
+          isValid = false
+        }
+      }
+
       if (!isValid) {
         return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), {
           status: 401,

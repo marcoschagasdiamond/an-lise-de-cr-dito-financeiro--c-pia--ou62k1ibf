@@ -16,9 +16,12 @@ export default function AdminLogin() {
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token')
-    if (token) {
-      navigate('/admin/dashboard', { replace: true })
-    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session || token) {
+        navigate('/admin/dashboard', { replace: true })
+      }
+    })
   }, [navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,6 +29,20 @@ export default function AdminLogin() {
     setIsLoading(true)
 
     try {
+      // 1. Unificação da Autenticação: Tentar login via Supabase Auth primeiro
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (!authError && authData.session) {
+        toast.success('Login efetuado com sucesso!')
+        navigate('/admin/dashboard')
+        setIsLoading(false)
+        return
+      }
+
+      // 2. Fallback para a Edge Function caso o usuário só exista no banco antigo
       const { data, error } = await supabase.functions.invoke('criar-usuario-admin', {
         body: { email, password },
       })

@@ -1568,6 +1568,28 @@ export const Constants = {
 //     USING: true
 //     WITH CHECK: true
 
+// --- DATABASE FUNCTIONS ---
+// FUNCTION handle_new_user()
+//   CREATE OR REPLACE FUNCTION public.handle_new_user()
+//    RETURNS trigger
+//    LANGUAGE plpgsql
+//    SECURITY DEFINER
+//   AS $function$
+//   BEGIN
+//     INSERT INTO public.usuarios (id, email, nome, tipo_usuario, status)
+//     VALUES (
+//       NEW.id,
+//       NEW.email,
+//       COALESCE(NEW.raw_user_meta_data->>'name', 'Usuário'),
+//       COALESCE(NEW.raw_user_meta_data->>'tipo_usuario', 'cliente'),
+//       'ativo'
+//     )
+//     ON CONFLICT (email) DO NOTHING;
+//     RETURN NEW;
+//   END;
+//   $function$
+//
+
 // --- INDEXES ---
 // Table: usuarios
 //   CREATE UNIQUE INDEX usuarios_email_key ON public.usuarios USING btree (email)
