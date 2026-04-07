@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -27,39 +27,58 @@ export default function LoginParceiro() {
     setLoading(true)
 
     try {
-      const authData = await pb.collection('users').authWithPassword(email, password)
-      const user = authData.record
+      const { data, error } = await supabase.functions.invoke('login', {
+        body: { email, password },
+      })
 
-      if (user.role !== 'parceiro') {
-        pb.authStore.clear()
+      if (error || data?.error) {
         toast({
-          title: 'Acesso negado',
-          description: 'Esta área é exclusiva para parceiros.',
+          title: 'Erro ao fazer login',
+          description: 'Credenciais inválidas.',
           variant: 'destructive',
         })
         setLoading(false)
         return
       }
 
-      if (user.status === 'pendente_aprovacao') {
-        pb.authStore.clear()
-        toast({
-          title: 'Aguardando Aprovação',
-          description: 'Sua solicitação aguarda aprovação.',
-          variant: 'destructive',
-        })
-      } else if (user.status === 'rejeitado') {
-        pb.authStore.clear()
-        toast({
-          title: 'Cadastro Rejeitado',
-          description: 'Sua solicitação não foi aceita.',
-          variant: 'destructive',
-        })
+      if (data?.token) {
+        const user = data.user
+
+        if (user?.tipo_usuario !== 'parceiro') {
+          toast({
+            title: 'Acesso negado',
+            description: 'Esta área é exclusiva para parceiros.',
+            variant: 'destructive',
+          })
+          setLoading(false)
+          return
+        }
+
+        if (user?.status === 'pendente_aprovacao') {
+          toast({
+            title: 'Aguardando Aprovação',
+            description: 'Sua solicitação aguarda aprovação.',
+            variant: 'destructive',
+          })
+        } else if (user?.status === 'rejeitado') {
+          toast({
+            title: 'Cadastro Rejeitado',
+            description: 'Sua solicitação não foi aceita.',
+            variant: 'destructive',
+          })
+        } else {
+          localStorage.setItem('custom_jwt_token', data.token)
+          localStorage.setItem('user_info', JSON.stringify(data.user))
+          setTimeout(() => navigate('/portal/parceiro'), 0)
+        }
       } else {
-        navigate('/portal/parceiro')
+        toast({
+          title: 'Erro ao fazer login',
+          description: 'Credenciais inválidas.',
+          variant: 'destructive',
+        })
       }
-    } catch (error) {
-      pb.authStore.clear()
+    } catch (err) {
       toast({
         title: 'Erro ao fazer login',
         description: 'Credenciais inválidas.',

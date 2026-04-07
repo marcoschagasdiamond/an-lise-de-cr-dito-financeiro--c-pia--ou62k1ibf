@@ -34,22 +34,7 @@ export default function AdminLogin() {
     setIsLoading(true)
 
     try {
-      // 1. Unificação da Autenticação: Tentar login via Supabase Auth primeiro
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (!authError && authData.session) {
-        toast.success('Login efetuado com sucesso!')
-        setTimeout(() => {
-          navigate('/admin/dashboard')
-        }, 0)
-        return
-      }
-
-      // 2. Fallback para a Edge Function caso o usuário só exista no banco antigo
-      const { data, error } = await supabase.functions.invoke('criar-usuario-admin', {
+      const { data, error } = await supabase.functions.invoke('login', {
         body: { email, password },
       })
 
@@ -59,8 +44,10 @@ export default function AdminLogin() {
         return
       }
 
-      if (data?.token) {
+      if (data?.token && data?.user?.tipo_usuario === 'admin') {
         localStorage.setItem('admin_token', data.token)
+        localStorage.setItem('custom_jwt_token', data.token)
+        localStorage.setItem('user_info', JSON.stringify(data.user))
         toast.success('Login efetuado com sucesso!')
         setTimeout(() => {
           navigate('/admin/dashboard')

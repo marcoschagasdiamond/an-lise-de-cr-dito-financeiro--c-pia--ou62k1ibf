@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,54 +13,78 @@ import {
 } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
   const navigate = useNavigate()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const { error } = await signIn(email, password)
-    setLoading(false)
 
-    if (error) {
+    try {
+      const { data, error } = await supabase.functions.invoke('login', {
+        body: { email, password },
+      })
+
+      if (error || data?.error) {
+        toast({
+          title: 'Erro ao fazer login',
+          description: 'Credenciais inválidas.',
+          variant: 'destructive',
+        })
+        setLoading(false)
+        return
+      }
+
+      if (data?.token) {
+        localStorage.setItem('custom_jwt_token', data.token)
+        localStorage.setItem('user_info', JSON.stringify(data.user))
+
+        const user = data.user
+
+        if (user?.status === 'pendente_aprovacao') {
+          localStorage.removeItem('custom_jwt_token')
+          toast({
+            title: 'Aguardando Aprovação',
+            description: 'Sua solicitação aguarda aprovação.',
+            variant: 'destructive',
+          })
+        } else if (user?.status === 'rejeitado') {
+          localStorage.removeItem('custom_jwt_token')
+          toast({
+            title: 'Cadastro Rejeitado',
+            description: 'Sua solicitação não foi aceita.',
+            variant: 'destructive',
+          })
+        } else {
+          if (user?.tipo_usuario === 'admin') {
+            setTimeout(() => navigate('/admin/dashboard'), 0)
+          } else if (user?.tipo_usuario === 'parceiro') {
+            setTimeout(() => navigate('/portal/parceiro'), 0)
+          } else {
+            setTimeout(() => navigate('/portal-cliente/dashboard'), 0)
+          }
+        }
+      } else {
+        toast({
+          title: 'Erro ao fazer login',
+          description: 'Credenciais inválidas.',
+          variant: 'destructive',
+        })
+      }
+    } catch (err) {
       toast({
-        title: 'Erro ao fazer login',
-        description:
-          'Credenciais inválidas. Se você solicitou um diagnóstico recentemente, sua conta pode ter sido criada e o administrador definirá sua senha em breve. Você receberá um email com as credenciais.',
+        title: 'Erro',
+        description: 'Ocorreu um erro inesperado.',
         variant: 'destructive',
       })
-    } else {
-      const user = pb.authStore.record
-      if (user?.status === 'pendente_aprovacao') {
-        pb.authStore.clear()
-        toast({
-          title: 'Aguardando Aprovação',
-          description: 'Sua solicitação aguarda aprovação.',
-          variant: 'destructive',
-        })
-      } else if (user?.status === 'rejeitado') {
-        pb.authStore.clear()
-        toast({
-          title: 'Cadastro Rejeitado',
-          description: 'Sua solicitação não foi aceita.',
-          variant: 'destructive',
-        })
-      } else {
-        if (user?.role === 'administrador') {
-          navigate('/admin/dashboard')
-        } else if (user?.role === 'parceiro') {
-          navigate('/portal/parceiro')
-        } else {
-          navigate('/portal-cliente/dashboard')
-        }
-      }
+    } finally {
+      setLoading(false)
     }
   }
 
