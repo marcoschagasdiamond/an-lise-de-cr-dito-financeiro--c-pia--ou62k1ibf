@@ -18,8 +18,8 @@ Deno.serve(async (req: Request) => {
     const { email, password } = await req.json()
 
     if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Email e senha são obrigatórios' }), {
-        status: 400,
+      return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -40,23 +40,30 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    const user = data.usuario
-
     const jwtSecret =
       Deno.env.get('SUPABASE_JWT_SECRET') ??
       'super-secret-jwt-token-with-at-least-32-characters-long'
     const token = jwt.sign(
-      { sub: user.id, email: user.email, role: user.tipo_usuario, nome: user.nome },
+      { sub: data.usuario_id, email: email, role: data.tipo_usuario, nome: data.usuario?.nome },
       jwtSecret,
       { expiresIn: '1d' },
     )
 
-    return new Response(JSON.stringify({ success: true, token, user }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({
+        success: true,
+        token,
+        usuario_id: data.usuario_id,
+        tipo_usuario: data.tipo_usuario,
+        user: data.usuario,
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
+    )
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
+    return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), {
+      status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
