@@ -49,21 +49,7 @@ export function AppSidebar() {
   const userInitials = userName.substring(0, 2).toUpperCase()
   const userRole = user?.role
 
-  console.log('[AppSidebar Debug] Current User:', user)
-  console.log('[AppSidebar Debug] User Role:', userRole)
-  console.log(
-    '[AppSidebar Debug] Condition ÁREA DO CLIENTE:',
-    !!(user && (userRole === 'cliente' || userRole === 'administrador' || !userRole)),
-  )
-  console.log(
-    '[AppSidebar Debug] Condition ÁREA DO PARCEIRO:',
-    !!(user && (userRole === 'parceiro' || userRole === 'administrador')),
-  )
-  console.log(
-    '[AppSidebar Debug] Condition ADMINISTRAÇÃO:',
-    !!(user && userRole === 'administrador'),
-  )
-
+  const isVisitor = !user
   const navGroups = []
 
   navGroups.push({
@@ -82,7 +68,7 @@ export function AppSidebar() {
     ],
   })
 
-  if (user && (userRole === 'cliente' || userRole === 'administrador' || !userRole)) {
+  if (isVisitor || userRole === 'cliente' || userRole === 'administrador' || !userRole) {
     navGroups.push({
       label: 'ÁREA DO CLIENTE',
       items: [
@@ -120,7 +106,7 @@ export function AppSidebar() {
     })
   }
 
-  if (user && (userRole === 'parceiro' || userRole === 'administrador')) {
+  if (isVisitor || userRole === 'parceiro' || userRole === 'administrador') {
     navGroups.push({
       label: 'ÁREA DO PARCEIRO',
       items: [
@@ -144,7 +130,7 @@ export function AppSidebar() {
     })
   }
 
-  if (user && userRole === 'administrador') {
+  if (isVisitor || userRole === 'administrador') {
     navGroups.push({
       label: 'ADMINISTRAÇÃO',
       items: [

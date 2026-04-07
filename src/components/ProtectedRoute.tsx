@@ -26,9 +26,16 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   if (!user) {
+    const isAdminRoute = location.pathname.startsWith('/admin')
     const isPartnerRoute =
       location.pathname.startsWith('/portal-parceiro') ||
-      location.pathname.startsWith('/portal/parceiro')
+      location.pathname.startsWith('/portal/parceiro') ||
+      location.pathname.startsWith('/area-parceiro')
+
+    if (isAdminRoute) {
+      return <Navigate to="/admin/login" state={{ from: location }} replace />
+    }
+
     return (
       <Navigate
         to={isPartnerRoute ? '/login-parceiro' : '/login'}
@@ -41,7 +48,8 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     const isPartnerRoute =
       location.pathname.startsWith('/portal-parceiro') ||
-      location.pathname.startsWith('/portal/parceiro')
+      location.pathname.startsWith('/portal/parceiro') ||
+      location.pathname.startsWith('/area-parceiro')
 
     const handleSignOut = () => {
       signOut()
