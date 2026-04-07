@@ -1,57 +1,53 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { signIn, user } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (user?.role === 'administrador') {
+    const token = localStorage.getItem('admin_token')
+    if (token) {
       navigate('/admin/dashboard', { replace: true })
     }
-  }, [user, navigate])
+  }, [navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    const { error } = await signIn(email, password)
+    try {
+      const { data, error } = await supabase.functions.invoke('criar-usuario-admin', {
+        body: { email, password },
+      })
 
-    if (error) {
-      const status = error?.status || 0
-
-      if (status === 0) {
-        toast.error('Erro de conexão. Verifique sua rede e tente novamente.')
-      } else if (status >= 400 && status < 500) {
-        toast.error('Credenciais inválidas. Verifique seu email e senha.')
-      } else {
-        toast.error('Ocorreu um erro inesperado ao tentar fazer login.')
+      if (error || data?.error) {
+        toast.error('Credenciais inválidas.')
+        setIsLoading(false)
+        return
       }
 
-      setIsLoading(false)
-      return
+      if (data?.token) {
+        localStorage.setItem('admin_token', data.token)
+        toast.success('Login efetuado com sucesso!')
+        navigate('/admin/dashboard')
+      } else {
+        toast.error('Credenciais inválidas.')
+      }
+    } catch (err) {
+      toast.error('Ocorreu um erro inesperado ao tentar fazer login.')
     }
 
-    if (pb.authStore.record?.role !== 'administrador') {
-      toast.error('Acesso negado. Esta área é restrita para administradores.')
-      pb.authStore.clear()
-      setIsLoading(false)
-      return
-    }
-
-    toast.success('Login efetuado com sucesso!')
-    navigate('/admin/dashboard')
+    setIsLoading(false)
   }
 
   return (

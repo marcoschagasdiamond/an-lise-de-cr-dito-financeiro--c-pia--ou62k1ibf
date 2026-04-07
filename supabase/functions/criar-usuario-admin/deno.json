@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "npm:bcryptjs": "npm:bcryptjs@2.4.3",
+    "npm:jsonwebtoken": "npm:jsonwebtoken@9.0.2"
+  }
+}
