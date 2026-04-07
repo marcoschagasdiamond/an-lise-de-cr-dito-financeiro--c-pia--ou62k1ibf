@@ -1,0 +1,115 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { useToast } from '@/hooks/use-toast'
+import { Loader2 } from 'lucide-react'
+import pb from '@/lib/pocketbase/client'
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { signIn } = useAuth()
+  const navigate = useNavigate()
+  const { toast } = useToast()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    const { error } = await signIn(email, password)
+    setLoading(false)
+
+    if (error) {
+      toast({
+        title: 'Erro ao fazer login',
+        description:
+          'Credenciais inválidas. Se você solicitou um diagnóstico recentemente, sua conta pode ter sido criada e o administrador definirá sua senha em breve. Você receberá um email com as credenciais.',
+        variant: 'destructive',
+      })
+    } else {
+      const user = pb.authStore.record
+      if (user?.status === 'pendente_aprovacao') {
+        pb.authStore.clear()
+        toast({
+          title: 'Aguardando Aprovação',
+          description: 'Sua solicitação aguarda aprovação.',
+          variant: 'destructive',
+        })
+      } else if (user?.status === 'rejeitado') {
+        pb.authStore.clear()
+        toast({
+          title: 'Cadastro Rejeitado',
+          description: 'Sua solicitação não foi aceita.',
+          variant: 'destructive',
+        })
+      } else {
+        if (user?.role === 'administrador') {
+          navigate('/admin/dashboard')
+        } else if (user?.role === 'parceiro') {
+          navigate('/portal/parceiro')
+        } else {
+          navigate('/portal-cliente/dashboard')
+        }
+      }
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 px-4 w-full">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Entrar</CardTitle>
+          <CardDescription>Insira seu email e senha para acessar sua conta.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="nome@exemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Entrar
+            </Button>
+            <div className="text-sm text-center text-muted-foreground">
+              Não tem uma conta?{' '}
+              <Link to="/signup" className="text-primary hover:underline">
+                Cadastre-se
+              </Link>
+            </div>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
+  )
+}
