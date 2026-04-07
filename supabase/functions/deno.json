@@ -1,5 +1,6 @@
 {
   "_versions": {
-    "criar-usuario-admin": 1
+    "criar-usuario-admin": 1,
+    "login": 1
   }
 }
