@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { Session } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase/client'
 
 interface UserInfo {
   id: string
@@ -11,9 +13,10 @@ interface UserInfo {
 
 interface AuthContextType {
   user: UserInfo | null
-  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>
+  session: Session | null
+  signUp: (email: string, password: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
-  signOut: () => void
+  signOut: () => Promise<{ error: any }>
   loading: boolean
 }
 
@@ -27,75 +30,135 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let mounted = true
 
-    const checkSession = () => {
+    const checkLegacySession = () => {
       try {
         const token = localStorage.getItem('custom_jwt_token')
         const userInfoStr = localStorage.getItem('user_info')
-
         if (token && userInfoStr) {
           const userInfo = JSON.parse(userInfoStr)
-
-          // Mapeia 'admin' para 'administrador' para garantir compatibilidade
-          // com as definições de rotas no App.tsx
           let role = userInfo.tipo_usuario
           if (role === 'admin') role = 'administrador'
-
           if (mounted) {
             setUser({ ...userInfo, role })
           }
-        } else {
-          if (mounted) setUser(null)
+          return true
         }
       } catch (error) {
-        console.error('Erro ao validar sessão:', error)
-        if (mounted) setUser(null)
-      } finally {
-        if (mounted) setLoading(false)
+        console.error('Erro ao validar sessão legada:', error)
       }
+      return false
     }
 
-    // Verifica o estado inicial
-    checkSession()
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // FORBIDDEN: no async/await inside this callback — sync only
+      setSession(session)
+      if (!session) {
+        // If no GoTrue session, check legacy one last time
+        if (!checkLegacySession() && mounted) {
+          setUser(null)
+          setLoading(false)
+        }
+      }
+    })
 
-    // Ouve eventos de alteração de estado de autenticação (mesma aba ou abas diferentes)
-    const handleAuthChange = () => checkSession()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        setSession(session)
+        if (!session) {
+          if (!checkLegacySession()) {
+            setUser(null)
+          }
+          setLoading(false)
+        }
+      }
+    })
+
+    const handleAuthChange = () => {
+      if (!session) checkLegacySession()
+    }
     window.addEventListener('auth-change', handleAuthChange)
     window.addEventListener('storage', handleAuthChange)
 
     return () => {
       mounted = false
+      subscription.unsubscribe()
       window.removeEventListener('auth-change', handleAuthChange)
       window.removeEventListener('storage', handleAuthChange)
     }
-  }, [])
+  }, [session])
 
-  // Mantidos apenas para compatibilidade de tipagem, a lógica de login
-  // agora é tratada nas próprias páginas chamando a Edge Function do Supabase
-  const signUp = async () => {
-    console.warn('signUp via useAuth obsoleto. Utilize as funções do Supabase.')
-    return { error: new Error('Não implementado') }
+  // Effect to fetch user details when GoTrue session changes
+  useEffect(() => {
+    let mounted = true
+    if (session?.user?.email) {
+      supabase
+        .from('usuarios')
+        .select('*')
+        .eq('email', session.user.email)
+        .single()
+        .then(({ data }) => {
+          if (data && mounted) {
+            let role = data.tipo_usuario
+            if (role === 'admin') role = 'administrador'
+
+            setUser({
+              id: data.id,
+              email: data.email,
+              nome: data.nome || '',
+              tipo_usuario: data.tipo_usuario || 'cliente',
+              status: data.status || 'ativo',
+              role,
+            })
+          }
+          if (mounted) setLoading(false)
+        })
+        .catch(() => {
+          if (mounted) {
+            setUser(null)
+            setLoading(false)
+          }
+        })
+    }
+    return () => {
+      mounted = false
+    }
+  }, [session])
+
+  const signUp = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    })
+    return { error }
   }
 
-  const signIn = async () => {
-    console.warn('signIn via useAuth obsoleto. Utilize as funções do Supabase.')
-    return { error: new Error('Não implementado') }
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    return { error }
   }
 
-  const signOut = () => {
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut()
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
     setUser(null)
+    setSession(null)
     window.dispatchEvent(new Event('auth-change'))
+    return { error }
   }
 
   return (
-    <AuthContext.Provider value={{ user, signUp, signIn, signOut, loading }}>
+    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   )

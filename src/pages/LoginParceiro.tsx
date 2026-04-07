@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function LoginParceiro() {
   const [email, setEmail] = useState('')
@@ -21,17 +22,37 @@ export default function LoginParceiro() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { signIn } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.functions.invoke('login', {
-        body: { email, password },
-      })
+      let authSuccess = false
+      let userData = null
 
-      if (error || data?.error) {
+      const { error: goTrueError } = await signIn(email, password)
+
+      if (!goTrueError) {
+        authSuccess = true
+        const { data } = await supabase.from('usuarios').select('*').eq('email', email).single()
+        userData = data
+      } else {
+        const { data, error } = await supabase.functions.invoke('login', {
+          body: { email, password },
+        })
+
+        if (!error && !data?.error && data?.token) {
+          authSuccess = true
+          userData = data.user
+          localStorage.setItem('custom_jwt_token', data.token)
+          localStorage.setItem('user_info', JSON.stringify(data.user))
+          window.dispatchEvent(new Event('auth-change'))
+        }
+      }
+
+      if (!authSuccess || !userData) {
         toast({
           title: 'Erro ao fazer login',
           description: 'Credenciais inválidas.',
@@ -41,48 +62,42 @@ export default function LoginParceiro() {
         return
       }
 
-      if (data?.token) {
-        const user = data.user
-
-        if (user?.tipo_usuario !== 'parceiro') {
-          toast({
-            title: 'Acesso negado',
-            description: 'Esta área é exclusiva para parceiros.',
-            variant: 'destructive',
-          })
-          setLoading(false)
-          return
-        }
-
-        if (user?.status === 'pendente_aprovacao') {
-          toast({
-            title: 'Aguardando Aprovação',
-            description: 'Sua solicitação aguarda aprovação.',
-            variant: 'destructive',
-          })
-        } else if (user?.status === 'rejeitado') {
-          toast({
-            title: 'Cadastro Rejeitado',
-            description: 'Sua solicitação não foi aceita.',
-            variant: 'destructive',
-          })
-        } else {
-          localStorage.setItem('custom_jwt_token', data.token)
-          localStorage.setItem('user_info', JSON.stringify(data.user))
-          window.dispatchEvent(new Event('auth-change'))
-          setTimeout(() => navigate('/portal/parceiro'), 0)
-        }
-      } else {
+      if (userData.tipo_usuario !== 'parceiro' && userData.tipo_usuario !== 'admin') {
         toast({
-          title: 'Erro ao fazer login',
-          description: 'Credenciais inválidas.',
+          title: 'Acesso negado',
+          description: 'Esta área é exclusiva para parceiros.',
           variant: 'destructive',
         })
+        if (!goTrueError) await supabase.auth.signOut()
+        setLoading(false)
+        return
+      }
+
+      if (userData.status === 'pendente_aprovacao') {
+        toast({
+          title: 'Aguardando Aprovação',
+          description: 'Sua solicitação aguarda aprovação.',
+          variant: 'destructive',
+        })
+        if (!goTrueError) await supabase.auth.signOut()
+      } else if (userData.status === 'rejeitado') {
+        toast({
+          title: 'Cadastro Rejeitado',
+          description: 'Sua solicitação não foi aceita.',
+          variant: 'destructive',
+        })
+        if (!goTrueError) await supabase.auth.signOut()
+      } else {
+        toast({
+          title: 'Login realizado com sucesso',
+          description: 'Redirecionando...',
+        })
+        setTimeout(() => navigate('/portal/parceiro'), 500)
       }
     } catch (err) {
       toast({
         title: 'Erro ao fazer login',
-        description: 'Credenciais inválidas.',
+        description: 'Ocorreu um erro inesperado.',
         variant: 'destructive',
       })
     } finally {
