@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export function useAdmin() {
   const { user, loading: authLoading } = useAuth()
@@ -10,11 +10,29 @@ export function useAdmin() {
   useEffect(() => {
     if (authLoading) return
 
-    if (user?.role === 'administrador') {
-      pb.collection('administradores')
-        .getFirstListItem(`usuario_id="${user.id}"`)
-        .then((record) => {
-          setPermissions(record.permissoes || [])
+    if (user?.role === 'administrador' && user.id) {
+      supabase
+        .from('administradores')
+        .select('permissoes')
+        .eq('usuario_id', user.id)
+        .single()
+        .then(({ data, error }) => {
+          if (error || !data) {
+            setPermissions([])
+            return
+          }
+
+          let perms: string[] = []
+          if (Array.isArray(data.permissoes)) {
+            perms = data.permissoes as string[]
+          } else if (data.permissoes && typeof data.permissoes === 'object') {
+            if ((data.permissoes as any).todas) {
+              perms = ['*']
+            } else {
+              perms = Object.keys(data.permissoes).filter((k) => (data.permissoes as any)[k])
+            }
+          }
+          setPermissions(perms)
         })
         .catch(() => {
           setPermissions([])
