@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import {
   Table,
   TableBody,
@@ -33,7 +33,40 @@ const LIABILITY_HIERARCHY = [
   { id: 'outrasObrigacoesLongoPrazo', label: 'OUTRAS OBRIGAÇÕES NÃO-CIRCULANTES', isInput: true },
 ]
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  render() {
+    if (this.state.hasError)
+      return (
+        <div className="p-4 text-red-500">
+          Erro ao carregar a tabela. Por favor, recarregue a página.
+        </div>
+      )
+    return this.props.children
+  }
+}
+
 export function DetailedLiabilityTable({
+  isEditable,
+  years,
+}: {
+  isEditable?: boolean
+  years?: number[]
+}) {
+  return (
+    <ErrorBoundary>
+      <DetailedLiabilityTableContent isEditable={isEditable} years={years} />
+    </ErrorBoundary>
+  )
+}
+
+function DetailedLiabilityTableContent({
   isEditable,
   years,
 }: {
@@ -46,7 +79,7 @@ export function DetailedLiabilityTable({
 
   // Assegurando que qualquer validação de datas na tabela ou componentes filhos
   // tenha um fallback consistente e evite erros com react-day-picker (null/undefined)
-  const defaultDate = new Date()
+  const [defaultDate] = useState<Date>(new Date())
 
   const clearData = () => {
     displayYears.forEach((y) => {

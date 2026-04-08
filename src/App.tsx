@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
@@ -86,8 +87,36 @@ const RootRedirect = () => {
   return <Navigate to="/consult-plan/home" replace />
 }
 
+const SessionCleaner = () => {
+  useEffect(() => {
+    const checkSession = () => {
+      try {
+        const keys = Object.keys(localStorage)
+        for (const key of keys) {
+          if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+            const authData = localStorage.getItem(key)
+            if (authData) {
+              const parsed = JSON.parse(authData)
+              // Limpa sessões conflitantes ou erros de autenticação
+              if (parsed?.error || (parsed?.user && !parsed?.user?.id)) {
+                localStorage.removeItem(key)
+                window.location.href = '/login'
+              }
+            }
+          }
+        }
+      } catch (err) {
+        // Fail silently
+      }
+    }
+    checkSession()
+  }, [])
+  return null
+}
+
 const App = () => (
   <AuthProvider>
+    <SessionCleaner />
     <FinancialProvider>
       <EconomicProvider>
         <PaymentCapacityMLProvider>
