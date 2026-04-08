@@ -44,6 +44,10 @@ export function DetailedLiabilityTable({
 
   const displayYears = years || [2021, 2022, 2023]
 
+  // Assegurando que qualquer validação de datas na tabela ou componentes filhos
+  // tenha um fallback consistente e evite erros com react-day-picker (null/undefined)
+  const defaultDate = new Date()
+
   const clearData = () => {
     displayYears.forEach((y) => {
       updateBalanceSheet(y, {

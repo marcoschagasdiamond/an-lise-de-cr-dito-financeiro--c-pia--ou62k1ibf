@@ -18,6 +18,10 @@ export default function AdminLogin() {
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
+
+    // Limpeza profunda para garantir a remoção da memória antiga
+    sessionStorage.clear()
+
     supabase.auth.signOut().catch(() => {})
   }, [])
 
