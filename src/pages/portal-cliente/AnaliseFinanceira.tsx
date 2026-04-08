@@ -1,177 +1,130 @@
-import { Header } from '@/components/Header'
-import { useFinancialStore } from '@/store/main'
-import { CategorySelection } from '@/components/data-entry/CategorySelection'
-import { CompanyRegistration } from '@/components/data-entry/CompanyRegistration'
-import { FormContainer } from '@/components/data-entry/FormContainer'
-import { FinancialDataTab } from '@/components/data-entry/FinancialDataTab'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LineChart, TrendingUp, Calculator, Layers, Archive } from 'lucide-react'
-import { PaymentCapacity } from '@/components/data-entry/economic/PaymentCapacity'
-import { NetResultProjection } from '@/components/data-entry/economic/NetResultProjection'
-import { FinancialIndicators } from '@/components/data-entry/economic/FinancialIndicators'
-import { EconomicValue } from '@/components/data-entry/economic/EconomicValue'
-import { ScenarioManager } from '@/components/data-entry/ScenarioManager'
-import { SavedAnalyses } from '@/components/data-entry/SavedAnalyses'
-import { cn } from '@/lib/utils'
-import { useSearchParams, Link } from 'react-router-dom'
-import { useEffect } from 'react'
-import pb from '@/lib/pocketbase/client'
-import { ArrowLeft } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useAuth } from '@/hooks/use-auth'
+import { supabase } from '@/lib/supabase/client'
+import { Loader2, FileText, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 
-export default function AnaliseFinanceira() {
-  const { currentStep, category, printMode } = useFinancialStore()
-  const [searchParams] = useSearchParams()
-  const projectId = searchParams.get('projectId')
+export default function AnaliseFinanceiraPage() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [analises, setAnalises] = useState<any[]>([])
 
   useEffect(() => {
-    const initFromProject = async () => {
-      if (!projectId) return
-      try {
-        const project = await pb.collection('projetos').getOne(projectId, { expand: 'cliente_id' })
-        const client = project.expand?.cliente_id
-        if (client) {
-          const mappedCategory =
-            project.tipo_empresa === 'inicial'
-              ? 'Startups e Empresas em Fase Inicial'
-              : project.tipo_empresa === 'pequena'
-                ? 'Micro e Pequenas Empresas'
-                : 'Média e Grande Porte'
+    async function loadData() {
+      if (!user?.id) {
+        setLoading(false)
+        return
+      }
 
-          if ((useFinancialStore as any).setState) {
-            ;(useFinancialStore as any).setState((state: any) => ({
-              ...state,
-              category: mappedCategory,
-              companyData: {
-                ...state.companyData,
-                cnpj: client.cnpj || '',
-                razaoSocial: client.razao_social || client.nome,
-                telefone: client.telefone || '',
-                email: client.email || '',
-              },
-              currentStep: 3,
-            }))
-            toast.success('Dados do projeto importados com sucesso!')
-          }
+      try {
+        const { data, error } = await supabase
+          .from('analises')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (!error && data) {
+          setAnalises(data)
         }
-      } catch (e) {
-        console.error('Error loading project data for analysis', e)
+      } catch (err) {
+        console.error('Erro ao carregar análises:', err)
+      } finally {
+        setLoading(false)
       }
     }
-    initFromProject()
-  }, [projectId])
+
+    loadData()
+  }, [user])
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-slate-50/50 dark:bg-background print:h-auto print:overflow-visible print:bg-white print:dark:bg-white print:text-black">
-      <div className="print:hidden">
-        <Header title="Análise Financeira" />
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Análise Financeira</h1>
+          <p className="text-muted-foreground mt-1">
+            Acompanhe suas análises de crédito e diagnósticos financeiros.
+          </p>
+        </div>
       </div>
 
-      <div className="p-6 md:p-8 max-w-6xl mx-auto w-full pb-20 print:p-0 print:max-w-none print:w-full print:m-0">
-        {projectId && (
-          <div className="mb-6 print:hidden">
-            <Button variant="outline" asChild>
-              <Link to="/portal-cliente/meu-projeto">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar para Meu Projeto
-              </Link>
-            </Button>
-          </div>
-        )}
-
-        {currentStep < 3 ? (
-          <div className="w-full">
-            {currentStep === 1 && <CategorySelection />}
-            {currentStep === 2 && <CompanyRegistration />}
-          </div>
-        ) : (
-          <Tabs defaultValue="contabeis" className="w-full animate-fade-in print:block">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-8 h-auto sm:h-12 print:hidden">
-              <TabsTrigger value="contabeis" className="gap-2 text-sm sm:text-base py-2 sm:py-1.5">
-                <Calculator className="w-4 h-4 hidden xl:block" />
-                Dados Contábeis
-              </TabsTrigger>
-              <TabsTrigger
-                value="financeiros"
-                className="gap-2 text-sm sm:text-base py-2 sm:py-1.5"
-              >
-                <LineChart className="w-4 h-4 hidden xl:block" />
-                Dados Financeiros
-              </TabsTrigger>
-              <TabsTrigger value="economica" className="gap-2 text-sm sm:text-base py-2 sm:py-1.5">
-                <TrendingUp className="w-4 h-4 hidden xl:block" />
-                Econômica
-              </TabsTrigger>
-              <TabsTrigger value="cenarios" className="gap-2 text-sm sm:text-base py-2 sm:py-1.5">
-                <Layers className="w-4 h-4 hidden xl:block" />
-                Cenários
-              </TabsTrigger>
-              <TabsTrigger value="arquivados" className="gap-2 text-sm sm:text-base py-2 sm:py-1.5">
-                <Archive className="w-4 h-4 hidden xl:block" />
-                Salvas
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent
-              value="contabeis"
-              className={cn(
-                'mt-0 outline-none',
-                printMode === 'comparison' ? 'print:hidden' : 'print:block',
-              )}
-            >
-              <FormContainer />
-            </TabsContent>
-
-            <TabsContent value="financeiros" className="mt-0 outline-none print:hidden">
-              <FinancialDataTab />
-            </TabsContent>
-
-            <TabsContent value="economica" className="mt-0 outline-none print:hidden">
-              {category === 'Média e Grande Porte' ? (
-                <div className="space-y-8 animate-fade-in-up mt-8">
-                  <div className="flex flex-col gap-2 mb-6">
-                    <h2 className="text-2xl font-bold tracking-tight">Avaliação Econômica</h2>
-                    <p className="text-muted-foreground">
-                      Preencha as informações detalhadas de capacidade de pagamento, projeções,
-                      indicadores e valuation.
-                    </p>
+      {loading ? (
+        <div className="flex justify-center items-center h-64 border rounded-lg bg-slate-50/50">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : analises.length === 0 ? (
+        <Card className="border-dashed shadow-sm">
+          <CardHeader className="text-center pb-8 pt-10">
+            <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+              <FileText className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-xl">Nenhuma análise encontrada</CardTitle>
+            <CardDescription className="max-w-md mx-auto mt-2">
+              Você ainda não possui análises financeiras registradas. Suas análises processadas
+              aparecerão aqui.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {analises.map((analise) => (
+            <Card key={analise.id} className="overflow-hidden">
+              <div className="h-2 w-full bg-primary" />
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-lg">Análise de Crédito</CardTitle>
+                    <CardDescription className="mt-1">
+                      {new Date(analise.created_at).toLocaleDateString()}
+                    </CardDescription>
                   </div>
-                  <PaymentCapacity />
-                  <NetResultProjection />
-                  <FinancialIndicators />
-                  <EconomicValue />
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      analise.status === 'concluido'
+                        ? 'bg-green-100 text-green-800'
+                        : analise.status === 'em_analise'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-slate-100 text-slate-800'
+                    }`}
+                  >
+                    {analise.status === 'concluido'
+                      ? 'Concluído'
+                      : analise.status === 'em_analise'
+                        ? 'Em Análise'
+                        : 'Pendente'}
+                  </span>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed rounded-lg bg-card text-card-foreground shadow-sm mt-8 animate-fade-in-up">
-                  <div className="rounded-full bg-primary/10 p-5 mb-4">
-                    <TrendingUp className="w-10 h-10 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Faturamento</p>
+                      <p className="font-medium">
+                        {analise.faturamento_anual
+                          ? `R$ ${Number(analise.faturamento_anual).toLocaleString('pt-BR')}`
+                          : 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Score</p>
+                      <p className="font-medium">{analise.score || 'N/A'}</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Avaliação Econômica</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Esta seção está reservada para empresas de Média e Grande Porte, oferecendo
-                    análise detalhada de valuation, projeções e capacidade de pagamento.
-                  </p>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-4"
+                    disabled={analise.status !== 'concluido'}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Baixar Relatório
+                  </Button>
                 </div>
-              )}
-            </TabsContent>
-
-            <TabsContent
-              value="cenarios"
-              className={cn(
-                'mt-0 outline-none',
-                printMode === 'comparison' ? 'print:block' : 'print:hidden',
-              )}
-            >
-              <ScenarioManager />
-            </TabsContent>
-
-            <TabsContent value="arquivados" className="mt-0 outline-none print:hidden">
-              <SavedAnalyses />
-            </TabsContent>
-          </Tabs>
-        )}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
