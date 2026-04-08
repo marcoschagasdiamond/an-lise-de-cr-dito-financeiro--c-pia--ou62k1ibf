@@ -51,6 +51,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (error) {
         console.error('Erro ao validar sessão legada:', error)
+        localStorage.removeItem('custom_jwt_token')
+        localStorage.removeItem('user_info')
+        localStorage.removeItem('admin_token')
       }
       return false
     }
@@ -124,6 +127,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (mounted) {
             setUser(null)
             setLoading(false)
+
+            localStorage.removeItem('custom_jwt_token')
+            localStorage.removeItem('user_info')
+            localStorage.removeItem('admin_token')
+            supabase.auth.signOut().catch(() => {})
           }
         })
     }

@@ -988,6 +988,33 @@ export type Database = {
           },
         ]
       }
+      solicitacoes_parceria: {
+        Row: {
+          created_at: string
+          email: string
+          empresa: string | null
+          id: string
+          mensagem: string | null
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          empresa?: string | null
+          id?: string
+          mensagem?: string | null
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          empresa?: string | null
+          id?: string
+          mensagem?: string | null
+          nome?: string
+        }
+        Relationships: []
+      }
       usuarios: {
         Row: {
           data_criacao: string | null
@@ -1380,6 +1407,13 @@ export const Constants = {
 //   parametros: jsonb (nullable)
 //   resultado: jsonb (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: solicitacoes_parceria
+//   id: uuid (not null, default: gen_random_uuid())
+//   nome: text (not null)
+//   email: text (not null)
+//   empresa: text (nullable)
+//   mensagem: text (nullable)
+//   created_at: timestamp with time zone (not null, default: now())
 // Table: usuarios
 //   id: uuid (not null, default: gen_random_uuid())
 //   email: text (not null)
@@ -1468,6 +1502,8 @@ export const Constants = {
 // Table: simulacoes_financeiras
 //   FOREIGN KEY simulacoes_financeiras_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY simulacoes_financeiras_pkey: PRIMARY KEY (id)
+// Table: solicitacoes_parceria
+//   PRIMARY KEY solicitacoes_parceria_pkey: PRIMARY KEY (id)
 // Table: usuarios
 //   UNIQUE usuarios_email_key: UNIQUE (email)
 //   PRIMARY KEY usuarios_pkey: PRIMARY KEY (id)
@@ -1565,6 +1601,11 @@ export const Constants = {
 // Table: simulacoes_financeiras
 //   Policy "authenticated_all_simulacoes" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
+//     WITH CHECK: true
+// Table: solicitacoes_parceria
+//   Policy "allow_admin_select" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid())))
+//   Policy "allow_anonymous_insert" (INSERT, PERMISSIVE) roles={public}
 //     WITH CHECK: true
 // Table: usuarios
 //   Policy "authenticated_all_usuarios" (ALL, PERMISSIVE) roles={authenticated}

@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [useMagicLink, setUseMagicLink] = useState(true)
   const navigate = useNavigate()
   const { toast } = useToast()
 
@@ -27,14 +28,39 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      if (useMagicLink) {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        })
+
+        if (error) {
+          throw error
+        }
+
+        toast({
+          title: 'Link enviado!',
+          description: 'Verifique seu e-mail para acessar o sistema.',
+        })
+        setLoading(false)
+        return
+      }
+
       const { data, error } = await supabase.functions.invoke('login', {
         body: { email, password },
       })
 
       if (error || data?.error) {
+        localStorage.removeItem('custom_jwt_token')
+        localStorage.removeItem('user_info')
+        localStorage.removeItem('admin_token')
+        await supabase.auth.signOut().catch(() => {})
+
         toast({
           title: 'Erro ao fazer login',
-          description: 'Credenciais inválidas.',
+          description: 'Credenciais inválidas. Tente usar o Acesso sem Senha (Link Mágico).',
           variant: 'destructive',
         })
         setLoading(false)
@@ -109,22 +135,35 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+
+            {!useMagicLink && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Entrar
+              {useMagicLink ? 'Enviar Link Mágico' : 'Entrar'}
             </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full text-sm"
+              onClick={() => setUseMagicLink(!useMagicLink)}
+            >
+              {useMagicLink ? 'Acessar com Senha' : 'Acesso sem Senha (Link Mágico)'}
+            </Button>
+
             <div className="text-sm text-center text-muted-foreground">
               Não tem uma conta?{' '}
               <Link to="/signup" className="text-primary hover:underline">
