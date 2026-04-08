@@ -1638,6 +1638,7 @@ export const Constants = {
 // Table: usuarios
 //   UNIQUE usuarios_email_key: UNIQUE (email)
 //   PRIMARY KEY usuarios_pkey: PRIMARY KEY (id)
+//   CHECK usuarios_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text])))
 //   CHECK usuarios_tipo_usuario_check: CHECK ((tipo_usuario = ANY (ARRAY['cliente'::text, 'parceiro'::text, 'admin'::text])))
 
 // --- ROW LEVEL SECURITY POLICIES ---

@@ -160,7 +160,7 @@ export default function ConsultPlanFunding() {
       <Dialog open={!!selectedSource} onOpenChange={(open) => !open && setSelectedSource(null)}>
         <DialogContent className="sm:max-w-[550px]">
           {selectedSource && (
-            <>
+            <div>
               <DialogHeader>
                 <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-4 text-blue-700">
                   <selectedSource.icon className="w-6 h-6" />
@@ -189,7 +189,7 @@ export default function ConsultPlanFunding() {
                   </ul>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
