@@ -832,6 +832,105 @@ export type Database = {
           },
         ]
       }
+      permissoes_admin: {
+        Row: {
+          criado_em: string
+          id: string
+          pode_aprovar_parceiros: boolean
+          pode_gerenciar_admins: boolean
+          pode_gerenciar_clientes: boolean
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          pode_aprovar_parceiros?: boolean
+          pode_gerenciar_admins?: boolean
+          pode_gerenciar_clientes?: boolean
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          pode_aprovar_parceiros?: boolean
+          pode_gerenciar_admins?: boolean
+          pode_gerenciar_clientes?: boolean
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'permissoes_admin_usuario_id_fkey'
+            columns: ['usuario_id']
+            isOneToOne: false
+            referencedRelation: 'usuarios'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      permissoes_cliente: {
+        Row: {
+          criado_em: string
+          id: string
+          pode_enviar_documentos: boolean
+          pode_ver_projetos: boolean
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          pode_enviar_documentos?: boolean
+          pode_ver_projetos?: boolean
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          pode_enviar_documentos?: boolean
+          pode_ver_projetos?: boolean
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'permissoes_cliente_usuario_id_fkey'
+            columns: ['usuario_id']
+            isOneToOne: false
+            referencedRelation: 'usuarios'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      permissoes_parceiro: {
+        Row: {
+          criado_em: string
+          id: string
+          pode_gerenciar_clientes: boolean
+          pode_ver_comissoes: boolean
+          usuario_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          pode_gerenciar_clientes?: boolean
+          pode_ver_comissoes?: boolean
+          usuario_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          pode_gerenciar_clientes?: boolean
+          pode_ver_comissoes?: boolean
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'permissoes_parceiro_usuario_id_fkey'
+            columns: ['usuario_id']
+            isOneToOne: false
+            referencedRelation: 'usuarios'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       pipeline_demandas: {
         Row: {
           cliente_id: string | null
@@ -1017,6 +1116,7 @@ export type Database = {
       }
       usuarios: {
         Row: {
+          criado_em: string | null
           data_criacao: string | null
           email: string
           id: string
@@ -1026,6 +1126,7 @@ export type Database = {
           tipo_usuario: string | null
         }
         Insert: {
+          criado_em?: string | null
           data_criacao?: string | null
           email: string
           id?: string
@@ -1035,6 +1136,7 @@ export type Database = {
           tipo_usuario?: string | null
         }
         Update: {
+          criado_em?: string | null
           data_criacao?: string | null
           email?: string
           id?: string
@@ -1376,6 +1478,25 @@ export const Constants = {
 //   comissao_percentual: numeric (nullable)
 //   status: text (nullable)
 //   data_cadastro: timestamp with time zone (nullable, default: now())
+// Table: permissoes_admin
+//   id: uuid (not null, default: gen_random_uuid())
+//   usuario_id: uuid (not null)
+//   pode_aprovar_parceiros: boolean (not null, default: false)
+//   pode_gerenciar_clientes: boolean (not null, default: false)
+//   pode_gerenciar_admins: boolean (not null, default: false)
+//   criado_em: timestamp with time zone (not null, default: now())
+// Table: permissoes_cliente
+//   id: uuid (not null, default: gen_random_uuid())
+//   usuario_id: uuid (not null)
+//   pode_ver_projetos: boolean (not null, default: false)
+//   pode_enviar_documentos: boolean (not null, default: false)
+//   criado_em: timestamp with time zone (not null, default: now())
+// Table: permissoes_parceiro
+//   id: uuid (not null, default: gen_random_uuid())
+//   usuario_id: uuid (not null)
+//   pode_gerenciar_clientes: boolean (not null, default: false)
+//   pode_ver_comissoes: boolean (not null, default: false)
+//   criado_em: timestamp with time zone (not null, default: now())
 // Table: pipeline_demandas
 //   id: uuid (not null, default: gen_random_uuid())
 //   parceiro_id: uuid (nullable)
@@ -1422,6 +1543,7 @@ export const Constants = {
 //   tipo_usuario: text (nullable)
 //   status: text (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
+//   criado_em: timestamp with time zone (nullable, default: now())
 
 // --- CONSTRAINTS ---
 // Table: acompanhamento_projetos
@@ -1488,6 +1610,15 @@ export const Constants = {
 //   PRIMARY KEY parceiros_pkey: PRIMARY KEY (id)
 //   CHECK parceiros_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text, 'pendente'::text])))
 //   FOREIGN KEY parceiros_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+// Table: permissoes_admin
+//   PRIMARY KEY permissoes_admin_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY permissoes_admin_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+// Table: permissoes_cliente
+//   PRIMARY KEY permissoes_cliente_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY permissoes_cliente_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+// Table: permissoes_parceiro
+//   PRIMARY KEY permissoes_parceiro_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY permissoes_parceiro_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 // Table: pipeline_demandas
 //   FOREIGN KEY pipeline_demandas_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   FOREIGN KEY pipeline_demandas_parceiro_id_fkey: FOREIGN KEY (parceiro_id) REFERENCES parceiros(id) ON DELETE CASCADE
@@ -1584,6 +1715,18 @@ export const Constants = {
 //     WITH CHECK: true
 // Table: parceiros
 //   Policy "authenticated_all_parceiros" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: permissoes_admin
+//   Policy "authenticated_all_permissoes_admin" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: permissoes_cliente
+//   Policy "authenticated_all_permissoes_cliente" (ALL, PERMISSIVE) roles={authenticated}
+//     USING: true
+//     WITH CHECK: true
+// Table: permissoes_parceiro
+//   Policy "authenticated_all_permissoes_parceiro" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
 // Table: pipeline_demandas
