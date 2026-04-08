@@ -1,195 +1,135 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Header } from '@/components/Header'
-import { useAuth } from '@/hooks/use-auth'
-import pb from '@/lib/pocketbase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { ConferenciaEnvio } from '@/components/projetos/ConferenciaEnvio'
-import { useRealtime } from '@/hooks/use-realtime'
-import { Loader2, ArrowRight } from 'lucide-react'
+import { Plus, MoreHorizontal, Calendar } from 'lucide-react'
+
+// Mock data to replace Pocketbase integration temporarily
+const mockDemandas = [
+  {
+    id: '1',
+    titulo: 'Análise de Crédito',
+    empresa: 'Tech Solutions Ltda',
+    valor: 'R$ 50.000',
+    status: 'Novo',
+    data: '12/05/2026',
+  },
+  {
+    id: '2',
+    titulo: 'Renovação de Limite',
+    empresa: 'Comercial Varejista S.A.',
+    valor: 'R$ 120.000',
+    status: 'Em Análise',
+    data: '10/05/2026',
+  },
+  {
+    id: '3',
+    titulo: 'Financiamento',
+    empresa: 'Indústria Metálica SA',
+    valor: 'R$ 500.000',
+    status: 'Aprovado',
+    data: '08/05/2026',
+  },
+  {
+    id: '4',
+    titulo: 'Capital de Giro',
+    empresa: 'Serviços de Logística',
+    valor: 'R$ 200.000',
+    status: 'Recusado',
+    data: '05/05/2026',
+  },
+  {
+    id: '5',
+    titulo: 'Antecipação',
+    empresa: 'Tech Solutions Ltda',
+    valor: 'R$ 30.000',
+    status: 'Em Análise',
+    data: '13/05/2026',
+  },
+]
+
+const columns = [
+  { id: 'Novo', title: 'Novas Demandas', color: 'bg-slate-100' },
+  { id: 'Em Análise', title: 'Em Análise', color: 'bg-blue-50' },
+  { id: 'Aprovado', title: 'Aprovado', color: 'bg-emerald-50' },
+  { id: 'Recusado', title: 'Recusado', color: 'bg-rose-50' },
+]
 
 export default function PipelineDemandas() {
-  const { user } = useAuth()
-  const [projetos, setProjetos] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedProjeto, setSelectedProjeto] = useState<any | null>(null)
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-
-  const loadProjetos = async () => {
-    try {
-      const res = await pb.collection('projetos').getFullList({
-        expand: 'cliente_id',
-        sort: '-created',
-      })
-      setProjetos(res)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (user) loadProjetos()
-  }, [user])
-
-  useRealtime('projetos', () => loadProjetos())
-
-  const getFaseGroup = (fase: number) => {
-    if (!fase || fase <= 3) return '1-3'
-    if (fase <= 6) return '4-6'
-    if (fase <= 8) return '7-8'
-    return '9+'
-  }
-
-  const columns = [
-    { id: '1-3', title: 'Fase Inicial (1-3)' },
-    { id: '4-6', title: 'Análise (4-6)' },
-    { id: '7-8', title: 'Estruturação (7-8)' },
-    { id: '9+', title: 'Envio aos Bancos (9+)' },
-  ]
-
-  const groupedProjetos = columns.map((col) => ({
-    ...col,
-    items: projetos.filter((p) => getFaseGroup(p.fase_atual) === col.id),
-  }))
-
-  const openProjeto = (p: any) => {
-    setSelectedProjeto(p)
-    setIsSheetOpen(true)
-  }
-
-  const avancaFase = async (id: string, currentFase: number) => {
-    try {
-      const novaFase = (currentFase || 1) + 1
-      await pb.collection('projetos').update(id, { fase_atual: novaFase })
-      if (selectedProjeto?.id === id) {
-        setSelectedProjeto({ ...selectedProjeto, fase_atual: novaFase })
-      }
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-muted/20">
-      <Header title="Pipeline de Demandas" />
+    <div className="flex flex-col h-full overflow-y-auto bg-slate-50/50">
+      <Header title="Portal do Parceiro" />
 
-      {loading ? (
-        <div className="flex flex-1 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8 animate-fade-in-up">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+              Pipeline de Demandas
+            </h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Acompanhe o status das solicitações de crédito dos seus clientes.
+            </p>
+          </div>
+          <Button className="shrink-0 bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Demanda
+          </Button>
         </div>
-      ) : (
-        <ScrollArea className="flex-1 p-4 md:p-6">
-          <div className="flex gap-6 h-full items-start min-w-max pb-8 animate-fade-in">
-            {groupedProjetos.map((col) => (
-              <div
-                key={col.id}
-                className="flex flex-col w-80 shrink-0 bg-muted/50 rounded-xl p-4 gap-4 border"
-              >
-                <div className="flex items-center justify-between px-1">
-                  <h3 className="font-semibold text-sm text-foreground/80">{col.title}</h3>
-                  <Badge variant="secondary">{col.items.length}</Badge>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {col.items.map((p) => (
+
+        <div className="flex gap-6 overflow-x-auto pb-4">
+          {columns.map((column) => (
+            <div
+              key={column.id}
+              className={`flex flex-col w-[320px] shrink-0 rounded-xl ${column.color} p-4 border border-border/50`}
+            >
+              <div className="flex items-center justify-between mb-4 px-1">
+                <h3 className="font-semibold text-slate-800">{column.title}</h3>
+                <span className="bg-white text-slate-600 text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                  {mockDemandas.filter((d) => d.status === column.id).length}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {mockDemandas
+                  .filter((d) => d.status === column.id)
+                  .map((demanda) => (
                     <Card
-                      key={p.id}
-                      className="cursor-pointer hover:border-primary/50 transition-colors shadow-sm"
-                      onClick={() => openProjeto(p)}
+                      key={demanda.id}
+                      className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                     >
-                      <CardHeader className="p-4 pb-2">
-                        <CardTitle className="text-base truncate">
-                          {p.expand?.cliente_id?.nome || 'Cliente não identificado'}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0 flex flex-col gap-2">
-                        <div className="text-xs text-muted-foreground flex justify-between">
-                          <span>Fase {p.fase_atual || 1}</span>
-                          <span>{new Date(p.created).toLocaleDateString('pt-BR')}</span>
+                      <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0">
+                        <div className="space-y-1">
+                          <CardTitle className="text-sm font-semibold text-slate-900 line-clamp-1">
+                            {demanda.titulo}
+                          </CardTitle>
+                          <p className="text-xs text-slate-500 font-medium">{demanda.empresa}</p>
                         </div>
-                        {p.valor_operacao > 0 && (
-                          <div className="text-sm font-medium mt-1">
-                            R$ {p.valor_operacao.toLocaleString('pt-BR')}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-slate-400 -mt-1 -mr-2"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-2">
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center text-xs text-slate-500">
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {demanda.data}
                           </div>
-                        )}
+                          <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">
+                            {demanda.valor}
+                          </span>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
-                  {col.items.length === 0 && (
-                    <div className="text-sm text-center py-8 border border-dashed rounded-lg text-muted-foreground bg-background/50">
-                      Vazio
-                    </div>
-                  )}
-                </div>
               </div>
-            ))}
-          </div>
-        </ScrollArea>
-      )}
-
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full sm:max-w-3xl overflow-y-auto bg-muted/10">
-          {selectedProjeto && (
-            <>
-              <SheetHeader className="mb-6">
-                <SheetTitle className="text-2xl">
-                  {selectedProjeto.expand?.cliente_id?.nome}
-                </SheetTitle>
-                <SheetDescription>
-                  Gerenciamento do projeto - Atualmente na{' '}
-                  <strong className="text-foreground">
-                    Fase {selectedProjeto.fase_atual || 1}
-                  </strong>
-                </SheetDescription>
-              </SheetHeader>
-
-              <div className="space-y-6">
-                {/* Simulation block to advance phase if not in phase 9 */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-background border rounded-lg shadow-sm gap-4">
-                  <div>
-                    <p className="text-sm font-medium">Avançar andamento do projeto</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Mova o projeto para a próxima fase se todos os requisitos atuais estiverem
-                      concluídos.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => avancaFase(selectedProjeto.id, selectedProjeto.fase_atual)}
-                    className="gap-2 shrink-0"
-                  >
-                    Próxima Fase
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {selectedProjeto.fase_atual >= 9 ? (
-                  <ConferenciaEnvio projeto={selectedProjeto} />
-                ) : (
-                  <div className="p-12 text-center border border-dashed rounded-lg bg-background">
-                    <h3 className="font-medium text-foreground mb-2">
-                      Painel de Envio Indisponível
-                    </h3>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                      Avance o projeto para a <strong>Fase 9</strong> para liberar a conferência de
-                      documentos e o módulo de envio para instituições financeiras.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
