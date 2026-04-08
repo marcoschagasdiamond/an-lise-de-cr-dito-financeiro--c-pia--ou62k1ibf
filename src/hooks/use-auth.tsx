@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true
 
-    const checkLegacySession = () => {
+    const checkLegacySession = (currentSession?: Session | null) => {
       try {
         const token = localStorage.getItem('custom_jwt_token')
         const userInfoStr = localStorage.getItem('user_info')
@@ -44,6 +44,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const userInfo = JSON.parse(userInfoStr)
           let role = userInfo.tipo_usuario
           if (role === 'admin') role = 'administrador'
+
+          // Scripts de Limpeza Automática: Se houver conflito de e-mail entre Supabase e legacy, limpa legacy
+          if (currentSession?.user?.email && userInfo.email !== currentSession.user.email) {
+            console.warn('Conflito de sessão detectado. Limpando sessão legada.')
+            localStorage.removeItem('custom_jwt_token')
+            localStorage.removeItem('user_info')
+            localStorage.removeItem('admin_token')
+            return false
+          }
+
           if (mounted) {
             setUser({ ...userInfo, role })
           }
@@ -60,23 +70,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       // FORBIDDEN: no async/await inside this callback — sync only
-      setSession(session)
-      if (!session) {
+      setSession(newSession)
+      if (!newSession) {
         // If no GoTrue session, check legacy one last time
-        if (!checkLegacySession() && mounted) {
+        if (!checkLegacySession(newSession) && mounted) {
           setUser(null)
           setLoading(false)
         }
+      } else {
+        // If there is a GoTrue session, we verify if legacy conflicts
+        checkLegacySession(newSession)
       }
     })
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       if (mounted) {
-        setSession(session)
-        if (!session) {
-          if (!checkLegacySession()) {
+        setSession(initialSession)
+        if (!initialSession) {
+          if (!checkLegacySession(initialSession)) {
             setUser(null)
           }
           setLoading(false)
@@ -85,7 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })
 
     const handleAuthChange = () => {
-      if (!session) checkLegacySession()
+      if (!session) checkLegacySession(session)
     }
     window.addEventListener('auth-change', handleAuthChange)
     window.addEventListener('storage', handleAuthChange)
@@ -112,14 +125,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             let role = data.tipo_usuario
             if (role === 'admin') role = 'administrador'
 
-            setUser({
+            // Atualiza os dados locais para manter consistência
+            const newUserInfo = {
               id: data.id,
               email: data.email,
               nome: data.nome || '',
               tipo_usuario: data.tipo_usuario || 'cliente',
               status: data.status || 'ativo',
               role,
-            })
+            }
+
+            setUser(newUserInfo)
+            localStorage.setItem('user_info', JSON.stringify(newUserInfo))
           }
           if (mounted) setLoading(false)
         })
@@ -128,6 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(null)
             setLoading(false)
 
+            // Limpeza Automática
             localStorage.removeItem('custom_jwt_token')
             localStorage.removeItem('user_info')
             localStorage.removeItem('admin_token')

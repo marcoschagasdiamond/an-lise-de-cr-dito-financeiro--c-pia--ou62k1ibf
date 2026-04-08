@@ -27,6 +27,12 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    // Scripts de Limpeza Automática: Limpa sessões conflitantes antes de tentar um novo login
+    localStorage.removeItem('custom_jwt_token')
+    localStorage.removeItem('user_info')
+    localStorage.removeItem('admin_token')
+    await supabase.auth.signOut().catch(() => {})
+
     try {
       if (useMagicLink) {
         const { error } = await supabase.auth.signInWithOtp({
@@ -42,7 +48,7 @@ export default function LoginPage() {
 
         toast({
           title: 'Link enviado!',
-          description: 'Verifique seu e-mail para acessar o sistema.',
+          description: 'Verifique seu e-mail para acessar o sistema através do Link Mágico.',
         })
         setLoading(false)
         return

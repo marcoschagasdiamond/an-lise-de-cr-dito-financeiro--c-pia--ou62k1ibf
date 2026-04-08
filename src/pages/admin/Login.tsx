@@ -33,6 +33,12 @@ export default function AdminLogin() {
     e.preventDefault()
     setIsLoading(true)
 
+    // Limpeza Automática: Limpa sessões conflitantes antes do login de admin
+    localStorage.removeItem('custom_jwt_token')
+    localStorage.removeItem('user_info')
+    localStorage.removeItem('admin_token')
+    await supabase.auth.signOut().catch(() => {})
+
     try {
       const { data, error } = await supabase.functions.invoke('login', {
         body: { email, password },
