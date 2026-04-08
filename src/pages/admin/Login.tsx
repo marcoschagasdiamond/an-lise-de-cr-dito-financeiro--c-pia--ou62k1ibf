@@ -4,67 +4,51 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ShieldCheck } from 'lucide-react'
+import { ShieldCheck, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Desativado temporariamente para evitar loop de renderização (tela piscando) e redirecionamento automático
-  /*
   useEffect(() => {
-    const token = localStorage.getItem('admin_token')
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session || token) {
-        setTimeout(() => {
-          navigate('/admin/dashboard', { replace: true })
-        }, 0)
-      }
-    })
-  }, [navigate])
-  */
+    // Scripts de Limpeza Automática: ao montar a página de login, limpa resquícios de sessão antigas
+    localStorage.removeItem('custom_jwt_token')
+    localStorage.removeItem('user_info')
+    localStorage.removeItem('admin_token')
+    supabase.auth.signOut().catch(() => {})
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Limpeza Automática: Limpa sessões conflitantes antes do login de admin
+    // Scripts de Limpeza Automática: Limpa sessões conflitantes antes de tentar um novo login
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
     await supabase.auth.signOut().catch(() => {})
 
     try {
-      const { data, error } = await supabase.functions.invoke('login', {
-        body: { email, password },
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
       })
 
-      if (error || data?.error) {
-        toast.error('Credenciais inválidas.')
-        setIsLoading(false)
-        return
+      if (error) {
+        throw error
       }
 
-      if (data?.token && data?.user?.tipo_usuario === 'admin') {
-        localStorage.setItem('admin_token', data.token)
-        localStorage.setItem('custom_jwt_token', data.token)
-        localStorage.setItem('user_info', JSON.stringify(data.user))
-        window.dispatchEvent(new Event('auth-change'))
-        toast.success('Login efetuado com sucesso!')
-        setTimeout(() => {
-          navigate('/admin/dashboard')
-        }, 0)
-      } else {
-        toast.error('Credenciais inválidas.')
-        setIsLoading(false)
-      }
+      toast.success(
+        'Link enviado! Verifique seu e-mail para acessar o sistema com credenciais de Master.',
+      )
     } catch (err) {
-      toast.error('Ocorreu um erro inesperado ao tentar fazer login.')
+      toast.error('Ocorreu um erro inesperado ao tentar enviar o Link Mágico.')
+    } finally {
       setIsLoading(false)
     }
   }
@@ -79,9 +63,11 @@ export default function AdminLogin() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight text-[#002147] dark:text-white">
-            Painel Administrativo
+            Acesso Administrativo (Link Mágico)
           </CardTitle>
-          <CardDescription>Entre com suas credenciais de administrador</CardDescription>
+          <CardDescription>
+            Insira seu e-mail de administrador para receber o link de acesso
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -96,22 +82,13 @@ export default function AdminLogin() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
             <Button
               type="submit"
               className="w-full bg-[#002147] hover:bg-[#002147]/90 text-white"
               disabled={isLoading}
             >
-              {isLoading ? 'Entrando...' : 'Entrar no Sistema'}
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading ? 'Enviando...' : 'Enviar Link Mágico'}
             </Button>
           </form>
         </CardContent>

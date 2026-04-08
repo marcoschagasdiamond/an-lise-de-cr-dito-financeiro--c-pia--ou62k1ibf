@@ -40,19 +40,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const token = localStorage.getItem('custom_jwt_token')
         const userInfoStr = localStorage.getItem('user_info')
+
+        if (currentSession?.user?.email) {
+          if (userInfoStr) {
+            const userInfo = JSON.parse(userInfoStr)
+            // Scripts de Limpeza Automática: Se houver conflito de e-mail entre Supabase e legacy, limpa legacy
+            if (userInfo.email !== currentSession.user.email) {
+              console.warn('Conflito de sessão detectado. Limpando sessão legada.')
+              localStorage.removeItem('custom_jwt_token')
+              localStorage.removeItem('user_info')
+              localStorage.removeItem('admin_token')
+            }
+          }
+          return false
+        }
+
         if (token && userInfoStr) {
           const userInfo = JSON.parse(userInfoStr)
           let role = userInfo.tipo_usuario
           if (role === 'admin') role = 'administrador'
-
-          // Scripts de Limpeza Automática: Se houver conflito de e-mail entre Supabase e legacy, limpa legacy
-          if (currentSession?.user?.email && userInfo.email !== currentSession.user.email) {
-            console.warn('Conflito de sessão detectado. Limpando sessão legada.')
-            localStorage.removeItem('custom_jwt_token')
-            localStorage.removeItem('user_info')
-            localStorage.removeItem('admin_token')
-            return false
-          }
 
           if (mounted) {
             setUser({ ...userInfo, role })
@@ -72,7 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, newSession) => {
       // FORBIDDEN: no async/await inside this callback — sync only
-      setSession(newSession)
+      if (mounted) {
+        setSession(newSession)
+      }
       if (!newSession) {
         // If no GoTrue session, check legacy one last time
         if (!checkLegacySession(newSession) && mounted) {
