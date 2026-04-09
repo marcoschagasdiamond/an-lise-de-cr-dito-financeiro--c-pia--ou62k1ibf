@@ -72,13 +72,20 @@ import SolicitarParceria from '@/pages/SolicitarParceria'
 
 const RootRedirect = () => {
   const { user, loading } = useAuth()
-  if (loading) return null
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+      </div>
+    )
+  }
 
   if (user) {
-    if (user.role === 'administrador' || user.role === 'admin') {
+    if (user.role === 'administrador' || user.tipo_usuario === 'admin') {
       return <Navigate to="/admin/dashboard" replace />
     }
-    if (user.role === 'parceiro') {
+    if (user.role === 'parceiro' || user.tipo_usuario === 'parceiro') {
       return <Navigate to="/portal/parceiro" replace />
     }
     return <Navigate to="/portal-cliente/dashboard" replace />

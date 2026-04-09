@@ -39,15 +39,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userInfoStr = localStorage.getItem('user_info')
         if (userInfoStr) {
           const parsed = JSON.parse(userInfoStr)
-          return {
-            id: parsed.usuario_id || parsed.id,
-            email: parsed.email,
-            tipo_usuario: parsed.tipo_usuario,
-            role: parsed.tipo_usuario === 'admin' ? 'administrador' : parsed.tipo_usuario,
+          if (
+            parsed &&
+            typeof parsed === 'object' &&
+            (parsed.usuario_id || parsed.id) &&
+            parsed.email
+          ) {
+            return {
+              id: parsed.usuario_id || parsed.id,
+              email: parsed.email,
+              tipo_usuario: parsed.tipo_usuario || 'cliente',
+              role:
+                parsed.tipo_usuario === 'admin'
+                  ? 'administrador'
+                  : parsed.tipo_usuario || 'cliente',
+            }
           }
         }
       } catch (e) {
-        // fail silently
+        console.error('Erro ao ler user_info do localStorage', e)
+        localStorage.removeItem('user_info')
       }
       return null
     }
@@ -68,23 +79,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false)
         }
       } else {
-        // Salva apenas os dados essenciais da sessão sem queries adicionais
-        const tipo_usuario = currentSession.user.user_metadata?.tipo_usuario || 'cliente'
-        const userInfo = {
-          usuario_id: currentSession.user.id,
-          email: currentSession.user.email || '',
-          tipo_usuario: tipo_usuario,
-        }
-        localStorage.setItem('user_info', JSON.stringify(userInfo))
+        try {
+          // Salva apenas os dados essenciais da sessão sem queries adicionais
+          const tipo_usuario = currentSession.user.user_metadata?.tipo_usuario || 'cliente'
+          const userInfo = {
+            usuario_id: currentSession.user.id,
+            email: currentSession.user.email || '',
+            tipo_usuario: tipo_usuario,
+          }
+          localStorage.setItem('user_info', JSON.stringify(userInfo))
 
-        if (mounted) {
-          setUser({
-            id: userInfo.usuario_id,
-            email: userInfo.email,
-            tipo_usuario: userInfo.tipo_usuario,
-            role: userInfo.tipo_usuario === 'admin' ? 'administrador' : userInfo.tipo_usuario,
-          })
-          setLoading(false)
+          if (mounted) {
+            setUser({
+              id: userInfo.usuario_id,
+              email: userInfo.email,
+              tipo_usuario: userInfo.tipo_usuario,
+              role: userInfo.tipo_usuario === 'admin' ? 'administrador' : userInfo.tipo_usuario,
+            })
+            setLoading(false)
+          }
+        } catch (err) {
+          console.error('Erro ao salvar user_info na sessão', err)
+          if (mounted) {
+            const fallbackTipo = currentSession.user.user_metadata?.tipo_usuario || 'cliente'
+            setUser({
+              id: currentSession.user.id,
+              email: currentSession.user.email || '',
+              tipo_usuario: fallbackTipo,
+              role: fallbackTipo === 'admin' ? 'administrador' : fallbackTipo,
+            })
+            setLoading(false)
+          }
         }
       }
     }

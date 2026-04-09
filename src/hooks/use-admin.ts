@@ -39,7 +39,8 @@ export function useAdmin() {
 
           setPermissions(perms)
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('Erro ao buscar permissoes_admin:', err)
           if (mounted) setPermissions([])
         })
         .finally(() => {
