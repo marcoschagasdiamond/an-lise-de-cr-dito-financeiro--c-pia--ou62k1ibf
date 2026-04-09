@@ -51,26 +51,24 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
           table = 'permissoes_cliente'
 
         if (table) {
-          // Timeout de 5s para evitar travamento em caso de indisponibilidade
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 5000)
-
           try {
-            const { error } = await supabase
+            const fetchPromise = supabase
               .from(table as any)
               .select('id')
               .eq('usuario_id', user.id)
-              .abortSignal(controller.signal)
               .maybeSingle()
 
-            clearTimeout(timeoutId)
+            const timeoutPromise = new Promise<{ error: any }>((_, reject) => {
+              setTimeout(() => reject(new Error('TimeoutError')), 5000)
+            })
+
+            const { error } = await Promise.race([fetchPromise, timeoutPromise])
 
             if (error) {
               console.error(`Erro ao verificar tabela ${table}:`, error)
             }
           } catch (fetchError: any) {
-            clearTimeout(timeoutId)
-            if (fetchError.name === 'AbortError') {
+            if (fetchError.message === 'TimeoutError') {
               console.warn(`Timeout ao carregar permissões da tabela ${table}`)
             } else {
               throw fetchError

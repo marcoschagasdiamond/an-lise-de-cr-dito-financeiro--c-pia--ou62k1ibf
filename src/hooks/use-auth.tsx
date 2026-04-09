@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Erro ao ler user_info do localStorage', e)
         try {
           localStorage.removeItem('user_info')
-        } catch {} // Fail silently if quota exceeded or access denied
+        } catch (err) {} // Fail silently if quota exceeded or access denied
       }
       return null
     }
@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       mounted = false
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
       window.removeEventListener('auth-change', onStorageChange)
       window.removeEventListener('storage', onStorageChange)
       if (sessionTimeout) clearTimeout(sessionTimeout)
