@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
-import { Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
+import { Loader2, ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -14,10 +14,8 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [permissionsLoaded, setPermissionsLoaded] = useState(false)
   const [hasPermission, setHasPermission] = useState(false)
   const [loadingPerms, setLoadingPerms] = useState(true)
-  const [errorState, setErrorState] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -38,7 +36,6 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
       if (mounted) {
         setHasPermission(false)
         setLoadingPerms(false)
-        setPermissionsLoaded(true)
       }
       return
     }
@@ -96,7 +93,6 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
         }
       } finally {
         if (mounted) {
-          setPermissionsLoaded(true)
           setLoadingPerms(false)
         }
       }
@@ -108,28 +104,6 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
       mounted = false
     }
   }, [user, authLoading, allowedRoles])
-
-  if (errorState) {
-    return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-[#0A1128]">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-            <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-500" />
-          </div>
-          <h1 className="mb-2 text-2xl font-bold text-[#0A1128] dark:text-slate-50">
-            Erro de Conexão
-          </h1>
-          <p className="mb-6 text-slate-600 dark:text-slate-400">{errorState}</p>
-          <Button
-            onClick={() => window.location.reload()}
-            className="w-full bg-[#0A1128] text-white hover:bg-[#0A1128]/90 dark:bg-amber-500 dark:text-[#0A1128] dark:hover:bg-amber-600"
-          >
-            Tentar Novamente
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   if (authLoading || loadingPerms) {
     return (

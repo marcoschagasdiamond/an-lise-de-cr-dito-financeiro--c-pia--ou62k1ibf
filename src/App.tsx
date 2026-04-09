@@ -120,7 +120,7 @@ const SessionCleaner = () => {
                   localStorage.removeItem(key)
                   hasInvalidSession = true
                 }
-              } catch (e) {
+              } catch {
                 localStorage.removeItem(key)
                 hasInvalidSession = true
               }
@@ -130,7 +130,7 @@ const SessionCleaner = () => {
         if (hasInvalidSession) {
           window.location.href = '/login'
         }
-      } catch (err) {
+      } catch {
         // Fail silently se o localStorage estiver inacessível
       }
     }

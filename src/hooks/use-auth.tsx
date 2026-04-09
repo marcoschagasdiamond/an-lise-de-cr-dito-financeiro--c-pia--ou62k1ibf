@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Erro ao ler user_info do localStorage', e)
         try {
           localStorage.removeItem('user_info')
-        } catch (e) {} // Fail silently if quota exceeded or access denied
+        } catch {} // Fail silently if quota exceeded or access denied
       }
       return null
     }
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, newSession) => {
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (mounted) {
         setSession(newSession)
         handleSession(newSession)
