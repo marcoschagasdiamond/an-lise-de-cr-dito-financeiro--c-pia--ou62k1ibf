@@ -13,6 +13,22 @@ import { cn } from '@/lib/utils'
 export function CompanyRegistration() {
   const { companyDetails, setCompanyDetails, setCurrentStep, setCategory } = useFinancialStore()
 
+  const getSafeDate = (dateVal: any): Date | undefined => {
+    try {
+      if (!dateVal) return undefined
+      if (dateVal instanceof Date) return isNaN(dateVal.getTime()) ? undefined : dateVal
+      if (typeof dateVal === 'string') {
+        const parsed = new Date(dateVal)
+        return isNaN(parsed.getTime()) ? undefined : parsed
+      }
+      return undefined
+    } catch (e) {
+      return undefined
+    }
+  }
+
+  const safeDate = getSafeDate(companyDetails.dataFundacao)
+
   const handleBack = () => {
     setCategory(null)
     setCurrentStep(1)
@@ -171,12 +187,12 @@ export function CompanyRegistration() {
                     variant="outline"
                     className={cn(
                       'w-full h-11 justify-start text-left font-normal',
-                      !companyDetails.dataFundacao && 'text-muted-foreground',
+                      !safeDate && 'text-muted-foreground',
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {companyDetails.dataFundacao ? (
-                      format(companyDetails.dataFundacao, 'PP', { locale: ptBR })
+                    {safeDate ? (
+                      format(safeDate, 'PP', { locale: ptBR })
                     ) : (
                       <span>Selecione uma data</span>
                     )}
@@ -185,7 +201,7 @@ export function CompanyRegistration() {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={companyDetails.dataFundacao}
+                    selected={safeDate}
                     onSelect={(date) => setCompanyDetails({ dataFundacao: date })}
                     initialFocus
                   />

@@ -100,7 +100,7 @@ const RootRedirect = () => {
   }
 
   // Fallback padrão seguro para rota pública que sempre existe
-  return <Navigate to="/consult-plan/home" replace />
+  return <Navigate to="/login" replace />
 }
 
 const SessionCleaner = () => {
@@ -127,7 +127,7 @@ const SessionCleaner = () => {
             }
           }
         }
-        if (hasInvalidSession) {
+        if (hasInvalidSession && window.location.pathname !== '/login') {
           window.location.href = '/login'
         }
       } catch (err) {

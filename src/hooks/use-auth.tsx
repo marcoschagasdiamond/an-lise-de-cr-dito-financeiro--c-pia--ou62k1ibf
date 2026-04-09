@@ -37,7 +37,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loadUserFromStorage = () => {
       try {
         const userInfoStr = localStorage.getItem('user_info')
-        if (userInfoStr) {
+        if (!userInfoStr) return null
+
+        try {
           const parsed = JSON.parse(userInfoStr)
           if (
             parsed &&
@@ -54,13 +56,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   ? 'administrador'
                   : parsed.tipo_usuario || 'cliente',
             }
+          } else {
+            // Formato inválido, limpa para evitar loops/travamentos
+            localStorage.removeItem('user_info')
           }
+        } catch (parseError) {
+          console.warn('Erro ao fazer parse do user_info, limpando cache...', parseError)
+          localStorage.removeItem('user_info')
         }
       } catch (e) {
-        console.error('Erro ao ler user_info do localStorage', e)
-        try {
-          localStorage.removeItem('user_info')
-        } catch (err) {} // Fail silently if quota exceeded or access denied
+        console.error('Erro geral ao acessar localStorage', e)
       }
       return null
     }

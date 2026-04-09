@@ -16,6 +16,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 
   const [hasPermission, setHasPermission] = useState(false)
   const [loadingPerms, setLoadingPerms] = useState(true)
+  const [permissionError, setPermissionError] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -59,24 +60,32 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
               .maybeSingle()
 
             const timeoutPromise = new Promise<{ error: any }>((_, reject) => {
-              setTimeout(() => reject(new Error('TimeoutError')), 5000)
+              setTimeout(() => reject(new Error('TimeoutError')), 8000)
             })
 
             const { error } = await Promise.race([fetchPromise, timeoutPromise])
 
             if (error) {
               console.error(`Erro ao verificar tabela ${table}:`, error)
+              throw new Error('Falha na verificação do banco de dados.')
+            }
+
+            if (mounted) {
+              setHasPermission(true)
             }
           } catch (fetchError: any) {
             if (fetchError.message === 'TimeoutError') {
               console.warn(`Timeout ao carregar permissões da tabela ${table}`)
+              if (mounted)
+                setPermissionError(
+                  'O sistema demorou muito para responder. Tente recarregar a página.',
+                )
             } else {
-              throw fetchError
+              console.error('Erro de fetch permissões:', fetchError)
+              if (mounted)
+                setPermissionError('Ocorreu um erro ao verificar suas permissões de acesso.')
             }
-          }
-
-          if (mounted) {
-            setHasPermission(true)
+            if (mounted) setHasPermission(false)
           }
         } else {
           if (mounted) {
@@ -86,8 +95,8 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
       } catch (err) {
         console.error('Erro fatal ao carregar permissões', err)
         if (mounted) {
-          // Fallback seguro: permite o acesso pela role inicial se falhar
-          setHasPermission(true)
+          setPermissionError('Ocorreu um erro crítico ao validar seu acesso.')
+          setHasPermission(false)
         }
       } finally {
         if (mounted) {
@@ -136,7 +145,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     )
   }
 
-  if (!hasPermission) {
+  if (!hasPermission || permissionError) {
     const isPartnerRoute =
       location.pathname.startsWith('/portal-parceiro') ||
       location.pathname.startsWith('/portal/parceiro') ||
@@ -149,15 +158,15 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-[#0A1128]">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-[#0A1128] animate-fade-in-up">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/20">
             <ShieldAlert className="h-8 w-8 text-amber-600 dark:text-amber-500" />
           </div>
           <h1 className="mb-2 text-2xl font-bold text-[#0A1128] dark:text-slate-50">
-            Acesso Restrito
+            {permissionError ? 'Problema de Conexão' : 'Acesso Restrito'}
           </h1>
           <p className="mb-6 text-slate-600 dark:text-slate-400">
-            Você não tem permissão para acessar esta área com o perfil atual.
+            {permissionError || 'Você não tem permissão para acessar esta área com o perfil atual.'}
           </p>
           <div className="flex flex-col gap-3">
             {isPartnerRoute && (
