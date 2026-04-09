@@ -11,7 +11,7 @@ export function useAdmin() {
     let mounted = true
     if (authLoading) return
 
-    if ((user?.role === 'administrador' || user?.tipo_usuario === 'admin') && user.id) {
+    if (user && (user.role === 'administrador' || user.tipo_usuario === 'admin') && user.id) {
       supabase
         .from('permissoes_admin')
         .select('*')
