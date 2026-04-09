@@ -5,9 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 interface UserInfo {
   id: string
   email: string
-  nome: string
   tipo_usuario: string
-  status: string
   role?: string
 }
 
@@ -36,135 +34,110 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true
 
-    const checkLegacySession = (currentSession?: Session | null) => {
+    const loadUserFromStorage = () => {
       try {
-        const token = localStorage.getItem('custom_jwt_token')
         const userInfoStr = localStorage.getItem('user_info')
-
-        if (currentSession?.user?.email) {
-          if (userInfoStr) {
-            const userInfo = JSON.parse(userInfoStr)
-            // Scripts de Limpeza Automática: Se houver conflito de e-mail entre Supabase e legacy, limpa legacy
-            if (userInfo.email !== currentSession.user.email) {
-              console.warn('Conflito de sessão detectado. Limpando sessão legada.')
-              localStorage.removeItem('custom_jwt_token')
-              localStorage.removeItem('user_info')
-              localStorage.removeItem('admin_token')
-            }
+        if (userInfoStr) {
+          const parsed = JSON.parse(userInfoStr)
+          return {
+            id: parsed.usuario_id || parsed.id,
+            email: parsed.email,
+            tipo_usuario: parsed.tipo_usuario,
+            role: parsed.tipo_usuario === 'admin' ? 'administrador' : parsed.tipo_usuario,
           }
-          return false
         }
-
-        if (token && userInfoStr) {
-          const userInfo = JSON.parse(userInfoStr)
-          let role = userInfo.tipo_usuario
-          if (role === 'admin') role = 'administrador'
-
-          if (mounted) {
-            setUser({ ...userInfo, role })
-          }
-          return true
-        }
-      } catch (error) {
-        console.error('Erro ao validar sessão legada:', error)
-        localStorage.removeItem('custom_jwt_token')
-        localStorage.removeItem('user_info')
-        localStorage.removeItem('admin_token')
+      } catch (e) {
+        // fail silently
       }
-      return false
+      return null
+    }
+
+    const handleSession = (currentSession: Session | null) => {
+      if (!currentSession) {
+        if (mounted) {
+          setUser(null)
+          setLoading(false)
+        }
+        return
+      }
+
+      const storedUser = loadUserFromStorage()
+      if (storedUser && storedUser.email === currentSession.user.email) {
+        if (mounted) {
+          setUser(storedUser)
+          setLoading(false)
+        }
+      } else {
+        // Busca os dados mínimos apenas uma vez se não estiverem no localStorage
+        supabase
+          .from('usuarios')
+          .select('id, email, tipo_usuario')
+          .eq('email', currentSession.user.email)
+          .single()
+          .then(({ data }) => {
+            if (data && mounted) {
+              const userInfo = {
+                usuario_id: data.id,
+                email: data.email,
+                tipo_usuario: data.tipo_usuario || 'cliente',
+              }
+              localStorage.setItem('user_info', JSON.stringify(userInfo))
+              setUser({
+                id: userInfo.usuario_id,
+                email: userInfo.email,
+                tipo_usuario: userInfo.tipo_usuario || 'cliente',
+                role:
+                  userInfo.tipo_usuario === 'admin'
+                    ? 'administrador'
+                    : userInfo.tipo_usuario || 'cliente',
+              })
+            } else if (mounted) {
+              setUser(null)
+            }
+            if (mounted) setLoading(false)
+          })
+          .catch(() => {
+            if (mounted) {
+              setUser(null)
+              setLoading(false)
+            }
+          })
+      }
     }
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, newSession) => {
-      // FORBIDDEN: no async/await inside this callback — sync only
       if (mounted) {
         setSession(newSession)
-      }
-      if (!newSession) {
-        // If no GoTrue session, check legacy one last time
-        if (!checkLegacySession(newSession) && mounted) {
-          setUser(null)
-          setLoading(false)
-        }
-      } else {
-        // If there is a GoTrue session, we verify if legacy conflicts
-        checkLegacySession(newSession)
+        handleSession(newSession)
       }
     })
 
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       if (mounted) {
         setSession(initialSession)
-        if (!initialSession) {
-          if (!checkLegacySession(initialSession)) {
-            setUser(null)
-          }
-          setLoading(false)
-        }
+        handleSession(initialSession)
       }
     })
 
-    const handleAuthChange = () => {
-      if (!session) checkLegacySession(session)
+    const onStorageChange = () => {
+      if (mounted) {
+        const stored = loadUserFromStorage()
+        if (stored) setUser(stored)
+      }
     }
-    window.addEventListener('auth-change', handleAuthChange)
-    window.addEventListener('storage', handleAuthChange)
+
+    window.addEventListener('auth-change', onStorageChange)
+    window.addEventListener('storage', onStorageChange)
 
     return () => {
       mounted = false
       subscription.unsubscribe()
-      window.removeEventListener('auth-change', handleAuthChange)
-      window.removeEventListener('storage', handleAuthChange)
+      window.removeEventListener('auth-change', onStorageChange)
+      window.removeEventListener('storage', onStorageChange)
     }
-  }, [session])
-
-  // Effect to fetch user details when GoTrue session changes
-  useEffect(() => {
-    let mounted = true
-    if (session?.user?.email) {
-      supabase
-        .from('usuarios')
-        .select('*')
-        .eq('email', session.user.email)
-        .single()
-        .then(({ data }) => {
-          if (data && mounted) {
-            let role = data.tipo_usuario
-            if (role === 'admin') role = 'administrador'
-
-            // Atualiza os dados locais para manter consistência
-            const newUserInfo = {
-              id: data.id,
-              email: data.email,
-              nome: data.nome || '',
-              tipo_usuario: data.tipo_usuario || 'cliente',
-              status: data.status || 'ativo',
-              role,
-            }
-
-            setUser(newUserInfo)
-            localStorage.setItem('user_info', JSON.stringify(newUserInfo))
-          }
-          if (mounted) setLoading(false)
-        })
-        .catch(() => {
-          if (mounted) {
-            setUser(null)
-            setLoading(false)
-
-            // Limpeza Automática
-            localStorage.removeItem('custom_jwt_token')
-            localStorage.removeItem('user_info')
-            localStorage.removeItem('admin_token')
-            supabase.auth.signOut().catch(() => {})
-          }
-        })
-    }
-    return () => {
-      mounted = false
-    }
-  }, [session])
+  }, [])
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({

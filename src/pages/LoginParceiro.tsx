@@ -36,8 +36,21 @@ export default function LoginParceiro() {
 
       if (!goTrueError) {
         authSuccess = true
-        const { data } = await supabase.from('usuarios').select('*').eq('email', email).single()
+        const { data } = await supabase
+          .from('usuarios')
+          .select('id, email, tipo_usuario, status')
+          .eq('email', email)
+          .single()
         userData = data
+        if (data) {
+          const userInfo = {
+            usuario_id: data.id,
+            email: data.email,
+            tipo_usuario: data.tipo_usuario,
+          }
+          localStorage.setItem('user_info', JSON.stringify(userInfo))
+          window.dispatchEvent(new Event('auth-change'))
+        }
       } else {
         const { data, error } = await supabase.functions.invoke('login', {
           body: { email, password },
@@ -47,7 +60,13 @@ export default function LoginParceiro() {
           authSuccess = true
           userData = data.user
           localStorage.setItem('custom_jwt_token', data.token)
-          localStorage.setItem('user_info', JSON.stringify(data.user))
+
+          const userInfo = {
+            usuario_id: data.usuario_id,
+            email: email,
+            tipo_usuario: data.tipo_usuario,
+          }
+          localStorage.setItem('user_info', JSON.stringify(userInfo))
           window.dispatchEvent(new Event('auth-change'))
         }
       }

@@ -2,23 +2,94 @@ import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-d
 import { useAuth } from '@/hooks/use-auth'
 import { Loader2, ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase/client'
 
 interface ProtectedRouteProps {
   allowedRoles?: (string | undefined)[]
 }
 
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading: authLoading, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
 
-  if (loading) {
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false)
+  const [hasPermission, setHasPermission] = useState(false)
+  const [loadingPerms, setLoadingPerms] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+
+    if (authLoading) return
+
+    if (!user) {
+      if (mounted) {
+        setLoadingPerms(false)
+      }
+      return
+    }
+
+    const roleAllowed =
+      !allowedRoles || allowedRoles.length === 0 || allowedRoles.includes(user.role)
+
+    if (!roleAllowed) {
+      if (mounted) {
+        setHasPermission(false)
+        setLoadingPerms(false)
+        setPermissionsLoaded(true)
+      }
+      return
+    }
+
+    const loadPermissions = async () => {
+      try {
+        let table = ''
+        if (user.tipo_usuario === 'admin') table = 'permissoes_admin'
+        else if (user.tipo_usuario === 'parceiro') table = 'permissoes_parceiro'
+        else if (user.tipo_usuario === 'cliente') table = 'permissoes_cliente'
+
+        if (table) {
+          // Carrega as permissões APENAS daquela tabela específica
+          const { data, error } = await supabase
+            .from(table as any)
+            .select('*')
+            .eq('usuario_id', user.id)
+            .maybeSingle()
+
+          if (mounted) {
+            setHasPermission(true)
+          }
+        } else {
+          if (mounted) {
+            setHasPermission(true)
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar permissões', err)
+        if (mounted) setHasPermission(false)
+      } finally {
+        if (mounted) {
+          setPermissionsLoaded(true)
+          setLoadingPerms(false)
+        }
+      }
+    }
+
+    loadPermissions()
+
+    return () => {
+      mounted = false
+    }
+  }, [user, authLoading, allowedRoles])
+
+  if (authLoading || loadingPerms) {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
           <p className="animate-pulse text-sm font-medium text-slate-900 dark:text-slate-100">
-            Validando sessão...
+            Carregando permissões...
           </p>
         </div>
       </div>
@@ -45,7 +116,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     )
   }
 
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+  if (!hasPermission) {
     const isPartnerRoute =
       location.pathname.startsWith('/portal-parceiro') ||
       location.pathname.startsWith('/portal/parceiro') ||
