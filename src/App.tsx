@@ -75,22 +75,31 @@ const RootRedirect = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-950">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
+          Carregando ambiente...
+        </p>
       </div>
     )
   }
 
   if (user) {
+    // Redirecionamentos seguros com fallback
     if (user.role === 'administrador' || user.tipo_usuario === 'admin') {
       return <Navigate to="/admin/dashboard" replace />
     }
     if (user.role === 'parceiro' || user.tipo_usuario === 'parceiro') {
       return <Navigate to="/portal/parceiro" replace />
     }
+    if (user.role === 'cliente' || user.tipo_usuario === 'cliente') {
+      return <Navigate to="/portal-cliente/dashboard" replace />
+    }
+    // Fallback para usuário autenticado mas sem role definida clara
     return <Navigate to="/portal-cliente/dashboard" replace />
   }
 
+  // Fallback padrão seguro para rota pública que sempre existe
   return <Navigate to="/consult-plan/home" replace />
 }
 
@@ -99,21 +108,30 @@ const SessionCleaner = () => {
     const checkSession = () => {
       try {
         const keys = Object.keys(localStorage)
+        let hasInvalidSession = false
         for (const key of keys) {
           if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
             const authData = localStorage.getItem(key)
             if (authData) {
-              const parsed = JSON.parse(authData)
-              // Limpa sessões conflitantes ou erros de autenticação
-              if (parsed?.error || (parsed?.user && !parsed?.user?.id)) {
+              try {
+                const parsed = JSON.parse(authData)
+                // Limpa sessões conflitantes ou erros de autenticação
+                if (parsed?.error || (parsed?.user && !parsed?.user?.id)) {
+                  localStorage.removeItem(key)
+                  hasInvalidSession = true
+                }
+              } catch (e) {
                 localStorage.removeItem(key)
-                window.location.href = '/login'
+                hasInvalidSession = true
               }
             }
           }
         }
+        if (hasInvalidSession) {
+          window.location.href = '/login'
+        }
       } catch (err) {
-        // Fail silently
+        // Fail silently se o localStorage estiver inacessível
       }
     }
     checkSession()

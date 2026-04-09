@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
-import { Loader2, ShieldAlert } from 'lucide-react'
+import { Loader2, ShieldAlert, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -17,6 +17,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const [permissionsLoaded, setPermissionsLoaded] = useState(false)
   const [hasPermission, setHasPermission] = useState(false)
   const [loadingPerms, setLoadingPerms] = useState(true)
+  const [errorState, setErrorState] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -53,20 +54,33 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
           table = 'permissoes_cliente'
 
         if (table) {
-          // Tenta carregar apenas para confirmar que a tabela responde
-          const { error } = await supabase
-            .from(table as any)
-            .select('id')
-            .eq('usuario_id', user.id)
-            .maybeSingle()
+          // Timeout de 5s para evitar travamento em caso de indisponibilidade
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 5000)
 
-          if (error) {
-            console.error(`Erro ao verificar tabela ${table}:`, error)
+          try {
+            const { error } = await supabase
+              .from(table as any)
+              .select('id')
+              .eq('usuario_id', user.id)
+              .abortSignal(controller.signal)
+              .maybeSingle()
+
+            clearTimeout(timeoutId)
+
+            if (error) {
+              console.error(`Erro ao verificar tabela ${table}:`, error)
+            }
+          } catch (fetchError: any) {
+            clearTimeout(timeoutId)
+            if (fetchError.name === 'AbortError') {
+              console.warn(`Timeout ao carregar permissões da tabela ${table}`)
+            } else {
+              throw fetchError
+            }
           }
 
           if (mounted) {
-            // Permitimos o acesso baseado na role validada inicialmente
-            // para evitar travamentos caso a tabela esteja vazia ou com erro de RLS
             setHasPermission(true)
           }
         } else {
@@ -77,8 +91,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
       } catch (err) {
         console.error('Erro fatal ao carregar permissões', err)
         if (mounted) {
-          // Em caso de falha crítica na promise, permitimos acesso se a role estiver ok
-          // Isso garante a estabilidade solicitada
+          // Fallback seguro: permite o acesso pela role inicial se falhar
           setHasPermission(true)
         }
       } finally {
@@ -96,13 +109,35 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     }
   }, [user, authLoading, allowedRoles])
 
+  if (errorState) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-[#0A1128]">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+            <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-500" />
+          </div>
+          <h1 className="mb-2 text-2xl font-bold text-[#0A1128] dark:text-slate-50">
+            Erro de Conexão
+          </h1>
+          <p className="mb-6 text-slate-600 dark:text-slate-400">{errorState}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="w-full bg-[#0A1128] text-white hover:bg-[#0A1128]/90 dark:bg-amber-500 dark:text-[#0A1128] dark:hover:bg-amber-600"
+          >
+            Tentar Novamente
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   if (authLoading || loadingPerms) {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
           <p className="animate-pulse text-sm font-medium text-slate-900 dark:text-slate-100">
-            Carregando permissões...
+            Verificando acesso seguro...
           </p>
         </div>
       </div>
@@ -143,14 +178,14 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
         <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-[#0A1128]">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-            <ShieldAlert className="h-8 w-8 text-red-600 dark:text-red-500" />
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/20">
+            <ShieldAlert className="h-8 w-8 text-amber-600 dark:text-amber-500" />
           </div>
           <h1 className="mb-2 text-2xl font-bold text-[#0A1128] dark:text-slate-50">
             Acesso Restrito
           </h1>
           <p className="mb-6 text-slate-600 dark:text-slate-400">
-            Você não tem permissão para acessar esta área.
+            Você não tem permissão para acessar esta área com o perfil atual.
           </p>
           <div className="flex flex-col gap-3">
             {isPartnerRoute && (
@@ -174,7 +209,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
             </Button>
             {!isPartnerRoute && (
               <Button asChild variant="outline" className="w-full">
-                <Link to="/consult-plan/home">Voltar para Home</Link>
+                <Link to="/consult-plan/home">Voltar para Início</Link>
               </Button>
             )}
           </div>

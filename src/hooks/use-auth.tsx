@@ -58,7 +58,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (e) {
         console.error('Erro ao ler user_info do localStorage', e)
-        localStorage.removeItem('user_info')
+        try {
+          localStorage.removeItem('user_info')
+        } catch (e) {} // Fail silently if quota exceeded or access denied
       }
       return null
     }
@@ -80,7 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } else {
         try {
-          // Salva apenas os dados essenciais da sessão sem queries adicionais
           const tipo_usuario = currentSession.user.user_metadata?.tipo_usuario || 'cliente'
           const userInfo = {
             usuario_id: currentSession.user.id,
@@ -123,12 +124,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     })
 
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      if (mounted) {
-        setSession(initialSession)
-        handleSession(initialSession)
+    let sessionTimeout: ReturnType<typeof setTimeout>
+
+    const fetchSession = async () => {
+      try {
+        sessionTimeout = setTimeout(() => {
+          if (mounted && loading) {
+            console.warn('Timeout ao recuperar sessão do Supabase, forçando carregamento')
+            setLoading(false)
+          }
+        }, 5000)
+
+        const {
+          data: { session: initialSession },
+          error,
+        } = await supabase.auth.getSession()
+
+        clearTimeout(sessionTimeout)
+
+        if (error) {
+          console.error('Erro ao recuperar sessão inicial:', error)
+          if (mounted) {
+            setSession(null)
+            setUser(null)
+            setLoading(false)
+          }
+          return
+        }
+
+        if (mounted) {
+          setSession(initialSession)
+          handleSession(initialSession)
+        }
+      } catch (err) {
+        clearTimeout(sessionTimeout)
+        console.error('Erro inesperado em getSession:', err)
+        if (mounted) {
+          setSession(null)
+          setUser(null)
+          setLoading(false)
+        }
       }
-    })
+    }
+
+    fetchSession()
 
     const onStorageChange = () => {
       if (mounted) {
@@ -145,6 +184,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       subscription.unsubscribe()
       window.removeEventListener('auth-change', onStorageChange)
       window.removeEventListener('storage', onStorageChange)
+      if (sessionTimeout) clearTimeout(sessionTimeout)
     }
   }, [])
 
@@ -164,9 +204,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
-    localStorage.removeItem('custom_jwt_token')
-    localStorage.removeItem('user_info')
-    localStorage.removeItem('admin_token')
+    try {
+      localStorage.removeItem('custom_jwt_token')
+      localStorage.removeItem('user_info')
+      localStorage.removeItem('admin_token')
+    } catch (e) {
+      console.error('Erro ao limpar localStorage no logout', e)
+    }
     setUser(null)
     setSession(null)
     window.dispatchEvent(new Event('auth-change'))

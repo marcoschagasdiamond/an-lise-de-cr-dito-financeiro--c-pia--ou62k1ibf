@@ -20,6 +20,7 @@ export function useAdmin() {
         .then(({ data, error }) => {
           if (!mounted) return
           if (error || !data) {
+            console.warn('Permissões admin não encontradas ou erro:', error?.message)
             setPermissions([])
             return
           }
@@ -40,7 +41,7 @@ export function useAdmin() {
           setPermissions(perms)
         })
         .catch((err) => {
-          console.error('Erro ao buscar permissoes_admin:', err)
+          console.error('Erro fatal ao buscar permissoes_admin:', err)
           if (mounted) setPermissions([])
         })
         .finally(() => {
