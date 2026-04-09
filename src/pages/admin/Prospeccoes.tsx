@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Header } from '@/components/Header'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { supabase } from '@/lib/supabase/client'
 import {
   Table,
   TableBody,
@@ -9,160 +8,99 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import pb from '@/lib/pocketbase/client'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Loader2 } from 'lucide-react'
 
-import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
+interface Prospeccao {
+  id: string
+  nome?: string
+  email?: string
+  telefone?: string
+  status?: string
+  created_at?: string
+}
 
-export default function AdminProspeccoes() {
-  const [clientes, setClientes] = useState<any[]>([])
-  const [parceiros, setParceiros] = useState<any[]>([])
-
-  const [isAssignOpen, setIsAssignOpen] = useState(false)
-  const [selectedCliente, setSelectedCliente] = useState<any>(null)
-  const [selectedParceiroId, setSelectedParceiroId] = useState('')
-
-  const loadData = async () => {
-    try {
-      const cls = await pb
-        .collection('clientes')
-        .getFullList({ sort: '-created', expand: 'parceiro_id' })
-      setClientes(cls)
-      const prs = await pb
-        .collection('parceiros')
-        .getFullList({ filter: 'status="aprovado"', expand: 'usuario_id' })
-      setParceiros(prs)
-    } catch (err) {
-      console.error(err)
-    }
-  }
+export default function Prospeccoes() {
+  const [data, setData] = useState<Prospeccao[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadData()
+    async function fetchData() {
+      try {
+        const { data: result, error } = await supabase
+          .from('prospeccoes')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100)
+
+        if (!error && result) {
+          setData(result)
+        }
+      } catch (err) {
+        console.error('Error fetching prospeccoes:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
 
-  const handleAssign = async () => {
-    if (!selectedParceiroId || !selectedCliente) return
-    try {
-      await pb.send(`/backend/v1/admin/prospeccoes/${selectedCliente.id}/atribuir`, {
-        method: 'POST',
-        body: JSON.stringify({ parceiro_id: selectedParceiroId }),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      toast.success('Parceiro atribuído e comissão gerada!')
-      setIsAssignOpen(false)
-      loadData()
-    } catch (error: any) {
-      toast.error(error.message || 'Erro ao atribuir.')
-    }
-  }
-
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-slate-50 dark:bg-background">
-      <Header title="Painel de Prospecções" />
-      <div className="p-6 md:p-8 max-w-7xl mx-auto w-full pb-20">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-primary">Leads e Prospecções</h1>
-          <p className="text-muted-foreground">
-            Gerencie a entrada de clientes diretos e de parceiros.
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Todas as Prospecções</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Empresa</TableHead>
-                  <TableHead>Origem</TableHead>
-                  <TableHead>Valor Solicitado</TableHead>
-                  <TableHead>Parceiro</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clientes.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.nome}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {c.origem === 'parceiro' ? 'Parceiro' : 'Direto'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL',
-                      }).format(c.valor_captacao || 0)}
-                    </TableCell>
-                    <TableCell>
-                      {c.expand?.parceiro_id?.name ||
-                        c.expand?.parceiro_id?.email ||
-                        'Sem parceiro'}
-                    </TableCell>
-                    <TableCell>{new Date(c.created).toLocaleDateString('pt-BR')}</TableCell>
-                    <TableCell className="text-right">
-                      {!c.parceiro_id && c.origem === 'solicitar_diagnostico' && (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedCliente(c)
-                            setIsAssignOpen(true)
-                          }}
-                        >
-                          Atribuir Parceiro
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Prospecções</h2>
       </div>
 
-      <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Atribuir Parceiro</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <select
-              value={selectedParceiroId}
-              onChange={(e) => setSelectedParceiroId(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="" disabled hidden>
-                Selecione uma opção
-              </option>
-              {parceiros.map((p) => (
-                <option key={p.usuario_id} value={p.usuario_id}>
-                  {p.nome_empresa} ({p.expand?.usuario_id?.email})
-                </option>
-              ))}
-            </select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAssignOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleAssign}>Atribuir</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <Card>
+        <CardHeader>
+          <CardTitle>Gerenciamento de Prospecções</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Data</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                        Nenhuma prospecção encontrada.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    data.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="font-medium">{item.nome || '-'}</TableCell>
+                        <TableCell>{item.email || '-'}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary">
+                            {item.status || 'Novo'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground">
+                          {item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
