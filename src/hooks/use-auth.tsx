@@ -68,40 +68,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false)
         }
       } else {
-        // Busca os dados mínimos apenas uma vez se não estiverem no localStorage
-        supabase
-          .from('usuarios')
-          .select('id, email, tipo_usuario')
-          .eq('email', currentSession.user.email)
-          .single()
-          .then(({ data }) => {
-            if (data && mounted) {
-              const userInfo = {
-                usuario_id: data.id,
-                email: data.email,
-                tipo_usuario: data.tipo_usuario || 'cliente',
-              }
-              localStorage.setItem('user_info', JSON.stringify(userInfo))
-              setUser({
-                id: userInfo.usuario_id,
-                email: userInfo.email,
-                tipo_usuario: userInfo.tipo_usuario || 'cliente',
-                role:
-                  userInfo.tipo_usuario === 'admin'
-                    ? 'administrador'
-                    : userInfo.tipo_usuario || 'cliente',
-              })
-            } else if (mounted) {
-              setUser(null)
-            }
-            if (mounted) setLoading(false)
+        // Salva apenas os dados essenciais da sessão sem queries adicionais
+        const tipo_usuario = currentSession.user.user_metadata?.tipo_usuario || 'cliente'
+        const userInfo = {
+          usuario_id: currentSession.user.id,
+          email: currentSession.user.email || '',
+          tipo_usuario: tipo_usuario,
+        }
+        localStorage.setItem('user_info', JSON.stringify(userInfo))
+
+        if (mounted) {
+          setUser({
+            id: userInfo.usuario_id,
+            email: userInfo.email,
+            tipo_usuario: userInfo.tipo_usuario,
+            role: userInfo.tipo_usuario === 'admin' ? 'administrador' : userInfo.tipo_usuario,
           })
-          .catch(() => {
-            if (mounted) {
-              setUser(null)
-              setLoading(false)
-            }
-          })
+          setLoading(false)
+        }
       }
     }
 

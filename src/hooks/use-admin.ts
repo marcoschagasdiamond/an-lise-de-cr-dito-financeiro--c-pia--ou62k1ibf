@@ -8,41 +8,52 @@ export function useAdmin() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let mounted = true
     if (authLoading) return
 
-    if (user?.role === 'administrador' && user.id) {
+    if ((user?.role === 'administrador' || user?.tipo_usuario === 'admin') && user.id) {
       supabase
-        .from('administradores')
-        .select('permissoes')
+        .from('permissoes_admin')
+        .select('*')
         .eq('usuario_id', user.id)
-        .single()
+        .maybeSingle()
         .then(({ data, error }) => {
+          if (!mounted) return
           if (error || !data) {
             setPermissions([])
             return
           }
 
-          let perms: string[] = []
-          if (Array.isArray(data.permissoes)) {
-            perms = data.permissoes as string[]
-          } else if (data.permissoes && typeof data.permissoes === 'object') {
-            if ((data.permissoes as any).todas) {
-              perms = ['*']
-            } else {
-              perms = Object.keys(data.permissoes).filter((k) => (data.permissoes as any)[k])
-            }
+          const perms: string[] = []
+          if (data.pode_aprovar_parceiros) perms.push('aprovar_parceiros')
+          if (data.pode_gerenciar_clientes) perms.push('gerenciar_clientes')
+          if (data.pode_gerenciar_admins) perms.push('gerenciar_admins')
+
+          if (
+            data.pode_aprovar_parceiros &&
+            data.pode_gerenciar_clientes &&
+            data.pode_gerenciar_admins
+          ) {
+            perms.push('*')
           }
+
           setPermissions(perms)
         })
         .catch(() => {
-          setPermissions([])
+          if (mounted) setPermissions([])
         })
         .finally(() => {
-          setLoading(false)
+          if (mounted) setLoading(false)
         })
     } else {
-      setPermissions([])
-      setLoading(false)
+      if (mounted) {
+        setPermissions([])
+        setLoading(false)
+      }
+    }
+
+    return () => {
+      mounted = false
     }
   }, [user, authLoading])
 
@@ -52,6 +63,6 @@ export function useAdmin() {
     permissions,
     hasPermission,
     loading: loading || authLoading,
-    isAdmin: user?.role === 'administrador',
+    isAdmin: user?.role === 'administrador' || user?.tipo_usuario === 'admin',
   }
 }
