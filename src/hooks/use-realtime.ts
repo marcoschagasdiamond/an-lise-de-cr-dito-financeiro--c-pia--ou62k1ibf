@@ -22,17 +22,30 @@ export function useRealtime(
     let unsubscribeFn: (() => Promise<void>) | undefined
     let cancelled = false
 
-    pb.collection(collectionName)
-      .subscribe('*', (e) => {
-        callbackRef.current(e)
-      })
-      .then((fn) => {
-        if (cancelled) {
-          fn().catch(() => {})
-        } else {
-          unsubscribeFn = fn
+    try {
+      if (pb && typeof pb.collection === 'function') {
+        const collection = pb.collection(collectionName)
+
+        if (collection && typeof collection.subscribe === 'function') {
+          collection
+            .subscribe('*', (e) => {
+              callbackRef.current(e)
+            })
+            .then((fn) => {
+              if (cancelled) {
+                fn().catch(() => {})
+              } else {
+                unsubscribeFn = fn
+              }
+            })
+            .catch(() => {
+              // Falha silenciosa em caso de erro na assinatura
+            })
         }
-      })
+      }
+    } catch (error) {
+      // Graceful fallback para evitar travamentos
+    }
 
     return () => {
       cancelled = true
