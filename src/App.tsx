@@ -200,10 +200,6 @@ const App = () => (
                   {/* Protected routes - Parceiro */}
                   <Route element={<ProtectedRoute allowedRoles={['parceiro', 'administrador']} />}>
                     <Route path="/portal/parceiro" element={<PortalParceiroDashboard />} />
-                    <Route
-                      path="/portal-parceiro"
-                      element={<Navigate to="/portal/parceiro" replace />}
-                    />
                     <Route path="/portal-parceiro/gestao-clientes" element={<GestaoClientes />} />
                     <Route
                       path="/portal-parceiro/anexar-documentos"
