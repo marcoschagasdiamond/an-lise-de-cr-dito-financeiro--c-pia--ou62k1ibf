@@ -1,22 +1,32 @@
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
-export const getEnviosPorProjeto = (projetoId: string) =>
-  pb.collection('envios_instituicoes').getFullList({
-    filter: `projeto_id = "${projetoId}"`,
-    sort: '-data_envio',
-    expand: 'instituicao_id',
-  })
+export const getEnviosPorProjeto = async (projetoId: string) => {
+  const { data, error } = await supabase
+    .from('envios_instituicoes')
+    .select('*, instituicao_id(*)')
+    .eq('projeto_id', projetoId)
+    .order('data_envio', { ascending: false })
+  if (error) throw error
+  return data
+}
 
-export const atualizarEnvio = (id: string, data: any) =>
-  pb.collection('envios_instituicoes').update(id, data)
+export const atualizarEnvio = async (id: string, payload: any) => {
+  const { data, error } = await supabase
+    .from('envios_instituicoes')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
 
-export const enviarParaInstituicao = (
+export const enviarParaInstituicao = async (
   projetoId: string,
   instituicaoId: string,
   documentos: string[],
-) =>
-  pb.send(`/backend/v1/projetos/${projetoId}/enviar-instituicao`, {
-    method: 'POST',
-    body: JSON.stringify({ instituicao_id: instituicaoId, documentos_enviados: documentos }),
-    headers: { 'Content-Type': 'application/json' },
+) => {
+  return supabase.functions.invoke('enviar-instituicao', {
+    body: { projeto_id: projetoId, instituicao_id: instituicaoId, documentos_enviados: documentos },
   })
+}

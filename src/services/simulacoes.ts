@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export interface SimulacaoCustos {
   valor_avaliacao: number
@@ -36,14 +36,25 @@ export interface SimulacaoFinanceira {
 }
 
 export const getSimulacoes = async (userId: string) => {
-  return pb.collection('simulacoes_financeiras').getFullList<SimulacaoFinanceira>({
-    filter: `user_id = "${userId}"`,
-    sort: '-created',
-  })
+  const { data, error } = await supabase
+    .from('simulacoes_financeiras')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created', { ascending: false })
+
+  if (error) throw error
+  return data as SimulacaoFinanceira[]
 }
 
 export const createSimulacao = async (
-  data: Omit<SimulacaoFinanceira, 'id' | 'created' | 'updated'>,
+  payload: Omit<SimulacaoFinanceira, 'id' | 'created' | 'updated'>,
 ) => {
-  return pb.collection('simulacoes_financeiras').create<SimulacaoFinanceira>(data)
+  const { data, error } = await supabase
+    .from('simulacoes_financeiras')
+    .insert(payload)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as SimulacaoFinanceira
 }

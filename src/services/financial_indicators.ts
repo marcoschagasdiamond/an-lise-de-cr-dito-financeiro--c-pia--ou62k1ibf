@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export type FinancialIndicatorRecord = {
   id?: string
@@ -15,15 +15,33 @@ export type FinancialIndicatorRecord = {
 }
 
 export const getFinancialIndicators = async (category: string) => {
-  return pb.collection('financial_indicators').getFullList<FinancialIndicatorRecord>({
-    filter: `category = '${category}'`,
-    sort: 'rowIndex',
-  })
+  const { data, error } = await supabase
+    .from('financial_indicators')
+    .select('*')
+    .eq('category', category)
+    .order('rowIndex', { ascending: true })
+
+  if (error) throw error
+  return data as FinancialIndicatorRecord[]
 }
 
-export const saveFinancialIndicator = async (data: FinancialIndicatorRecord) => {
-  if (data.id) {
-    return pb.collection('financial_indicators').update<FinancialIndicatorRecord>(data.id, data)
+export const saveFinancialIndicator = async (payload: FinancialIndicatorRecord) => {
+  if (payload.id) {
+    const { data, error } = await supabase
+      .from('financial_indicators')
+      .update(payload)
+      .eq('id', payload.id)
+      .select()
+      .single()
+    if (error) throw error
+    return data as FinancialIndicatorRecord
   }
-  return pb.collection('financial_indicators').create<FinancialIndicatorRecord>(data)
+
+  const { data, error } = await supabase
+    .from('financial_indicators')
+    .insert(payload)
+    .select()
+    .single()
+  if (error) throw error
+  return data as FinancialIndicatorRecord
 }

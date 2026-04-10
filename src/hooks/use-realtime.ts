@@ -1,16 +1,13 @@
 import { useEffect, useRef } from 'react'
-import pb from '@/lib/pocketbase/client'
-import type { RecordSubscription } from 'pocketbase'
+import { supabase } from '@/lib/supabase/client'
 
 /**
- * Hook for real-time subscriptions to a PocketBase collection.
+ * Hook for real-time subscriptions to a Supabase collection.
  * ALWAYS use this hook instead of subscribing inline.
- * Uses the per-listener UnsubscribeFunc so multiple components
- * can safely subscribe to the same collection without conflicts.
  */
 export function useRealtime(
   collectionName: string,
-  callback: (data: RecordSubscription<any>) => void,
+  callback: (data: any) => void,
   enabled: boolean = true,
 ) {
   const callbackRef = useRef(callback)
@@ -19,39 +16,32 @@ export function useRealtime(
   useEffect(() => {
     if (!enabled) return
 
-    let unsubscribeFn: (() => Promise<void>) | undefined
     let cancelled = false
 
-    try {
-      if (pb && typeof pb.collection === 'function') {
-        const collection = pb.collection(collectionName)
-
-        if (collection && typeof collection.subscribe === 'function') {
-          collection
-            .subscribe('*', (e) => {
-              callbackRef.current(e)
-            })
-            .then((fn) => {
-              if (cancelled) {
-                fn().catch(() => {})
-              } else {
-                unsubscribeFn = fn
-              }
-            })
-            .catch(() => {
-              // Falha silenciosa em caso de erro na assinatura
-            })
-        }
-      }
-    } catch (error) {
-      // Graceful fallback para evitar travamentos
-    }
+    const channel = supabase
+      .channel(`public:${collectionName}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: collectionName },
+        (payload) => {
+          if (cancelled) return
+          const actionMap: Record<string, string> = {
+            INSERT: 'create',
+            UPDATE: 'update',
+            DELETE: 'delete',
+          }
+          callbackRef.current({
+            action: actionMap[payload.eventType] || payload.eventType,
+            record: payload.eventType === 'DELETE' ? payload.old : payload.new,
+            originalPayload: payload,
+          })
+        },
+      )
+      .subscribe()
 
     return () => {
       cancelled = true
-      if (unsubscribeFn) {
-        unsubscribeFn().catch(() => {})
-      }
+      supabase.removeChannel(channel)
     }
   }, [collectionName, enabled])
 }

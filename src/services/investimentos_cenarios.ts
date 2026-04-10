@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export interface InvestimentoCenario {
   id: string
@@ -20,13 +20,42 @@ export interface InvestimentoCenario {
   updated: string
 }
 
-export const getInvestimentos = () =>
-  pb.collection('investimentos_cenarios').getFullList<InvestimentoCenario>({ sort: '-created' })
+export const getInvestimentos = async () => {
+  const { data, error } = await supabase
+    .from('investimentos_cenarios')
+    .select('*')
+    .order('created', { ascending: false })
 
-export const createInvestimento = (data: Partial<InvestimentoCenario>) =>
-  pb.collection('investimentos_cenarios').create<InvestimentoCenario>(data)
+  if (error) throw error
+  return data as InvestimentoCenario[]
+}
 
-export const updateInvestimento = (id: string, data: Partial<InvestimentoCenario>) =>
-  pb.collection('investimentos_cenarios').update<InvestimentoCenario>(id, data)
+export const createInvestimento = async (payload: Partial<InvestimentoCenario>) => {
+  const { data, error } = await supabase
+    .from('investimentos_cenarios')
+    .insert(payload)
+    .select()
+    .single()
 
-export const deleteInvestimento = (id: string) => pb.collection('investimentos_cenarios').delete(id)
+  if (error) throw error
+  return data as InvestimentoCenario
+}
+
+export const updateInvestimento = async (id: string, payload: Partial<InvestimentoCenario>) => {
+  const { data, error } = await supabase
+    .from('investimentos_cenarios')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as InvestimentoCenario
+}
+
+export const deleteInvestimento = async (id: string) => {
+  const { error } = await supabase.from('investimentos_cenarios').delete().eq('id', id)
+
+  if (error) throw error
+  return true
+}

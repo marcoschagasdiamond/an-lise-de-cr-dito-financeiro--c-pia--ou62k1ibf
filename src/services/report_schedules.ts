@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export interface ReportSchedule {
   id: string
@@ -12,18 +12,32 @@ export interface ReportSchedule {
 export const getReportSchedule = async (userId: string): Promise<ReportSchedule | null> => {
   if (!userId) return null
   try {
-    const records = await pb.collection('report_schedules').getFullList({
-      filter: `user_id = "${userId}"`,
-    })
-    return records.length > 0 ? (records[0] as unknown as ReportSchedule) : null
+    const { data, error } = await supabase
+      .from('report_schedules')
+      .select('*')
+      .eq('user_id', userId)
+      .limit(1)
+
+    if (error) throw error
+    return data && data.length > 0 ? (data[0] as unknown as ReportSchedule) : null
   } catch {
     return null
   }
 }
 
-export const saveReportSchedule = async (id: string | null, data: Partial<ReportSchedule>) => {
+export const saveReportSchedule = async (id: string | null, payload: Partial<ReportSchedule>) => {
   if (id) {
-    return pb.collection('report_schedules').update(id, data)
+    const { data, error } = await supabase
+      .from('report_schedules')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data
   }
-  return pb.collection('report_schedules').create(data)
+
+  const { data, error } = await supabase.from('report_schedules').insert(payload).select().single()
+  if (error) throw error
+  return data
 }
