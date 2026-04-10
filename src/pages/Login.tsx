@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { UseNavigate, Link} from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,18 +17,18 @@ import { supabase } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
   const { toast } = useToast()
+ 
 
   useEffect(() => {
     // Scripts de Limpeza Automática: ao montar a página de login, limpa resquícios de sessão antigas
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
-
-    // Limpeza profunda para garantir a remoção da memória antiga
     sessionStorage.clear()
-
     supabase.auth.signOut().catch(() => {})
   }, [])
 
@@ -43,25 +43,34 @@ export default function LoginPage() {
     await supabase.auth.signOut().catch(() => {})
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-        },
+      const { data, error } = await supabase.auth.signWithPassword({
+      email,
+      password,
       })
 
-      if (error) {
-        throw error
-      }
+      if (error) { throw error
 
       toast({
-        title: 'Link enviado!',
-        description: 'Verifique seu e-mail para acessar o sistema através do Link Mágico.',
+        title: 'Login realizado!',
+        description: 'Bem-vindo ao sistema.',
       })
-    } catch (err) {
+      
+      // Redireciona baseado no tipo de usuário
+      const userType = data.user?.user_metadata?.tipo_usuario
+
+      if (userType==='admin') {
+       navigate('/admin/dasboard')
+      } else if (userType==='cliente') 
+       navigate('/area-cliente/dashboard')
+      } else if (userType==='parceiro')
+       navigate('/area-parceiro/dashboard')
+      } else {
+        navigate('/')
+      }
+      } catch (err: any) {
       toast({
         title: 'Erro',
-        description: 'Ocorreu um erro inesperado ao enviar o Link Mágico.',
+        description: err.menssage ||'Email ou senha  inválidos.',
         variant: 'destructive',
       })
     } finally {
@@ -74,7 +83,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Acesso sem Senha</CardTitle>
-          <CardDescription>Insira seu email para receber um Link Mágico de acesso.</CardDescription>
+          <CardDescription>Insira seu email e senha para acessar o sistema.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -89,11 +98,22 @@ export default function LoginPage() {
                 required
               />
             </div>
+            <div className="space-y-2">
+            <Label htmlFor="password">Senha</Label>
+            <Input
+            id="password"
+            type="password"
+            placeholder="Sua senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            />
+            </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Enviar Link Mágico
+              Entrar
             </Button>
 
             <div className="text-sm text-center text-muted-foreground">
