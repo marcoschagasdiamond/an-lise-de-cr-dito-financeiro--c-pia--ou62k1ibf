@@ -42,7 +42,7 @@ export default function AdminLogin() {
       }
         
         toast.sucesso('login realizado! bem vindo ao painel admnistrativo.')
-        navigate("/admin/dashboard")
+        navigate('/admin/dashboard')
     } catch (err: any) {
       toast.error(err.message||'Email ou senha inválidos.')
     } finally {
@@ -67,9 +67,9 @@ export default function AdminLogin() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Administrativo</Label>
+          <form onSubmit={handleLogin} className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='email'>Email Administrativo</Label>
               <Input
                 id='email'
                 type='email'
@@ -79,8 +79,8 @@ export default function AdminLogin() {
                 required
               />
             </div>
-            <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
+            <div className='space-y-2'>
+            <Label htmlFor='password'>Senha</Label>
             <Input
             id='password'
             type='password'
@@ -91,11 +91,11 @@ export default function AdminLogin() {
             >
             </div>
             <Button 
-              type="submit"
-              className="w-full bg-[#002147] hover:bg-[#002147]/90 text-white"
+              type='submit'
+              className='w-full bg-[#002147] hover:bg-[#002147]/90 text-white'
               disabled={isLoading}
             >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin' />}
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
