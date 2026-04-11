@@ -36,24 +36,20 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    try {
     // Scripts de Limpeza Automática: Limpa sessões conflitantes antes de tentar um novo login
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
     await supabase.auth.signOut().catch(() => {})
 
-    // autenticação com email e senha 
+    try { 
       const { data, error } = await supabase.auth.signWithPassword({
       email,
       password,
       })
 
-      if (error) { 
-        throw error
-      }
-
-      // Toast de sucesso
+      if (error) throw error
+      
       toast({
         title: 'Login realizado!',
         description: 'Bem-vindo ao sistema.',
