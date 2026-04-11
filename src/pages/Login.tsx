@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { UseNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -40,33 +40,35 @@ export default function LoginPage() {
       localStorage.removeItem('admin_token')
       await supabase.auth.signOut().catch(() => {})
 
-      const { data, error } = await supabase.auth.signWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) {
         throw error
+      }
 
-        toast({
-          title: 'Login realizado!',
-          description: 'Bem-vindo ao sistema.',
-        })
+      toast({
+        title: 'Login realizado!',
+        description: 'Bem-vindo ao sistema.',
+      })
 
-        const userType = data.user?.user_metadata?.tipo_usuario
+      const userType = data.user?.user_metadata?.tipo_usuario
 
-        if (userType === 'admin') {
-          navigate('/admin/dasboard')
-        } else if (userType === 'cliente') {
-          navigate('/area-cliente/dashboard')
-        } else if (userType === 'parceiro') navigate('/area-parceiro/dashboard')
+      if (userType === 'admin') {
+        navigate('/admin/dashboard')
+      } else if (userType === 'cliente') {
+        navigate('/portal-cliente/dashboard')
+      } else if (userType === 'parceiro') {
+        navigate('/portal/parceiro')
       } else {
         navigate('/')
       }
     } catch (err: any) {
       toast({
         title: 'Erro',
-        description: err.menssage || 'Email ou senha  inválidos.',
+        description: err.message || 'Email ou senha inválidos.',
         variant: 'destructive',
       })
     } finally {
