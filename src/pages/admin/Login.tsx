@@ -71,9 +71,9 @@ export default function AdminLogin() {
             <div className="space-y-2">
               <Label htmlFor="email">Email Administrativo</Label>
               <Input
-                id=\"email\"
-                type=\"email\"
-                placeholder=\"admin@exemplo.com\"
+                id='email'
+                type='email'
+                placeholder='admin@exemplo.com'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -82,9 +82,9 @@ export default function AdminLogin() {
             <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
             <Input
-            id=\"password\"
-            type=\"password\"
-            placeholder=\"Sua senha de administrador\"
+            id='password'
+            type='password'
+            placeholder='Sua senha de administrador'
             value={password}
             onChange={(e)=> setPassword(e.target.value)}
             required
