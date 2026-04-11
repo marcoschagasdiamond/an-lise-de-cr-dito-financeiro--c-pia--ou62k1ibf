@@ -9,13 +9,23 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from '@/components/ui/sidebar'
-import { LayoutDashboard, UsersRound, Handshake, ShieldCheck, LogOut } from 'lucide-react'
+import {
+  LayoutDashboard,
+  UsersRound,
+  Handshake,
+  ShieldCheck,
+  LogOut,
+  Briefcase,
+  DollarSign,
+} from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 const adminNavItems = [
   { title: 'Dashboard', url: '/admin/dashboard', icon: LayoutDashboard },
   { title: 'Parceiros', url: '/admin/parceiros', icon: Handshake },
   { title: 'Clientes', url: '/admin/clientes', icon: UsersRound },
+  { title: 'Prospecções', url: '/admin/prospeccoes', icon: Briefcase },
+  { title: 'Comissões', url: '/admin/comissoes', icon: DollarSign },
   { title: 'Administradores', url: '/admin/administradores', icon: ShieldCheck },
 ]
 
