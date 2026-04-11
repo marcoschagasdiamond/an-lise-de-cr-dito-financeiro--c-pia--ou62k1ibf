@@ -15,7 +15,6 @@ export default function AdminLogin() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Scripts de Limpeza Automática: ao montar a página de login, limpa resquícios de sessão antigas
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
@@ -27,13 +26,12 @@ export default function AdminLogin() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Scripts de Limpeza Automática: Limpa sessões conflitantes antes de tentar um novo login
+       try { 
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
     await supabase.auth.signOut().catch(() => {})
 
-    try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -41,10 +39,9 @@ export default function AdminLogin() {
 
       if (error) {
         throw error
+      }
         
-        toast.sucesso('login realizado! bem vindo ao painel administrativo.')
-
-        //Redireciona para dashboard admin
+        toast.sucesso('login realizado! bem vindo ao painel admnistrativo.')
         navigate("/admin/dashboard")
     } catch (err: any) {
       toast.error(err.message||'Email ou senha inválidos.')
@@ -74,9 +71,9 @@ export default function AdminLogin() {
             <div className="space-y-2">
               <Label htmlFor="email">Email Administrativo</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="admin@exemplo.com"
+                id=\"email\"
+                type=\"email\"
+                placeholder=\"admin@exemplo.com\"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -84,10 +81,10 @@ export default function AdminLogin() {
             </div>
             <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
-            <ImageCapture
-            id="password"
-            type="password"
-            placeholder="Sua senha de administrador"
+            <Input
+            id=\"password\"
+            type=\"password\"
+            placeholder=\"Sua senha de administrador\"
             value={password}
             onChange={(e)=> setPassword(e.target.value)}
             required
