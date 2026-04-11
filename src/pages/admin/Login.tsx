@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase/client'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
-  const [password, setPassword]= useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -26,25 +26,26 @@ export default function AdminLogin() {
     e.preventDefault()
     setIsLoading(true)
 
-       try { 
-    localStorage.removeItem('custom_jwt_token')
-    localStorage.removeItem('user_info')
-    localStorage.removeItem('admin_token')
-    await supabase.auth.signOut().catch(() => {})
+    try {
+      localStorage.removeItem('custom_jwt_token')
+      localStorage.removeItem('user_info')
+      localStorage.removeItem('admin_token')
+      sessionStorage.clear()
+      await supabase.auth.signOut().catch(() => {})
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        })
+      })
 
       if (error) {
         throw error
       }
-        
-        toast.sucesso('login realizado! bem vindo ao painel admnistrativo.')
-        navigate('/admin/dashboard')
+
+      toast.success('Login realizado! Bem-vindo ao painel administrativo.')
+      navigate('/admin/dashboard')
     } catch (err: any) {
-      toast.error(err.message||'Email ou senha inválidos.')
+      toast.error(err.message || 'Email ou senha inválidos.')
     } finally {
       setIsLoading(false)
     }
@@ -67,35 +68,35 @@ export default function AdminLogin() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className='space-y-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='email'>Email Administrativo</Label>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Administrativo</Label>
               <Input
-                id='email'
-                type='email'
-                placeholder='admin@exemplo.com'
+                id="email"
+                type="email"
+                placeholder="admin@exemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <div className='space-y-2'>
-            <Label htmlFor='password'>Senha</Label>
-            <Input
-            id='password'
-            type='password'
-            placeholder='Sua senha de administrador'
-            value={password}
-            onChange={(e)=> setPassword(e.target.value)}
-            required
-            >
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Sua senha de administrador"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-            <Button 
-              type='submit'
-              className='w-full bg-[#002147] hover:bg-[#002147]/90 text-white'
+            <Button
+              type="submit"
+              className="w-full bg-[#002147] hover:bg-[#002147]/90 text-white"
               disabled={isLoading}
             >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin' />}
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
