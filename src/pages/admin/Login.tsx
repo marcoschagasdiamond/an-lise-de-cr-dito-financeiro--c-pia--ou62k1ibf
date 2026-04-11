@@ -34,9 +34,9 @@ export default function AdminLogin() {
     await supabase.auth.signOut().catch(() => {})
 
     try {
-      const { data, error } = await supabase.auth.singInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password.
+        password,
         })
 
       if (error) {
