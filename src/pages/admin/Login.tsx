@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase/client'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
+  const [password, setPassword]= useState('')
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -18,10 +19,7 @@ export default function AdminLogin() {
     localStorage.removeItem('custom_jwt_token')
     localStorage.removeItem('user_info')
     localStorage.removeItem('admin_token')
-
-    // Limpeza profunda para garantir a remoção da memória antiga
     sessionStorage.clear()
-
     supabase.auth.signOut().catch(() => {})
   }, [])
 
@@ -36,22 +34,20 @@ export default function AdminLogin() {
     await supabase.auth.signOut().catch(() => {})
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { data, error } = await supabase.auth.singInWithPassword({
         email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-        },
-      })
+        password.
+        })
 
       if (error) {
         throw error
-      }
+        
+        toast.sucesso('login realizado! bem vindo ao painel administrativo.')
 
-      toast.success(
-        'Link enviado! Verifique seu e-mail para acessar o sistema com credenciais de Master.',
-      )
-    } catch (err) {
-      toast.error('Ocorreu um erro inesperado ao tentar enviar o Link Mágico.')
+        //Redireciona para dashboard admin
+        navigate("/admin/dashboard")
+    } catch (err: any) {
+      toast.error(err.message||'Email ou senha inválidos.')
     } finally {
       setIsLoading(false)
     }
@@ -67,10 +63,10 @@ export default function AdminLogin() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight text-[#002147] dark:text-white">
-            Acesso Administrativo (Link Mágico)
+            Acesso Administrativo
           </CardTitle>
           <CardDescription>
-            Insira seu e-mail de administrador para receber o link de acesso
+            Insira suas credenciais de administrador para acessar o painel
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -86,13 +82,24 @@ export default function AdminLogin() {
                 required
               />
             </div>
-            <Button
+            <div className="space-y-2">
+            <Label htmlFor="password">Senha</Label>
+            <ImageCapture
+            id="password"
+            type="password"
+            placeholder="Sua senha de administrador"
+            value={password}
+            onChange={(e)=> setPassword(e.target.value)}
+            required
+            >
+            </div>
+            <Button 
               type="submit"
               className="w-full bg-[#002147] hover:bg-[#002147]/90 text-white"
               disabled={isLoading}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? 'Enviando...' : 'Enviar Link Mágico'}
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
         </CardContent>
