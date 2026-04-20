@@ -1,11 +1,17 @@
 // AVOID UPDATING THIS FILE DIRECTLY. It is automatically generated.
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.4'
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -18,6 +24,7 @@ export type Database = {
           projeto_id: string | null
           responsavel: string | null
           tipo_evento: string | null
+          usuario_id: string | null
         }
         Insert: {
           data_criacao?: string | null
@@ -27,6 +34,7 @@ export type Database = {
           projeto_id?: string | null
           responsavel?: string | null
           tipo_evento?: string | null
+          usuario_id?: string | null
         }
         Update: {
           data_criacao?: string | null
@@ -36,14 +44,15 @@ export type Database = {
           projeto_id?: string | null
           responsavel?: string | null
           tipo_evento?: string | null
+          usuario_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'acompanhamento_projetos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "acompanhamento_projetos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -77,11 +86,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'administradores_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "administradores_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -94,6 +103,7 @@ export type Database = {
           id: string
           nome_analise: string | null
           tipo_analise: string | null
+          usuario_id: string | null
         }
         Insert: {
           cliente_id?: string | null
@@ -103,6 +113,7 @@ export type Database = {
           id?: string
           nome_analise?: string | null
           tipo_analise?: string | null
+          usuario_id?: string | null
         }
         Update: {
           cliente_id?: string | null
@@ -112,14 +123,15 @@ export type Database = {
           id?: string
           nome_analise?: string | null
           tipo_analise?: string | null
+          usuario_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'analises_salvas_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "analises_salvas_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -159,11 +171,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'balanco_patrimonial_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "balanco_patrimonial_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -194,11 +206,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'cenarios_financiamento_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "cenarios_financiamento_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -232,11 +244,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'cenarios_investimento_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "cenarios_investimento_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -273,11 +285,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'clientes_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "clientes_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -314,18 +326,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'comissoes_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "comissoes_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comissoes_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "comissoes_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -359,18 +371,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'crm_parceiros_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "crm_parceiros_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'crm_parceiros_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "crm_parceiros_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -398,11 +410,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dashboard_metricas_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dashboard_metricas_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -436,11 +448,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'diagnosticos_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "diagnosticos_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -474,11 +486,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'documentos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "documentos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -542,11 +554,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dre_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dre_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -619,11 +631,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dre_projetado_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dre_projetado_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -660,11 +672,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'fluxo_caixa_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "fluxo_caixa_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -710,11 +722,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'indicadores_financeiros_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "indicadores_financeiros_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -725,6 +737,7 @@ export type Database = {
           id: string
           projeto_id: string | null
           tipo_investimento: string | null
+          usuario_id: string | null
           valor: number | null
         }
         Insert: {
@@ -733,6 +746,7 @@ export type Database = {
           id?: string
           projeto_id?: string | null
           tipo_investimento?: string | null
+          usuario_id?: string | null
           valor?: number | null
         }
         Update: {
@@ -741,15 +755,16 @@ export type Database = {
           id?: string
           projeto_id?: string | null
           tipo_investimento?: string | null
+          usuario_id?: string | null
           valor?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: 'investimentos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "investimentos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -792,11 +807,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'parametros_dre_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "parametros_dre_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -830,11 +845,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'parceiros_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "parceiros_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -865,11 +880,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_admin_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_admin_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -897,11 +912,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_cliente_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_cliente_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -929,11 +944,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_parceiro_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_parceiro_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -967,18 +982,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pipeline_demandas_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "pipeline_demandas_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pipeline_demandas_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "pipeline_demandas_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1018,11 +1033,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'projetos_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "projetos_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1050,11 +1065,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'relatorios_gerados_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "relatorios_gerados_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1085,11 +1100,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'simulacoes_financeiras_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "simulacoes_financeiras_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1172,31 +1187,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1205,23 +1222,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1230,23 +1247,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1255,36 +1272,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
@@ -1292,6 +1309,7 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
 
 // ====== DATABASE EXTENDED CONTEXT (auto-generated) ======
 // This section contains actual PostgreSQL column types, constraints, RLS policies,
@@ -1311,6 +1329,7 @@ export const Constants = {
 //   data_evento: timestamp with time zone (nullable)
 //   responsavel: text (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
+//   usuario_id: uuid (nullable)
 // Table: administradores
 //   id: uuid (not null, default: gen_random_uuid())
 //   usuario_id: uuid (nullable)
@@ -1327,6 +1346,7 @@ export const Constants = {
 //   dados_analise: jsonb (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
 //   data_atualizacao: timestamp with time zone (nullable, default: now())
+//   usuario_id: uuid (nullable)
 // Table: balanco_patrimonial
 //   id: uuid (not null, default: gen_random_uuid())
 //   projeto_id: uuid (nullable)
@@ -1467,6 +1487,7 @@ export const Constants = {
 //   valor: numeric (nullable)
 //   descricao: text (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
+//   usuario_id: uuid (nullable)
 // Table: parametros_dre
 //   id: uuid (not null, default: gen_random_uuid())
 //   projeto_id: uuid (nullable)
@@ -1558,12 +1579,14 @@ export const Constants = {
 //   PRIMARY KEY acompanhamento_projetos_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY acompanhamento_projetos_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
 //   CHECK acompanhamento_projetos_tipo_evento_check: CHECK ((tipo_evento = ANY (ARRAY['diagnostico'::text, 'analise'::text, 'implementacao'::text, 'resultado'::text])))
+//   FOREIGN KEY acompanhamento_projetos_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES auth.users(id) ON DELETE CASCADE
 // Table: administradores
 //   PRIMARY KEY administradores_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY administradores_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 // Table: analises_salvas
 //   FOREIGN KEY analises_salvas_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 //   PRIMARY KEY analises_salvas_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY analises_salvas_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES auth.users(id) ON DELETE CASCADE
 // Table: balanco_patrimonial
 //   PRIMARY KEY balanco_patrimonial_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY balanco_patrimonial_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
@@ -1611,6 +1634,7 @@ export const Constants = {
 // Table: investimentos
 //   PRIMARY KEY investimentos_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY investimentos_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+//   FOREIGN KEY investimentos_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES auth.users(id) ON DELETE CASCADE
 // Table: parametros_dre
 //   PRIMARY KEY parametros_dre_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY parametros_dre_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
@@ -1774,17 +1798,17 @@ export const Constants = {
 //   BEGIN
 //     INSERT INTO public.usuarios (id, email, nome, tipo_usuario, status)
 //     VALUES (
-//       NEW.id,
-//       NEW.email,
-//       COALESCE(NEW.raw_user_meta_data->>'name', 'Usuário'),
-//       COALESCE(NEW.raw_user_meta_data->>'tipo_usuario', 'cliente'),
+//       NEW.id, 
+//       NEW.email, 
+//       COALESCE(NEW.raw_user_meta_data->>'name', 'Usuário'), 
+//       COALESCE(NEW.raw_user_meta_data->>'tipo_usuario', 'cliente'), 
 //       'ativo'
 //     )
 //     ON CONFLICT (email) DO NOTHING;
 //     RETURN NEW;
 //   END;
 //   $function$
-//
+//   
 // FUNCTION validar_login(text, text)
 //   CREATE OR REPLACE FUNCTION public.validar_login(p_email text, p_senha text)
 //    RETURNS jsonb
@@ -1797,11 +1821,11 @@ export const Constants = {
 //   BEGIN
 //     -- (1) Buscar o usuário na tabela usuarios pelo email fornecido
 //     SELECT * INTO v_usuario FROM public.usuarios WHERE email = p_email LIMIT 1;
-//
+//   
 //     IF NOT FOUND THEN
 //       RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
 //     END IF;
-//
+//   
 //     -- (2) Comparar a senha fornecida com a senha_hash usando a função crypt do PostgreSQL
 //     -- (5) Garantir que a comparação de senha funcione corretamente com bcrypt gerado por gen_salt('bf')
 //     BEGIN
@@ -1815,12 +1839,12 @@ export const Constants = {
 //         v_valido := true;
 //       END IF;
 //     END;
-//
+//   
 //     IF v_valido THEN
 //       IF v_usuario.status IS NOT NULL AND v_usuario.status != 'ativo' THEN
 //         RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
 //       END IF;
-//
+//   
 //       -- (3) Se válido, retornar o usuario_id, tipo_usuario
 //       RETURN jsonb_build_object(
 //         'success', true,
@@ -1835,13 +1859,20 @@ export const Constants = {
 //         )
 //       );
 //     END IF;
-//
+//   
 //     -- (4) Se inválido, retornar erro 401 com mensagem "Credenciais inválidas" (tratado na Edge Function)
 //     RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
 //   END;
 //   $function$
-//
+//   
 
 // --- INDEXES ---
+// Table: acompanhamento_projetos
+//   CREATE INDEX idx_acompanhamento_projetos_usuario_id ON public.acompanhamento_projetos USING btree (usuario_id)
+// Table: analises_salvas
+//   CREATE INDEX idx_analises_salvas_usuario_id ON public.analises_salvas USING btree (usuario_id)
+// Table: investimentos
+//   CREATE INDEX idx_investimentos_usuario_id ON public.investimentos USING btree (usuario_id)
 // Table: usuarios
 //   CREATE UNIQUE INDEX usuarios_email_key ON public.usuarios USING btree (email)
+

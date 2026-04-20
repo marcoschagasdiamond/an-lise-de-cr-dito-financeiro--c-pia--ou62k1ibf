@@ -1,6 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import jwt from 'https;//esm.sh/jsonwebtoken'
+import { createClient } from 'jsr:@supabase/supabase-js@2'
+import jwt from 'npm:jsonwebtoken'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
