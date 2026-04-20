@@ -1,6 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import jwt from 'npm:jsonwebtoken@9.0.2'
 import { corsHeaders } from '../_shared/cors.ts'
 
 Deno.serve(async (req: Request) => {
@@ -22,7 +21,7 @@ Deno.serve(async (req: Request) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    
+
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Faltando variáveis de ambiente do Supabase')
       return new Response(JSON.stringify({ error: 'Erro interno de configuração do servidor' }), {
@@ -31,9 +30,15 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    // Cria o client com Service Role para acessar a API Admin do Auth e desabilitar sessões na Edge Function
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
-    // Valida o usuário diretamente no banco via RPC
+    // Valida o usuário diretamente no banco de dados via RPC (tabela public.usuarios)
     const { data, error } = await supabase.rpc('validar_login', {
       p_email: email,
       p_senha: password,
@@ -46,39 +51,51 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    const jwtSecret =
-      Deno.env.get('SUPABASE_JWT_SECRET') ??
-      'super-secret-jwt-token-with-at-least-32-characters-long'
-    
-    // Assina o token JWT customizado com claims compatíveis com o Supabase
-    const token = jwt.sign(
-      { 
-        aud: 'authenticated',
-        sub: data.usuario_id, 
-        email: email, 
-        role: 'authenticated', // Mantém 'authenticated' para o RLS funcionar
+    const userId = data.usuario_id
+
+    // Tenta buscar o usuário no auth.users para verificar se ele está sincronizado com o GoTrue
+    const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserById(userId)
+
+    if (authUserError || !authUser.user) {
+      // Usuário não existe no auth.users (foi importado apenas na tabela pública), vamos criá-lo
+      const { error: createError } = await supabase.auth.admin.createUser({
+        id: userId,
+        email: email,
+        password: password,
+        email_confirm: true,
         user_metadata: {
           nome: data.usuario?.nome,
           tipo_usuario: data.tipo_usuario,
-          status: data.usuario?.status
-        }
-      },
-      jwtSecret,
-      { expiresIn: '1d' }
-    )
+          status: data.usuario?.status,
+        },
+      })
 
+      if (createError) {
+        console.error('Erro ao criar usuário no auth.users:', createError)
+        // Caso o usuário exista mas a busca tenha falhado por algum erro transitório, força a sincronização da senha
+        await supabase.auth.admin.updateUserById(userId, {
+          password: password,
+          email_confirm: true,
+        })
+      }
+    } else {
+      // Se ele já existe no auth.users mas o login normal falhou, pode ser dessincronização de senha
+      await supabase.auth.admin.updateUserById(userId, { password: password, email_confirm: true })
+    }
+
+    // Retorna sucesso para que o Frontend possa refazer a requisição de signIn com o GoTrue nativo
     return new Response(
       JSON.stringify({
         success: true,
-        token,
         usuario_id: data.usuario_id,
         tipo_usuario: data.tipo_usuario,
         user: data.usuario,
+        synced: true,
       }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      },
     )
   } catch (error: any) {
     console.error('Erro na edge function de login:', error)
