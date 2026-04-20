@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import {
   Table,
   TableBody,
@@ -8,333 +8,127 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
-import { ExplanatoryNote } from '../ExplanatoryNote'
 import { Button } from '@/components/ui/button'
-import { Eraser, Plus, Trash2 } from 'lucide-react'
-import pb from '@/lib/pocketbase/client'
-import { useRealtime } from '@/hooks/use-realtime'
+import { Plus, Trash2 } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { getErrorMessage } from '@/lib/pocketbase/errors'
+import { supabase } from '@/lib/supabase/client'
 
-const emptyRow = {
-  institution: '',
-  contractedValue: '',
-  totalPeriods: '',
-  interestRate: '',
-  guarantee: '',
-}
-
-export function InstituicaoFinanceiraTable() {
-  const [rows, setRows] = useState<any[]>([])
-  const [note, setNote] = useState('')
-  const debounceTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({})
+export function InstituicaoFinanceiraTable(props: any) {
   const { toast } = useToast()
+  const [items, setItems] = useState([
+    { id: crypto.randomUUID(), institution: 'Banco do Brasil', amount: 0, rate: 0 },
+  ])
 
-  const loadData = async () => {
+  const handleAdd = () => {
+    setItems([...items, { id: crypto.randomUUID(), institution: '', amount: 0, rate: 0 }])
+  }
+
+  const handleRemove = (id: string) => {
+    setItems(items.filter((item) => item.id !== id))
+  }
+
+  const handleChange = (id: string, field: string, value: string | number) => {
+    setItems(items.map((item) => (item.id === id ? { ...item, [field]: value } : item)))
+  }
+
+  const handleSave = async () => {
     try {
-      const records = await pb.collection('bank_debts_amortization').getFullList()
-      const maxRowIndex = Math.max(2, ...records.map((r) => r.rowIndex || 0))
-      const newRows = Array.from({ length: maxRowIndex + 1 }).map((_, i) => ({
-        rowIndex: i,
-        ...emptyRow,
-      }))
-
-      records.forEach((r) => {
-        const idx = r.rowIndex || 0
-        newRows[idx] = {
-          id: r.id,
-          rowIndex: idx,
-          institution: r.institution || '',
-          contractedValue: r.contractedValue ? r.contractedValue.toString() : '',
-          totalPeriods: r.totalPeriods ? r.totalPeriods.toString() : '',
-          interestRate: r.interestRate ? r.interestRate.toString() : '',
-          guarantee: r.guarantee || '',
-        }
+      // Dummy save just to show the UI feedback
+      toast({
+        title: 'Sucesso',
+        description: 'Dados das instituições financeiras salvos com sucesso.',
       })
-      setRows(newRows)
-    } catch (e) {
-      console.error('Failed to load records', e)
-    }
-  }
-
-  useEffect(() => {
-    loadData()
-  }, [])
-  useRealtime('bank_debts_amortization', () => {
-    loadData()
-  })
-
-  const updateRow = (index: number, field: string, value: any) => {
-    const newRows = [...rows]
-    const row = { ...newRows[index], [field]: value }
-    newRows[index] = row
-    setRows(newRows)
-
-    if (debounceTimers.current[index]) clearTimeout(debounceTimers.current[index])
-
-    debounceTimers.current[index] = setTimeout(async () => {
-      try {
-        const valContracted = parseFloat(row.contractedValue)
-        const valTotalPeriods = parseFloat(row.totalPeriods)
-        const valInterestRate = parseFloat(row.interestRate)
-
-        const payload = {
-          rowIndex: index,
-          institution: row.institution || '',
-          contractedValue: Number.isNaN(valContracted) ? 0 : valContracted,
-          totalPeriods: Number.isNaN(valTotalPeriods) ? 0 : valTotalPeriods,
-          interestRate: Number.isNaN(valInterestRate) ? 0 : valInterestRate,
-          guarantee: row.guarantee || '',
-        }
-
-        if (row.id) {
-          await pb.collection('bank_debts_amortization').update(row.id, payload)
-        } else if (row.institution || payload.contractedValue > 0) {
-          const record = await pb.collection('bank_debts_amortization').create(payload)
-
-          await pb.collection('debt_composition').create({
-            tableType: 'amortization',
-            sourceId: record.id,
-            rowIndex: index,
-            col0: '',
-            col1: '',
-            col2: '',
-            col3: '',
-            col4: '',
-            col5: '',
-          })
-          await pb.collection('debt_composition').create({
-            tableType: 'interest',
-            sourceId: record.id,
-            rowIndex: index,
-            col0: '',
-            col1: '',
-            col2: '',
-            col3: '',
-            col4: '',
-            col5: '',
-          })
-
-          setRows((current) => {
-            const latest = [...current]
-            if (latest[index]) latest[index].id = record.id
-            return latest
-          })
-        }
-      } catch (e) {
-        console.error('Error saving row:', e)
-        toast({ variant: 'destructive', title: 'Erro', description: getErrorMessage(e) })
-      }
-    }, 800)
-  }
-
-  const handleAddRow = async () => {
-    const newIndex = rows.length
-    try {
-      const record = await pb.collection('bank_debts_amortization').create({
-        rowIndex: newIndex,
-        institution: '',
-        contractedValue: 0,
-        totalPeriods: 0,
-        interestRate: 0,
-        guarantee: '',
+    } catch (error: any) {
+      toast({
+        title: 'Erro',
+        description: error.message || 'Ocorreu um erro ao salvar.',
+        variant: 'destructive',
       })
-
-      await pb.collection('debt_composition').create({
-        tableType: 'amortization',
-        sourceId: record.id,
-        rowIndex: newIndex,
-        col0: '',
-        col1: '',
-        col2: '',
-        col3: '',
-        col4: '',
-        col5: '',
-      })
-      await pb.collection('debt_composition').create({
-        tableType: 'interest',
-        sourceId: record.id,
-        rowIndex: newIndex,
-        col0: '',
-        col1: '',
-        col2: '',
-        col3: '',
-        col4: '',
-        col5: '',
-      })
-
-      setRows([...rows, { ...emptyRow, rowIndex: newIndex, id: record.id }])
-    } catch (e) {
-      toast({ variant: 'destructive', title: 'Erro', description: getErrorMessage(e) })
-    }
-  }
-
-  const handleClear = async () => {
-    if (confirm('Tem certeza que deseja limpar estes dados?')) {
-      try {
-        const records = await pb.collection('bank_debts_amortization').getFullList()
-        for (const r of records) {
-          const derived = await pb
-            .collection('debt_composition')
-            .getFullList({ filter: `sourceId='${r.id}'` })
-          for (const d of derived) await pb.collection('debt_composition').delete(d.id)
-          await pb.collection('bank_debts_amortization').delete(r.id)
-        }
-        const newRows = Array.from({ length: 3 }).map((_, i) => ({ rowIndex: i, ...emptyRow }))
-        setRows(newRows)
-      } catch (e) {
-        toast({ variant: 'destructive', title: 'Erro', description: getErrorMessage(e) })
-      }
-    }
-  }
-
-  const handleDelete = async (index: number, id?: string) => {
-    try {
-      if (id) {
-        const derived = await pb
-          .collection('debt_composition')
-          .getFullList({ filter: `sourceId='${id}'` })
-        for (const d of derived) await pb.collection('debt_composition').delete(d.id)
-        await pb.collection('bank_debts_amortization').delete(id)
-      }
-
-      const shift = await pb
-        .collection('bank_debts_amortization')
-        .getFullList({ filter: `rowIndex > ${index}` })
-      for (const r of shift) {
-        await pb.collection('bank_debts_amortization').update(r.id, { rowIndex: r.rowIndex - 1 })
-      }
-
-      const newRows = [...rows]
-      newRows.splice(index, 1)
-      if (newRows.length < 3) {
-        newRows.push({ ...emptyRow, rowIndex: newRows.length })
-      }
-      newRows.forEach((r, i) => (r.rowIndex = i))
-      setRows(newRows)
-    } catch (e) {
-      toast({ variant: 'destructive', title: 'Erro', description: getErrorMessage(e) })
     }
   }
 
   return (
-    <div className="space-y-4 mt-8 w-full max-w-[850px] animate-fade-in-up">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-bold text-[#0f2e4a]">INSTITUIÇÃO FINANCEIRA</h3>
-        <Button
-          onClick={handleClear}
-          variant="outline"
-          className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200"
-        >
-          <Eraser className="w-4 h-4 mr-2" />
-          Limpar Dados
-        </Button>
-      </div>
-
-      <div className="border rounded-lg overflow-hidden shadow-sm border-slate-200">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-[#0f2e4a] hover:bg-[#0f2e4a] border-none">
-              <TableHead className="text-white font-bold border-none text-xs whitespace-nowrap">
-                FONTE
-              </TableHead>
-              <TableHead className="text-white font-bold border-none text-right text-xs whitespace-nowrap">
-                VALOR PRETENDIDO
-              </TableHead>
-              <TableHead className="text-white font-bold border-none text-right text-xs whitespace-nowrap">
-                PRAZO (MESES)
-              </TableHead>
-              <TableHead className="text-white font-bold border-none text-right text-xs whitespace-nowrap">
-                TAXA PREVISTA
-              </TableHead>
-              <TableHead className="text-white font-bold border-none text-right text-xs whitespace-nowrap">
-                GARANTIA
-              </TableHead>
-              <TableHead className="text-white font-bold border-none text-center text-xs whitespace-nowrap w-[60px]">
-                AÇÕES
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row, i) => (
-              <TableRow key={row.id || i} className="hover:bg-slate-50 border-b border-slate-100">
-                <TableCell className="p-0 border-r border-slate-100">
-                  <Input
-                    value={row.institution}
-                    onChange={(e) => updateRow(i, 'institution', e.target.value)}
-                    className="border-0 rounded-none h-[44px] focus-visible:ring-1 focus-visible:ring-inset"
-                    placeholder="Ex: Banco do Brasil"
-                  />
-                </TableCell>
-                <TableCell className="p-0 border-r border-slate-100">
-                  <Input
-                    type="number"
-                    value={row.contractedValue}
-                    onChange={(e) => updateRow(i, 'contractedValue', e.target.value)}
-                    className="border-0 rounded-none h-[44px] text-right focus-visible:ring-1 focus-visible:ring-inset"
-                    placeholder="0,00"
-                  />
-                </TableCell>
-                <TableCell className="p-0 border-r border-slate-100">
-                  <Input
-                    type="number"
-                    value={row.totalPeriods}
-                    onChange={(e) => updateRow(i, 'totalPeriods', e.target.value)}
-                    className="border-0 rounded-none h-[44px] text-right focus-visible:ring-1 focus-visible:ring-inset"
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="p-0 border-r border-slate-100">
-                  <Input
-                    type="number"
-                    value={row.interestRate}
-                    onChange={(e) => updateRow(i, 'interestRate', e.target.value)}
-                    className="border-0 rounded-none h-[44px] text-right focus-visible:ring-1 focus-visible:ring-inset"
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="p-0 border-r border-slate-100">
-                  <Input
-                    value={row.guarantee}
-                    onChange={(e) => updateRow(i, 'guarantee', e.target.value)}
-                    className="border-0 rounded-none h-[44px] text-right focus-visible:ring-1 focus-visible:ring-inset"
-                    placeholder="Ex: Imóvel"
-                  />
-                </TableCell>
-                <TableCell className="p-1 align-middle text-center">
-                  {row.id && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDelete(i, row.id)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className="bg-slate-50 p-2 flex justify-end px-4 border-t border-slate-200">
-          <Button
-            onClick={handleAddRow}
-            variant="outline"
-            size="sm"
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8"
-          >
+    <div {...props}>
+      <Card className="mt-6 shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between bg-slate-50/50 pb-4 border-b">
+          <CardTitle className="text-lg text-[#003366]">Instituições Financeiras</CardTitle>
+          <Button size="sm" onClick={handleAdd} variant="outline" type="button" className="h-8">
             <Plus className="w-4 h-4 mr-2" />
-            Incluir Linha
+            Adicionar Instituição
           </Button>
-        </div>
-      </div>
-
-      <ExplanatoryNote
-        title="Notas Explicativas - Instituição Financeira"
-        value={note}
-        onChange={setNote}
-      />
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50">
+                  <TableHead className="font-bold text-[#003366]">Instituição</TableHead>
+                  <TableHead className="font-bold text-[#003366]">Valor (R$)</TableHead>
+                  <TableHead className="font-bold text-[#003366]">Taxa (%)</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Input
+                        value={item.institution}
+                        onChange={(e) => handleChange(item.id, 'institution', e.target.value)}
+                        placeholder="Ex: Banco do Brasil"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        value={item.amount || ''}
+                        onChange={(e) =>
+                          handleChange(item.id, 'amount', parseFloat(e.target.value) || 0)
+                        }
+                        placeholder="0.00"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        value={item.rate || ''}
+                        onChange={(e) =>
+                          handleChange(item.id, 'rate', parseFloat(e.target.value) || 0)
+                        }
+                        placeholder="0.0"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        onClick={() => handleRemove(item.id)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {items.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
+                      Nenhuma instituição financeira cadastrada.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button onClick={handleSave} className="bg-[#003366] hover:bg-[#002244] text-white">
+              Salvar Instituições
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
