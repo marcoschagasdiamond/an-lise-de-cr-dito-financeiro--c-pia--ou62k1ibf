@@ -23,4 +23,4 @@ EXCEPTION
     -- Ignora violações de chave única (como email já existente) mantendo o fluxo seguro
     RETURN NEW;
 END;
-$function$
+$function$;
