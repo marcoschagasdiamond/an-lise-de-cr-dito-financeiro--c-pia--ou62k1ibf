@@ -30,7 +30,10 @@ export default function LoginPage() {
 
     try {
       // Tenta o método padrão de autenticação do Supabase (GoTrue)
-      const { error } = await signIn(email, password)
+      let { error } = await signIn(email, password)
+      let edgeFallbackSuccess = false
+      let customTipoUsuario = null
+      let customStatus = null
 
       if (error) {
         // Fallback: Tenta a Edge Function customizada caso o usuário esteja isolado
@@ -50,31 +53,48 @@ export default function LoginPage() {
 
         // Caso o login customizado retorne sucesso, tenta forçar a sessão local
         if (edgeData.token) {
-          await supabase.auth.setSession({
+          const { error: sessionError } = await supabase.auth.setSession({
             access_token: edgeData.token,
             refresh_token: edgeData.token,
           })
+
+          if (sessionError) {
+            console.error('Erro ao configurar sessão via token customizado:', sessionError)
+          } else {
+            edgeFallbackSuccess = true
+            customTipoUsuario = edgeData.tipo_usuario
+            customStatus = edgeData.user?.status
+          }
         }
       }
 
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from('usuarios')
-          .select('status, tipo_usuario')
-          .eq('id', user.id)
-          .single()
 
-        if (profile?.status === 'pendente_aprovacao') {
+      if (user || edgeFallbackSuccess) {
+        let status = customStatus
+        let tipoUsuario = customTipoUsuario
+
+        if (!edgeFallbackSuccess && user) {
+          const { data: profile } = await supabase
+            .from('usuarios')
+            .select('status, tipo_usuario')
+            .eq('id', user.id)
+            .single()
+
+          status = profile?.status
+          tipoUsuario = profile?.tipo_usuario
+        }
+
+        if (status === 'pendente_aprovacao') {
           await supabase.auth.signOut()
           toast({
             title: 'Aguardando Aprovação',
             description: 'Sua solicitação aguarda aprovação.',
             variant: 'destructive',
           })
-        } else if (profile?.status === 'rejeitado') {
+        } else if (status === 'rejeitado') {
           await supabase.auth.signOut()
           toast({
             title: 'Cadastro Rejeitado',
@@ -82,16 +102,23 @@ export default function LoginPage() {
             variant: 'destructive',
           })
         } else {
-          if (profile?.tipo_usuario === 'admin' || profile?.tipo_usuario === 'administrador') {
+          if (tipoUsuario === 'admin' || tipoUsuario === 'administrador') {
             navigate('/admin/dashboard', { replace: true })
-          } else if (profile?.tipo_usuario === 'parceiro') {
+          } else if (tipoUsuario === 'parceiro') {
             navigate('/portal/parceiro', { replace: true })
           } else {
             navigate('/portal-cliente/dashboard', { replace: true })
           }
         }
+      } else {
+        toast({
+          title: 'Erro ao fazer login',
+          description: 'Não foi possível autenticar o usuário.',
+          variant: 'destructive',
+        })
       }
     } catch (err) {
+      console.error('Erro no login:', err)
       toast({
         title: 'Erro',
         description: 'Ocorreu um erro inesperado.',
