@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,6 +14,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/use-auth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -21,54 +22,63 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
-
-  useEffect(() => {
-    localStorage.removeItem('custom_jwt_token')
-    localStorage.removeItem('user_info')
-    localStorage.removeItem('admin_token')
-    sessionStorage.clear()
-    supabase.auth.signOut().catch(() => {})
-  }, [])
+  const { signIn } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      localStorage.removeItem('custom_jwt_token')
-      localStorage.removeItem('user_info')
-      localStorage.removeItem('admin_token')
-      await supabase.auth.signOut().catch(() => {})
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error } = await signIn(email, password)
 
       if (error) {
-        throw error
+        toast({
+          title: 'Erro ao fazer login',
+          description: 'Credenciais inválidas.',
+          variant: 'destructive',
+        })
+        setLoading(false)
+        return
       }
 
-      toast({
-        title: 'Login realizado!',
-        description: 'Bem-vindo ao sistema.',
-      })
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('usuarios')
+          .select('status, tipo_usuario')
+          .eq('id', user.id)
+          .single()
 
-      const userType = data.user?.user_metadata?.tipo_usuario
-
-      if (userType === 'admin') {
-        navigate('/admin/dashboard')
-      } else if (userType === 'cliente') {
-        navigate('/portal-cliente/dashboard')
-      } else if (userType === 'parceiro') {
-        navigate('/portal/parceiro')
-      } else {
-        navigate('/')
+        if (profile?.status === 'pendente_aprovacao') {
+          await supabase.auth.signOut()
+          toast({
+            title: 'Aguardando Aprovação',
+            description: 'Sua solicitação aguarda aprovação.',
+            variant: 'destructive',
+          })
+        } else if (profile?.status === 'rejeitado') {
+          await supabase.auth.signOut()
+          toast({
+            title: 'Cadastro Rejeitado',
+            description: 'Sua solicitação não foi aceita.',
+            variant: 'destructive',
+          })
+        } else {
+          if (profile?.tipo_usuario === 'admin' || profile?.tipo_usuario === 'administrador') {
+            navigate('/admin/dashboard', { replace: true })
+          } else if (profile?.tipo_usuario === 'parceiro') {
+            navigate('/portal/parceiro', { replace: true })
+          } else {
+            navigate('/portal-cliente/dashboard', { replace: true })
+          }
+        }
       }
-    } catch (err: any) {
+    } catch (err) {
       toast({
         title: 'Erro',
-        description: err.message || 'Email ou senha inválidos.',
+        description: 'Ocorreu um erro inesperado.',
         variant: 'destructive',
       })
     } finally {
@@ -80,8 +90,8 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 px-4 w-full">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
-          <CardDescription>Insira seu email e senha para acessar o sistema.</CardDescription>
+          <CardTitle className="text-2xl font-bold">Entrar</CardTitle>
+          <CardDescription>Insira seu email e senha para acessar sua conta.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -101,7 +111,6 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -113,7 +122,6 @@ export default function LoginPage() {
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Entrar
             </Button>
-
             <div className="text-sm text-center text-muted-foreground">
               Não tem uma conta?{' '}
               <Link to="/signup" className="text-primary hover:underline">

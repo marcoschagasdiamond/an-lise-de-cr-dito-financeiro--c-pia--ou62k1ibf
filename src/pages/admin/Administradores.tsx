@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Header } from '@/components/Header'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Table,
   TableBody,
@@ -9,474 +13,334 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { useAdmin } from '@/hooks/use-admin'
+import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/use-auth'
+import { toast } from 'sonner'
+import { Skeleton } from '@/components/ui/skeleton'
+import { UserPlus, Trash2, ShieldCheck, ArrowLeft } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu'
-import { Plus, MoreHorizontal, UserCog, Mail, ShieldCheck, LifeBuoy, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'
-import { toast } from 'sonner'
 
-export default function Administradores() {
-  const [loading, setLoading] = useState(true)
+export default function AdminAdministradores() {
+  const { isAdmin, hasPermission, loading: adminLoading } = useAdmin()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [admins, setAdmins] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [loadingAction, setLoadingAction] = useState(false)
-
-  const [newAdmin, setNewAdmin] = useState({ nome: '', email: '', password: '' })
-  const [editAdmin, setEditAdmin] = useState({
-    id: '',
-    usuario_id: '',
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [formData, setFormData] = useState({
     nome: '',
     email: '',
     password: '',
+    perms: {
+      gerenciar_parceiros: false,
+      gerenciar_clientes: false,
+      gerenciar_admins: false,
+    },
   })
+  const [submitting, setSubmitting] = useState(false)
 
-  const fetchAdmins = async () => {
+  useEffect(() => {
+    if (!adminLoading && !hasPermission('gerenciar_admins')) {
+      toast.error('Acesso negado.')
+      navigate('/admin/dashboard')
+    }
+  }, [adminLoading, hasPermission, navigate])
+
+  const loadAdmins = async () => {
     try {
-      setLoading(true)
-      const { data, error } = await supabase
+      const { data: records, error } = await supabase
         .from('administradores')
-        .select(`
-          id,
-          nome,
-          email,
-          status,
-          usuario_id,
-          data_criacao,
-          usuarios ( email, status )
-        `)
-        .order('data_criacao', { ascending: true })
+        .select('*, usuarios(*)')
+        .order('data_criacao', { ascending: false })
 
       if (error) throw error
-
-      if (data) {
-        const formatted = data.map((a) => ({
-          id: a.id,
-          nome: a.nome || 'Admin',
-          email: a.email || (a.usuarios as any)?.email || 'Sem email',
-          status: a.status || (a.usuarios as any)?.status || 'ativo',
-          usuario_id: a.usuario_id,
-        }))
-        setAdmins(formatted)
-      }
+      setAdmins(records || [])
     } catch (err) {
-      console.error('Error fetching admins:', err)
-      toast.error('Erro ao carregar administradores')
+      console.error(err)
+      toast.error('Erro ao carregar administradores.')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchAdmins()
-  }, [])
+    if (isAdmin && hasPermission('gerenciar_admins')) {
+      loadAdmins()
+    }
+  }, [isAdmin, hasPermission])
 
-  const handleAddAdmin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoadingAction(true)
+  const handleCreateAdmin = async () => {
+    if (!formData.nome || !formData.email || !formData.password) {
+      toast.error('Preencha todos os campos obrigatórios.')
+      return
+    }
+    if (formData.password.length < 8) {
+      toast.error('A senha deve ter pelo menos 8 caracteres.')
+      return
+    }
+
+    setSubmitting(true)
     try {
-      let userId = null
-
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: newAdmin.email,
-        password: newAdmin.password,
-        options: {
-          data: {
-            name: newAdmin.nome,
-            tipo_usuario: 'admin',
-          },
-        },
-      })
-
-      if (!authError && authData?.user) {
-        userId = authData.user.id
-      }
-
-      const { error: adminError } = await supabase.from('administradores').insert({
-        usuario_id: userId,
-        nome: newAdmin.nome,
-        email: newAdmin.email,
-        permissoes: { todas: true },
+      const newUserId = crypto.randomUUID()
+      const { error: userError } = await supabase.from('usuarios').insert({
+        id: newUserId,
+        email: formData.email,
+        senha_hash: formData.password,
+        nome: formData.nome,
+        tipo_usuario: 'admin',
         status: 'ativo',
       })
+      if (userError) throw userError
 
+      const permissoes = Object.entries(formData.perms)
+        .filter(([_, value]) => value)
+        .map(([key]) => key)
+
+      const { error: adminError } = await supabase.from('administradores').insert({
+        usuario_id: newUserId,
+        nome: formData.nome,
+        email: formData.email,
+        permissoes,
+      })
       if (adminError) throw adminError
 
-      toast.success('Administrador inserido com sucesso!')
-      setIsAddModalOpen(false)
-      setNewAdmin({ nome: '', email: '', password: '' })
-      fetchAdmins()
+      toast.success('Administrador cadastrado com sucesso!')
+      setIsModalOpen(false)
+      setFormData({
+        nome: '',
+        email: '',
+        password: '',
+        perms: { gerenciar_parceiros: false, gerenciar_clientes: false, gerenciar_admins: false },
+      })
+      loadAdmins()
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message || 'Erro ao inserir administrador')
+      toast.error(err?.response?.message || 'Erro ao cadastrar administrador.')
     } finally {
-      setLoadingAction(false)
+      setSubmitting(false)
     }
   }
 
-  const handleEditAdmin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoadingAction(true)
-    try {
-      const { error: adminError } = await supabase
-        .from('administradores')
-        .update({ nome: editAdmin.nome, email: editAdmin.email })
-        .eq('id', editAdmin.id)
-
-      if (adminError) throw adminError
-
-      if (editAdmin.usuario_id) {
-        const updateData: any = { nome: editAdmin.nome, email: editAdmin.email }
-        if (editAdmin.password) updateData.senha_hash = editAdmin.password
-
-        await supabase.from('usuarios').update(updateData).eq('id', editAdmin.usuario_id)
-      }
-
-      toast.success('Administrador atualizado com sucesso!')
-      setIsEditModalOpen(false)
-      fetchAdmins()
-    } catch (err: any) {
-      console.error(err)
-      toast.error(err.message || 'Erro ao atualizar administrador')
-    } finally {
-      setLoadingAction(false)
-    }
-  }
-
-  const handleDeleteAdmin = async (adminId: string) => {
-    if (
-      !confirm(
-        'Tem certeza que deseja deletar este administrador? Essa ação não pode ser desfeita.',
-      )
-    )
+  const handleDelete = async (id: string, userId: string) => {
+    if (!confirm('Tem certeza que deseja remover este administrador? O acesso dele será revogado.'))
       return
-
     try {
-      const { error: adminError } = await supabase
-        .from('administradores')
-        .delete()
-        .eq('id', adminId)
-      if (adminError) throw adminError
-
-      toast.success('Administrador deletado com sucesso!')
-      fetchAdmins()
-    } catch (err: any) {
-      console.error(err)
-      toast.error(err.message || 'Erro ao deletar administrador')
+      await supabase.from('administradores').delete().eq('id', id)
+      if (userId) {
+        await supabase.from('usuarios').delete().eq('id', userId)
+      }
+      toast.success('Administrador removido.')
+      loadAdmins()
+    } catch (err) {
+      toast.error('Erro ao remover administrador.')
     }
   }
 
-  const openEditModal = (admin: any) => {
-    setEditAdmin({
-      id: admin.id,
-      usuario_id: admin.usuario_id,
-      nome: admin.nome,
-      email: admin.email,
-      password: '',
-    })
-    setIsEditModalOpen(true)
-  }
-
-  const mainAdmin = admins.find((a) => a.email === 'marcoschagasdiamond@icloud.com') ||
-    admins[0] || {
-      id: 'placeholder',
-      nome: 'Administrador Principal',
-      email: 'marcoschagasdiamond@icloud.com',
-      status: 'ativo',
-    }
+  if (adminLoading || loading)
+    return (
+      <div className="p-8">
+        <Skeleton className="w-full h-96" />
+      </div>
+    )
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in-up">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-[#0f2e4a] dark:text-slate-100">Administradores</h1>
-          <p className="text-slate-500 mt-1">
-            Gerencie os usuários com acesso administrativo ao sistema
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="space-y-6">
-          <Card className="border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <CardTitle className="text-xl text-[#0f2e4a] dark:text-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-amber-500" />
-                  Admin Principal
-                </div>
-                {mainAdmin.id !== 'placeholder' && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openEditModal(mainAdmin)}>
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-                        onClick={() => handleDeleteAdmin(mainAdmin.id)}
-                      >
-                        Deletar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="space-y-3">
-                <p className="font-semibold text-slate-900 dark:text-slate-100 text-lg">
-                  {mainAdmin.nome}
-                </p>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <Mail className="w-4 h-4" />
-                  <span className="truncate">{mainAdmin.email}</span>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300"
-                >
-                  {mainAdmin.status}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
+    <div className="flex flex-col h-full overflow-y-auto bg-slate-50 dark:bg-background">
+      <Header title="Gestão de Administradores" />
+      <div className="p-6 md:p-8 max-w-[1200px] mx-auto w-full pb-20 animate-fade-in-up">
+        <Button
+          variant="ghost"
+          onClick={() => navigate(-1)}
+          className="mb-4 w-fit px-0 hover:bg-transparent text-muted-foreground"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+        </Button>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-[#002147]">Administradores do Sistema</h1>
+            <p className="text-muted-foreground">Controle quem tem acesso total à plataforma.</p>
+          </div>
           <Button
-            className="w-full bg-[#0f2e4a] hover:bg-[#0f2e4a]/90 text-white h-12"
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => setIsModalOpen(true)}
+            className="gap-2 bg-[#002147] hover:bg-[#002147]/90 text-white"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Inserir novo administrador
+            <UserPlus className="w-4 h-4" /> Novo Administrador
           </Button>
-
-          <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <CardTitle className="text-xl text-[#0f2e4a] dark:text-slate-100 flex items-center gap-2">
-                <LifeBuoy className="w-5 h-5 text-blue-600" />
-                Suporte Técnico
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Precisa de ajuda com o painel? Entre em contato com nossa equipe técnica para
-                suporte especializado.
-              </p>
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 p-3 rounded-md border border-slate-100 dark:border-slate-800">
-                <Mail className="w-4 h-4 text-blue-600" />
-                fabiane.z@dgroup.com.br
-              </div>
-              <Button className="w-full" variant="outline" asChild>
-                <a href="mailto:fabiane.z@dgroup.com.br">Enviar Email</a>
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
-        <div className="md:col-span-2">
-          <Card className="border-slate-200 dark:border-slate-800 shadow-sm h-full">
-            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <CardTitle className="text-xl text-[#0f2e4a] dark:text-slate-100 flex items-center gap-2">
-                <UserCog className="w-5 h-5 text-blue-600" />
-                Equipe Administrativa
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                      <TableHead className="font-semibold">Nome</TableHead>
-                      <TableHead className="font-semibold">Email</TableHead>
-                      <TableHead className="font-semibold text-center">Status</TableHead>
-                      <TableHead className="font-semibold text-right">Ações</TableHead>
+        <Card className="shadow-sm">
+          <CardContent className="p-0">
+            <div className="rounded-md border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Permissões</TableHead>
+                    <TableHead>Data de Criação</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {admins.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        Nenhum administrador encontrado.
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-12 text-slate-500">
-                          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-                          Carregando administradores...
+                  ) : (
+                    admins.map((adm) => (
+                      <TableRow key={adm.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="w-4 h-4 text-[#002147]" />
+                            {adm.nome}
+                          </div>
+                        </TableCell>
+                        <TableCell>{adm.email}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {adm.permissoes?.map((p: string) => (
+                              <Badge key={p} variant="secondary" className="text-[10px]">
+                                {p.replace('gerenciar_', '')}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(adm.data_criacao || '').toLocaleDateString('pt-BR')}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {user?.id !== adm.usuario_id && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Remover"
+                              onClick={() => handleDelete(adm.id, adm.usuario_id)}
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
-                    ) : admins.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-slate-500">
-                          Nenhum administrador encontrado
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      admins.map((admin) => (
-                        <TableRow
-                          key={admin.id}
-                          className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                        >
-                          <TableCell className="font-medium">{admin.nome}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                              <Mail className="w-3 h-3" />
-                              {admin.email}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <Badge variant="outline" className="bg-green-50 text-green-700">
-                              {admin.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-slate-500"
-                                >
-                                  <MoreHorizontal className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => openEditModal(admin)}>
-                                  Editar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-                                  onClick={() => handleDeleteAdmin(admin.id)}
-                                >
-                                  Deletar
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Administrador</DialogTitle>
+              <DialogDescription>
+                Crie um novo usuário com acesso administrativo à plataforma.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Nome Completo</Label>
+                <Input
+                  value={formData.nome}
+                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  placeholder="Ex: Ana Silva"
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="ana@exemplo.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Senha Temporária</Label>
+                <Input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Mínimo 8 caracteres"
+                />
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <Label>Permissões de Acesso</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="perm_parceiros"
+                    checked={formData.perms.gerenciar_parceiros}
+                    onCheckedChange={(c) =>
+                      setFormData({
+                        ...formData,
+                        perms: { ...formData.perms, gerenciar_parceiros: c === true },
+                      })
+                    }
+                  />
+                  <label htmlFor="perm_parceiros" className="text-sm font-medium leading-none">
+                    Aprovar e gerenciar parceiros
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="perm_clientes"
+                    checked={formData.perms.gerenciar_clientes}
+                    onCheckedChange={(c) =>
+                      setFormData({
+                        ...formData,
+                        perms: { ...formData.perms, gerenciar_clientes: c === true },
+                      })
+                    }
+                  />
+                  <label htmlFor="perm_clientes" className="text-sm font-medium leading-none">
+                    Visualizar e gerenciar clientes
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="perm_admins"
+                    checked={formData.perms.gerenciar_admins}
+                    onCheckedChange={(c) =>
+                      setFormData({
+                        ...formData,
+                        perms: { ...formData.perms, gerenciar_admins: c === true },
+                      })
+                    }
+                  />
+                  <label htmlFor="perm_admins" className="text-sm font-medium leading-none">
+                    Cadastrar e remover administradores
+                  </label>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleCreateAdmin}
+                disabled={submitting}
+                className="bg-[#002147] hover:bg-[#002147]/90 text-white"
+              >
+                {submitting ? 'Salvando...' : 'Cadastrar Adm'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Inserir Novo Administrador</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleAddAdmin} className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="nome">Nome Completo</Label>
-              <Input
-                id="nome"
-                required
-                value={newAdmin.nome}
-                onChange={(e) => setNewAdmin({ ...newAdmin, nome: e.target.value })}
-                placeholder="Ex: João Silva"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={newAdmin.email}
-                onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                placeholder="admin@exemplo.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="senha">Senha</Label>
-              <Input
-                id="senha"
-                type="password"
-                required
-                value={newAdmin.password}
-                onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                placeholder="Senha de acesso"
-              />
-            </div>
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit" className="bg-[#0f2e4a] text-white" disabled={loadingAction}>
-                {loadingAction ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Confirmar
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar Administrador</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEditAdmin} className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-nome">Nome Completo</Label>
-              <Input
-                id="edit-nome"
-                required
-                value={editAdmin.nome}
-                onChange={(e) => setEditAdmin({ ...editAdmin, nome: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                required
-                value={editAdmin.email}
-                onChange={(e) => setEditAdmin({ ...editAdmin, email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-senha">Nova Senha (opcional)</Label>
-              <Input
-                id="edit-senha"
-                type="password"
-                value={editAdmin.password}
-                onChange={(e) => setEditAdmin({ ...editAdmin, password: e.target.value })}
-                placeholder="Deixe em branco para manter a atual"
-              />
-            </div>
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit" className="bg-[#0f2e4a] text-white" disabled={loadingAction}>
-                {loadingAction ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Salvar Alterações
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

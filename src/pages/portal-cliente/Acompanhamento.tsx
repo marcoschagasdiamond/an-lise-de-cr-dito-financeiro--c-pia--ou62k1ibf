@@ -1,26 +1,6 @@
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/hooks/use-auth'
-import { supabase } from '@/lib/supabase/client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from '@/components/ui/dialog'
+import { useState, useEffect } from 'react'
+import { Header } from '@/components/Header'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -30,215 +10,1103 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/ui/chart'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts'
+import {
+  Info,
+  Printer,
+  TrendingUp,
+  TrendingDown,
+  Download,
+  FileText,
+  Loader2,
+  Mail,
+  AlertTriangle,
+  ArrowRightLeft,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useFinancialStore } from '@/store/main'
+import useEconomicStore from '@/stores/economic'
+import { useAuth } from '@/hooks/use-auth'
+import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
-export default function AcompanhamentoPage() {
+interface HistoryRecord {
+  id: string
+  created: string
+  nome_relatorio: string
+  tipo_cenario: string
+  arquivo_pdf: string
+  faturamento?: number
+  ebitda?: number
+  ebit?: number
+}
+
+export default function Acompanhamento() {
   const { user } = useAuth()
   const { toast } = useToast()
-  const [registros, setRegistros] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [open, setOpen] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
 
-  const [formData, setFormData] = useState({
-    tipo_evento: 'analise',
-    descricao: '',
-    responsavel: '',
-  })
+  const [periodo, setPeriodo] = useState<string>('')
+  const [months, setMonths] = useState<number>(12)
+  const [captRec, setCaptRec] = useState<'S' | 'N'>('N')
+  const [ebitdaTargetStr, setEbitdaTargetStr] = useState<string>('')
+
+  const [history, setHistory] = useState<HistoryRecord[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
+  const [selectedReports, setSelectedReports] = useState<string[]>([])
+  const [compareOpen, setCompareOpen] = useState(false)
+
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false)
+  const [reportToSend, setReportToSend] = useState<string | null>(null)
+  const [emailRecipient, setEmailRecipient] = useState('')
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+
+  const { dre } = useFinancialStore()
+  const { netResult } = useEconomicStore()
 
   useEffect(() => {
-    let mounted = true
-
-    async function fetchRegistros() {
-      if (!user?.id) {
-        if (mounted) setLoading(false)
-        return
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('acompanhamento_projetos' as any)
-          .select('*')
-          .eq('usuario_id', user.id)
-          .order('data_criacao', { ascending: false })
-
-        if (!error && mounted && data) {
-          setRegistros(data)
-        }
-      } catch (error) {
-        console.error('Erro inesperado:', error)
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    }
-
-    fetchRegistros()
-    return () => {
-      mounted = false
+    if ((user as any)?.user_metadata?.ebitda_target !== undefined) {
+      setEbitdaTargetStr((user as any).user_metadata.ebitda_target.toString())
     }
   }, [user])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!user?.id) return
-    setSubmitting(true)
+  const handleEbitdaTargetBlur = async () => {
+    if (!user) return
+    const val = parseFloat(ebitdaTargetStr)
+    const finalVal = isNaN(val) ? 0 : val
+    if ((user as any).user_metadata?.ebitda_target === finalVal) return
 
     try {
-      const { error } = await supabase.from('acompanhamento_projetos' as any).insert({
-        usuario_id: user.id,
-        tipo_evento: formData.tipo_evento,
-        descricao: formData.descricao,
-        responsavel: formData.responsavel,
-        data_evento: new Date().toISOString(),
-      })
-
-      if (error) throw error
-
-      toast({ title: 'Evento registrado com sucesso!' })
-      setOpen(false)
-      setFormData({ tipo_evento: 'analise', descricao: '', responsavel: '' })
-
-      const { data } = await supabase
-        .from('acompanhamento_projetos' as any)
-        .select('*')
-        .eq('usuario_id', user.id)
-        .order('data_criacao', { ascending: false })
-      if (data) setRegistros(data)
-    } catch (error) {
-      toast({ title: 'Erro ao registrar evento', variant: 'destructive' })
-    } finally {
-      setSubmitting(false)
+      await supabase.auth.updateUser({ data: { ebitda_target: finalVal } })
+      toast({ title: 'Meta atualizada', description: 'Sua meta de margem EBITDA foi salva.' })
+    } catch (e) {
+      toast({ title: 'Erro', description: 'Erro ao salvar meta', variant: 'destructive' })
     }
   }
 
-  const getStatusBadge = (tipo: string) => {
-    if (tipo === 'diagnostico') return <Badge variant="secondary">Diagnóstico</Badge>
-    if (tipo === 'analise') return <Badge className="bg-blue-600 hover:bg-blue-700">Análise</Badge>
-    if (tipo === 'implementacao')
-      return <Badge className="bg-amber-600 hover:bg-amber-700">Implementação</Badge>
-    if (tipo === 'resultado')
-      return <Badge className="bg-green-600 hover:bg-green-700">Resultado</Badge>
-    return <Badge variant="outline">{tipo}</Badge>
+  const isProjetado = captRec === 'S'
+  const currentDivisor = isProjetado ? 12 : months || 1
+  const prevDivisor = isProjetado ? months || 1 : 12
+
+  // DRE Sorting
+  const sortedDre = [...(dre || [])].sort((a, b) => b.year - a.year)
+  const latestDre = sortedDre[0] || ({} as any)
+  const prevDre = sortedDre[1] || ({} as any)
+  const projData = netResult?.[0]?.com || ({} as any)
+
+  const rFat = latestDre.receita || 0
+  const rDed =
+    (latestDre.impostosSobreVendas || 0) + (latestDre.devolucoesDescontosAbatimentos || 0)
+  const rCusto = latestDre.cpv || 0
+  const rDespPessoal = latestDre.despesasComPessoal || 0
+  const rDespTerceiros = latestDre.prestacaoServicosTerceiros || 0
+  const rDespComerciais = latestDre.despesasComerciaisTributarias || 0
+  const rDespAdmin = latestDre.despesasAdministrativas || 0
+  const rDespOutras = latestDre.outrasDespesasOperacionais || 0
+  const rOutrasRec = latestDre.outrasReceitasOperacionaisTributaveis || 0
+  const rDepreciacao = latestDre.depreciacao || 0
+
+  const prFat = prevDre.receita || 0
+  const prDed = (prevDre.impostosSobreVendas || 0) + (prevDre.devolucoesDescontosAbatimentos || 0)
+  const prCusto = prevDre.cpv || 0
+  const prDespPessoal = prevDre.despesasComPessoal || 0
+  const prDespTerceiros = prevDre.prestacaoServicosTerceiros || 0
+  const prDespComerciais = prevDre.despesasComerciaisTributarias || 0
+  const prDespAdmin = prevDre.despesasAdministrativas || 0
+  const prDespOutras = prevDre.outrasDespesasOperacionais || 0
+  const prOutrasRec = prevDre.outrasReceitasOperacionaisTributaveis || 0
+  const prDepreciacao = prevDre.depreciacao || 0
+
+  const getPerc = (val: number) => (rFat ? val / rFat : 0)
+
+  const pjFat = projData.fatBruto || 0
+  const pjDed = projData.deducoes ?? pjFat * getPerc(rDed)
+  const pjCusto = projData.cpv ?? pjFat * getPerc(rCusto)
+  const pjDespPessoal = pjFat * getPerc(rDespPessoal)
+  const pjDespTerceiros = pjFat * getPerc(rDespTerceiros)
+  const pjDespComerciais = pjFat * getPerc(rDespComerciais)
+  const pjDespAdmin = pjFat * getPerc(rDespAdmin)
+  const pjDespOutras = pjFat * getPerc(rDespOutras)
+  const pjOutrasRec = pjFat * getPerc(rOutrasRec)
+  const pjDepreciacao = projData.depreciacao ?? pjFat * getPerc(rDepreciacao)
+
+  const cFat = isProjetado ? pjFat : rFat
+  const pFat = isProjetado ? rFat : prFat
+
+  const cDed = isProjetado ? pjDed : rDed
+  const pDed = isProjetado ? rDed : prDed
+
+  const cCusto = isProjetado ? pjCusto : rCusto
+  const pCusto = isProjetado ? rCusto : prCusto
+
+  const cDespPessoal = isProjetado ? pjDespPessoal : rDespPessoal
+  const pDespPessoal = isProjetado ? rDespPessoal : prDespPessoal
+
+  const cDespTerceiros = isProjetado ? pjDespTerceiros : rDespTerceiros
+  const pDespTerceiros = isProjetado ? rDespTerceiros : prDespTerceiros
+
+  const cDespComerciais = isProjetado ? pjDespComerciais : rDespComerciais
+  const pDespComerciais = isProjetado ? rDespComerciais : prDespComerciais
+
+  const cDespAdmin = isProjetado ? pjDespAdmin : rDespAdmin
+  const pDespAdmin = isProjetado ? rDespAdmin : prDespAdmin
+
+  const cDespOutras = isProjetado ? pjDespOutras : rDespOutras
+  const pDespOutras = isProjetado ? rDespOutras : prDespOutras
+
+  const cDespesas = cDespPessoal + cDespTerceiros + cDespComerciais + cDespAdmin + cDespOutras
+  const pDespesas = pDespPessoal + pDespTerceiros + pDespComerciais + pDespAdmin + pDespOutras
+
+  const cOutrasRec = isProjetado ? pjOutrasRec : rOutrasRec
+  const pOutrasRec = isProjetado ? rOutrasRec : prOutrasRec
+
+  const cDepreciacao = isProjetado ? pjDepreciacao : rDepreciacao
+  const pDepreciacao = isProjetado ? rDepreciacao : prDepreciacao
+
+  const cEbitda = cFat - cDed - cCusto - cDespesas + cOutrasRec
+  const pEbitda = pFat - pDed - pCusto - pDespesas + pOutrasRec
+
+  const cEbit = cEbitda - cDepreciacao
+  const pEbit = pEbitda - pDepreciacao
+
+  const createRow = (
+    name: string,
+    cVal: number,
+    pVal: number,
+    isExpense: boolean,
+    isHeader: boolean = false,
+    isSub: boolean = false,
+  ) => {
+    const mCVal = cVal / currentDivisor
+    const mPVal = pVal / prevDivisor
+    const avPerc = cFat ? cVal / cFat : 0
+    const prevAvPerc = pFat ? pVal / pFat : 0
+    const u6 = prevAvPerc !== 0 ? avPerc / prevAvPerc : avPerc ? 1.01 : 1
+
+    let ahPerc = 0
+    if (mPVal !== 0) {
+      ahPerc = (mCVal - mPVal) / Math.abs(mPVal)
+    } else if (mCVal !== 0) {
+      ahPerc = mCVal > 0 ? 1 : -1
+    }
+
+    return {
+      name,
+      value: mCVal,
+      prevValue: mPVal,
+      avPerc,
+      prevAvPerc,
+      u6,
+      ahPerc,
+      isExpense,
+      isHeader,
+      isSub,
+    }
+  }
+
+  const rows = [
+    createRow('FATURAMENTO BRUTO', cFat, pFat, false, true),
+    createRow('DEDUÇÕES SOBRE VENDAS', cDed, pDed, true),
+    createRow('CUSTO DOS PRODUTOS/SERVIÇOS VENDIDOS', cCusto, pCusto, true),
+    createRow('DESPESAS OPERACIONAIS', cDespesas, pDespesas, true, true),
+    createRow('Pessoal', cDespPessoal, pDespPessoal, true, false, true),
+    createRow('Terceiros', cDespTerceiros, pDespTerceiros, true, false, true),
+    createRow('Comerciais', cDespComerciais, pDespComerciais, true, false, true),
+    createRow('Administrativas', cDespAdmin, pDespAdmin, true, false, true),
+    createRow('Outras', cDespOutras, pDespOutras, true, false, true),
+    createRow('OUTRAS RECEITAS OPERACIONAIS TRIBUTÁVEIS', cOutrasRec, pOutrasRec, false),
+    createRow('RESULTADO LÍQUIDO (EBITDA)', cEbitda, pEbitda, false, true),
+    createRow('DESPESAS C/ DEPREC. AMORTIZ. E EXAUSTÃO', cDepreciacao, pDepreciacao, true),
+    createRow('RESULTADO LÍQUIDO (EBIT)', cEbit, pEbit, false, true),
+  ]
+
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0,
+    }).format(val)
+
+  const formatPercent = (val: number) =>
+    new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 1 }).format(val)
+
+  const getAnalysis = (u6: number, isExpense: boolean = false) => {
+    if (u6 > 1.0001)
+      return isExpense
+        ? { label: 'RUIM', color: 'bg-red-100 text-red-800 border-red-200' }
+        : { label: 'BOM', color: 'bg-green-100 text-green-800 border-green-200' }
+    if (u6 < 0.9999)
+      return isExpense
+        ? { label: 'BOM', color: 'bg-green-100 text-green-800 border-green-200' }
+        : { label: 'RUIM', color: 'bg-red-100 text-red-800 border-red-200' }
+    return { label: 'OK', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }
+  }
+
+  const getAhColor = (val: number, isExpense: boolean = false) => {
+    if (val > 0.0001) return isExpense ? 'text-red-600' : 'text-green-600'
+    if (val < -0.0001) return isExpense ? 'text-green-600' : 'text-red-600'
+    return 'text-yellow-600'
+  }
+
+  const summaryFat = rows.find((r) => r.name === 'FATURAMENTO BRUTO')!
+  const summaryEbitda = rows.find((r) => r.name === 'RESULTADO LÍQUIDO (EBITDA)')!
+  const summaryEbit = rows.find((r) => r.name === 'RESULTADO LÍQUIDO (EBIT)')!
+  const overallAnalysis = getAnalysis(summaryEbitda.u6, false)
+
+  const ebitdaMarginVal = summaryFat.value ? (summaryEbitda.value / summaryFat.value) * 100 : 0
+  const ebitdaTargetNum = parseFloat(ebitdaTargetStr)
+  const hasEbitdaAlert =
+    !isNaN(ebitdaTargetNum) && ebitdaTargetNum > 0 && ebitdaMarginVal < ebitdaTargetNum
+
+  const chartData = [
+    { name: 'Faturamento', Anterior: summaryFat.prevValue, Atual: summaryFat.value },
+    { name: 'EBITDA', Anterior: summaryEbitda.prevValue, Atual: summaryEbitda.value },
+    { name: 'EBIT', Anterior: summaryEbit.prevValue, Atual: summaryEbit.value },
+  ]
+
+  const chartConfig = {
+    Atual: { label: isProjetado ? 'Projetado (Média)' : 'Atual (Média)', color: '#003366' },
+    Anterior: { label: isProjetado ? 'Atual (Média)' : 'Anterior (Média)', color: '#60a5fa' },
+  }
+
+  const loadHistory = async () => {
+    if (!user) return
+    try {
+      setLoadingHistory(true)
+      const { data: records, error } = await supabase
+        .from('analises_salvas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .order('data_criacao', { ascending: false })
+        .limit(50)
+
+      if (error) throw error
+
+      const mapped = (records || []).map((r) => ({
+        id: r.id,
+        created: r.data_criacao || '',
+        nome_relatorio: r.nome_analise || '',
+        tipo_cenario: r.tipo_analise || '',
+        arquivo_pdf: (r.dados_analise as any)?.arquivo_pdf || '',
+        faturamento: (r.dados_analise as any)?.faturamento,
+        ebitda: (r.dados_analise as any)?.ebitda,
+        ebit: (r.dados_analise as any)?.ebit,
+      }))
+      setHistory(mapped)
+    } catch (e) {
+      console.error('Failed to load history:', e)
+    } finally {
+      setLoadingHistory(false)
+    }
+  }
+
+  useEffect(() => {
+    loadHistory()
+    if (!user) return
+
+    const channel = supabase
+      .channel('realtime_analises')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'analises_salvas',
+          filter: `usuario_id=eq.${user.id}`,
+        },
+        () => {
+          loadHistory()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
+
+  const handleExportPDF = async () => {
+    if (!user) return
+    setIsExporting(true)
+    window.print()
+
+    try {
+      const { error } = await supabase.from('analises_salvas').insert({
+        usuario_id: user.id,
+        nome_analise: `Análise de Desempenho - ${periodo || 'Período Atual'}`,
+        tipo_analise: captRec === 'S' ? 'Projetado' : 'Real',
+        dados_analise: {
+          faturamento: summaryFat.value,
+          ebitda: summaryEbitda.value,
+          ebit: summaryEbit.value,
+          arquivo_pdf: '',
+        },
+      })
+      if (error) throw error
+
+      toast({
+        title: 'Relatório salvo!',
+        description: 'Uma cópia foi adicionada ao seu histórico.',
+      })
+      loadHistory()
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível persistir o relatório.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const toggleReportSelection = (id: string) => {
+    setSelectedReports((prev) => {
+      if (prev.includes(id)) return prev.filter((r) => r !== id)
+      if (prev.length >= 2) {
+        toast({
+          title: 'Máximo de 2 relatórios',
+          description: 'Selecione apenas dois para comparar.',
+          variant: 'destructive',
+        })
+        return prev
+      }
+      return [...prev, id]
+    })
+  }
+
+  const handleSendEmail = async () => {
+    if (!emailRecipient || !reportToSend) return
+    setIsSendingEmail(true)
+    try {
+      toast({
+        title: 'E-mail enviado',
+        description: `Relatório enviado com sucesso para ${emailRecipient}`,
+      })
+      setEmailDialogOpen(false)
+      setEmailRecipient('')
+    } catch (error) {
+      toast({
+        title: 'Erro ao enviar',
+        description: 'Não foi possível enviar o e-mail.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSendingEmail(false)
+    }
+  }
+
+  const renderComparisonDialog = () => {
+    const report1 = history.find((r) => r.id === selectedReports[0])
+    const report2 = history.find((r) => r.id === selectedReports[1])
+
+    if (!report1 || !report2) return null
+    const [older, newer] =
+      new Date(report1.created) < new Date(report2.created)
+        ? [report1, report2]
+        : [report2, report1]
+
+    const calcDelta = (v1: number, v2: number) => {
+      const diff = v2 - v1
+      const pct = v1 !== 0 ? diff / Math.abs(v1) : 0
+      return { diff, pct }
+    }
+
+    const fatDelta = calcDelta(older.faturamento || 0, newer.faturamento || 0)
+    const ebitdaDelta = calcDelta(older.ebitda || 0, newer.ebitda || 0)
+    const ebitDelta = calcDelta(older.ebit || 0, newer.ebit || 0)
+
+    const renderRow = (
+      label: string,
+      v1: number,
+      v2: number,
+      delta: { diff: number; pct: number },
+    ) => (
+      <TableRow>
+        <TableCell className="font-medium text-slate-700">{label}</TableCell>
+        <TableCell className="text-right text-slate-600">{formatCurrency(v1)}</TableCell>
+        <TableCell className="text-right text-slate-600">{formatCurrency(v2)}</TableCell>
+        <TableCell
+          className={cn(
+            'text-right font-medium',
+            delta.diff > 0 ? 'text-green-600' : delta.diff < 0 ? 'text-red-600' : 'text-slate-600',
+          )}
+        >
+          {delta.diff > 0 ? '+' : ''}
+          {formatCurrency(delta.diff)}
+        </TableCell>
+        <TableCell
+          className={cn(
+            'text-right font-medium',
+            delta.pct > 0 ? 'text-green-600' : delta.pct < 0 ? 'text-red-600' : 'text-slate-600',
+          )}
+        >
+          {delta.pct > 0 ? '+' : ''}
+          {formatPercent(delta.pct)}
+        </TableCell>
+      </TableRow>
+    )
+
+    return (
+      <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-[#003366] flex items-center gap-2">
+              <ArrowRightLeft className="w-5 h-5" /> Comparação de Relatórios
+            </DialogTitle>
+            <DialogDescription>
+              Comparando a evolução entre os dois períodos selecionados.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 border rounded-md overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50">
+                  <TableHead className="font-bold text-[#003366]">Métrica</TableHead>
+                  <TableHead className="text-right font-bold text-[#003366]">
+                    {new Date(older.created).toLocaleDateString('pt-BR')}
+                    <div className="text-xs font-normal text-slate-500 mt-1">
+                      {older.tipo_cenario}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right font-bold text-[#003366]">
+                    {new Date(newer.created).toLocaleDateString('pt-BR')}
+                    <div className="text-xs font-normal text-slate-500 mt-1">
+                      {newer.tipo_cenario}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right font-bold text-[#003366]">
+                    Variação (R$)
+                  </TableHead>
+                  <TableHead className="text-right font-bold text-[#003366]">
+                    Variação (%)
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {renderRow(
+                  'Faturamento Bruto',
+                  older.faturamento || 0,
+                  newer.faturamento || 0,
+                  fatDelta,
+                )}
+                {renderRow('EBITDA', older.ebitda || 0, newer.ebitda || 0, ebitdaDelta)}
+                {renderRow('EBIT', older.ebit || 0, newer.ebit || 0, ebitDelta)}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8 max-w-6xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Acompanhamento</h1>
-          <p className="text-muted-foreground mt-2">
-            Registre e acompanhe os eventos de suas análises e projetos.
-          </p>
+    <div className="flex flex-col h-full overflow-y-auto bg-slate-50 print:bg-white print:text-black">
+      <style type="text/css" media="print">
+        {`
+          @page { size: landscape; margin: 10mm; }
+          body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+          aside, nav, header { display: none !important; }
+          main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
+          .print\\:hidden { display: none !important; }
+          .print\\:shadow-none { box-shadow: none !important; }
+          .print\\:border-none { border: none !important; }
+        `}
+      </style>
+
+      <div className="print:hidden">
+        <Header title="Acompanhamento e Desempenho" />
+      </div>
+
+      <div className="p-6 md:p-8 max-w-[1400px] mx-auto w-full space-y-8 animate-fade-in-up print:p-0 print:m-0 print:space-y-4">
+        <div className="flex items-center justify-between print:hidden">
+          <h1 className="text-2xl font-bold text-[#003366]">
+            ACOMPANHAMENTO DO DESEMPENHO OPERACIONAL
+          </h1>
+          <Button
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className="bg-[#003366] hover:bg-[#002244] text-white"
+          >
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Printer className="mr-2 h-4 w-4" />
+            )}{' '}
+            Exportar em PDF
+          </Button>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Novo Evento
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Registrar Novo Evento</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
+          <Card className="border-t-4 border-t-[#003366] shadow-md">
+            <CardHeader className="bg-blue-50/50 pb-4">
+              <CardTitle className="text-[#003366] text-lg">PERÍODO AVALIADO (ATUAL)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label>Tipo de Evento</Label>
-                <Select
-                  value={formData.tipo_evento}
-                  onValueChange={(v) => setFormData({ ...formData, tipo_evento: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="periodo">PERÍODO AVALIADO</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Digite a referência dos meses avaliados.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Input
+                  id="periodo"
+                  value={periodo}
+                  onChange={(e) => setPeriodo(e.target.value)}
+                  placeholder="Ex: Jan-mar"
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="months">Nº DE MESES</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Número de meses do período avaliado.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Input
+                  id="months"
+                  type="number"
+                  value={months || ''}
+                  onChange={(e) => setMonths(Number(e.target.value) || 1)}
+                  min={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Faturamento Bruto (Atual)</Label>
+                <Input
+                  value={formatCurrency(rFat)}
+                  readOnly
+                  className="bg-slate-50 text-slate-500 font-medium"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-t-4 border-t-[#003366] shadow-md">
+            <CardHeader className="bg-blue-50/50 pb-4">
+              <CardTitle className="text-[#003366] text-lg">CENÁRIO PROJETADO E METAS</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="captRec">C/CAPT. REC.? (S/N)</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Considerar incremento de faturamento.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <Select value={captRec} onValueChange={(val: 'S' | 'N') => setCaptRec(val)}>
+                  <SelectTrigger id="captRec">
+                    <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="diagnostico">Diagnóstico</SelectItem>
-                    <SelectItem value="analise">Análise</SelectItem>
-                    <SelectItem value="implementacao">Implementação</SelectItem>
-                    <SelectItem value="resultado">Resultado</SelectItem>
+                    <SelectItem value="S">Sim (S)</SelectItem>
+                    <SelectItem value="N">Não (N)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Descrição</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="ebitdaTarget">Meta Margem EBITDA (%)</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">
+                          Margem alvo. Se ficar abaixo, um alerta será exibido.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Input
-                  required
-                  value={formData.descricao}
-                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                  placeholder="Resumo do evento..."
+                  id="ebitdaTarget"
+                  type="number"
+                  step="0.1"
+                  value={ebitdaTargetStr}
+                  onChange={(e) => setEbitdaTargetStr(e.target.value)}
+                  onBlur={handleEbitdaTargetBlur}
+                  placeholder="Ex: 15"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Responsável</Label>
+                <Label>Faturamento Bruto (Projetado 12m)</Label>
                 <Input
-                  required
-                  value={formData.responsavel}
-                  onChange={(e) => setFormData({ ...formData, responsavel: e.target.value })}
-                  placeholder="Nome do responsável"
+                  value={formatCurrency(pjFat)}
+                  readOnly
+                  className="bg-slate-50 text-slate-500 font-medium"
                 />
               </div>
-              <DialogFooter>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Salvando...' : 'Confirmar'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Eventos</CardTitle>
-          <CardDescription>
-            Lista de todas as interações e progressos registrados no sistema.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : registros.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed">
-              <p>Nenhum evento registrado no momento.</p>
-              <p className="text-sm mt-1">
-                Seus novos registros de acompanhamento aparecerão aqui.
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 print:grid-cols-5">
+          <Card className="shadow-sm border-l-4 border-l-blue-600 print:shadow-none print:border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">
+                Faturamento Mensal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">{formatCurrency(summaryFat.value)}</div>
+              <p
+                className={cn(
+                  'text-xs font-medium flex items-center mt-1',
+                  getAhColor(summaryFat.ahPerc, false),
+                )}
+              >
+                {summaryFat.ahPerc > 0 ? (
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                ) : (
+                  <TrendingDown className="w-3 h-3 mr-1" />
+                )}{' '}
+                {formatPercent(summaryFat.ahPerc)} vs Base
               </p>
-            </div>
-          ) : (
+            </CardContent>
+          </Card>
+
+          <Card
+            className={cn(
+              'shadow-sm border-l-4 print:shadow-none print:border',
+              hasEbitdaAlert ? 'border-l-red-500 border-red-200 bg-red-50' : 'border-l-emerald-500',
+            )}
+          >
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-medium text-slate-500">EBITDA Mensal</CardTitle>
+              {hasEbitdaAlert && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <AlertTriangle className="w-5 h-5 text-red-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      A margem EBITDA atual ({ebitdaMarginVal.toFixed(1)}%) está abaixo da meta
+                      estabelecida de {ebitdaTargetNum}%.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className={cn('text-xl font-bold', hasEbitdaAlert && 'text-red-700')}>
+                {formatCurrency(summaryEbitda.value)}
+              </div>
+              <p
+                className={cn(
+                  'text-xs font-medium flex items-center mt-1',
+                  hasEbitdaAlert ? 'text-red-600' : getAhColor(summaryEbitda.ahPerc, false),
+                )}
+              >
+                {summaryEbitda.ahPerc > 0 ? (
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                ) : (
+                  <TrendingDown className="w-3 h-3 mr-1" />
+                )}{' '}
+                {formatPercent(summaryEbitda.ahPerc)} vs Base
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-l-4 border-l-purple-500 print:shadow-none print:border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">EBIT Mensal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">{formatCurrency(summaryEbit.value)}</div>
+              <p
+                className={cn(
+                  'text-xs font-medium flex items-center mt-1',
+                  getAhColor(summaryEbit.ahPerc, false),
+                )}
+              >
+                {summaryEbit.ahPerc > 0 ? (
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                ) : (
+                  <TrendingDown className="w-3 h-3 mr-1" />
+                )}{' '}
+                {formatPercent(summaryEbit.ahPerc)} vs Base
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className={cn(
+              'shadow-sm border-l-4 print:shadow-none print:border',
+              hasEbitdaAlert ? 'border-l-red-500 border-red-200 bg-red-50' : 'border-l-orange-500',
+            )}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Margem EBITDA</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={cn('text-xl font-bold', hasEbitdaAlert && 'text-red-700')}>
+                {formatPercent(summaryEbitda.avPerc)}
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Anterior: {formatPercent(summaryEbitda.prevAvPerc)}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-l-4 border-l-slate-800 print:shadow-none print:border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Status Global</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-start pt-2">
+              <span
+                className={cn(
+                  'px-4 py-2 rounded-full text-sm font-bold border',
+                  overallAnalysis.color,
+                )}
+              >
+                {overallAnalysis.label}
+              </span>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 print:block">
+          <Card className="lg:col-span-3 shadow-md overflow-hidden print:shadow-none print:border-none print:mb-8">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Responsável</TableHead>
+                  <TableRow className="bg-blue-100 hover:bg-blue-100 border-b-2 border-blue-200">
+                    <TableHead className="text-[#003366] font-bold py-3">CONTA</TableHead>
+                    <TableHead className="text-[#003366] font-bold text-right py-3 w-24">
+                      A.V. (%)
+                    </TableHead>
+                    <TableHead className="text-[#003366] font-bold text-right py-3 w-36">
+                      MÉDIA MENSAL
+                    </TableHead>
+                    <TableHead className="text-[#003366] font-bold text-center py-3 w-20">
+                      A.V.
+                    </TableHead>
+                    <TableHead className="text-[#003366] font-bold text-right py-3 w-24">
+                      A.H.
+                    </TableHead>
+                    <TableHead className="text-[#003366] font-bold text-center py-3 w-28">
+                      ANÁLISE
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {registros.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="whitespace-nowrap text-muted-foreground">
-                        {new Date(item.data_criacao).toLocaleDateString('pt-BR')}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(item.tipo_evento)}</TableCell>
-                      <TableCell
-                        className="font-medium max-w-[300px] truncate"
-                        title={item.descricao}
+                  {rows.map((row, idx) => {
+                    const avInd = row.u6 > 1.0001 ? '>1' : row.u6 < 0.9999 ? '<1' : '=1'
+                    const analysis = getAnalysis(row.u6, row.isExpense)
+                    const isEbitdaRow = row.name === 'RESULTADO LÍQUIDO (EBITDA)'
+
+                    return (
+                      <TableRow
+                        key={idx}
+                        className={cn(
+                          'transition-colors',
+                          row.isHeader && 'bg-slate-50 font-bold',
+                          row.isSub && 'text-slate-500 text-sm',
+                        )}
                       >
-                        {item.descricao}
+                        <TableCell
+                          className={cn(
+                            'py-2.5',
+                            row.isSub && 'pl-8',
+                            isEbitdaRow && hasEbitdaAlert && 'text-red-600 font-bold',
+                          )}
+                        >
+                          {row.name}{' '}
+                          {isEbitdaRow && hasEbitdaAlert && (
+                            <AlertTriangle className="inline w-4 h-4 ml-2 text-red-500" />
+                          )}
+                        </TableCell>
+                        <TableCell
+                          className={cn(
+                            'text-right py-2.5',
+                            isEbitdaRow && hasEbitdaAlert && 'text-red-600 font-medium',
+                          )}
+                        >
+                          {formatPercent(row.avPerc)}
+                        </TableCell>
+                        <TableCell
+                          className={cn(
+                            'text-right py-2.5 font-medium',
+                            isEbitdaRow && hasEbitdaAlert && 'text-red-600',
+                          )}
+                        >
+                          {formatCurrency(row.value)}
+                        </TableCell>
+                        <TableCell className="text-center py-2.5 text-slate-600">{avInd}</TableCell>
+                        <TableCell className="text-right py-2.5 font-medium">
+                          <span className={getAhColor(row.ahPerc, row.isExpense)}>
+                            {formatPercent(row.ahPerc)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center py-2.5">
+                          <span
+                            className={cn(
+                              'px-3 py-1 rounded-full text-xs font-bold border print:border-slate-300 print:text-black print:bg-transparent',
+                              analysis.color,
+                            )}
+                          >
+                            {analysis.label}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
+
+          <div className="space-y-6 print:block print:w-full print:mt-8 print:break-inside-avoid">
+            <Card className="shadow-md print:shadow-none border-t-4 border-t-[#003366]">
+              <CardHeader className="pb-2 bg-blue-50/30">
+                <CardTitle className="text-base text-[#003366]">Evolução de Indicadores</CardTitle>
+                <CardDescription>
+                  {isProjetado ? 'Atual vs Projetado' : 'Anterior vs Atual'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px] pt-4">
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis
+                        fontSize={11}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                        width={60}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      <Bar dataKey="Anterior" fill="var(--color-Anterior)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Atual" fill="var(--color-Atual)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-md bg-blue-50 border-blue-100 print:hidden">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base text-[#003366] flex items-center">
+                  <Info className="w-5 h-5 mr-2" /> Dicas de Interpretação
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-slate-700 space-y-3">
+                <p>
+                  <strong>A.V. (Análise Vertical):</strong> Avalia a representatividade da conta
+                  sobre o Faturamento Bruto.
+                </p>
+                <p>
+                  <strong>A.H. (Análise Horizontal):</strong> Mede o crescimento ou queda em relação
+                  ao período base.
+                </p>
+                <p>
+                  <strong>Status (ANÁLISE):</strong> 'BOM' para aumento de margens/receitas ou queda
+                  de despesas relativas.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <Card className="shadow-md border-t-4 border-t-[#003366] print:hidden">
+          <CardHeader className="bg-blue-50/50 pb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#003366]" />
+                <CardTitle className="text-[#003366] text-lg">HISTÓRICO DE ANÁLISES</CardTitle>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setCompareOpen(true)}
+                disabled={selectedReports.length !== 2}
+                className="border-[#003366] text-[#003366]"
+              >
+                <ArrowRightLeft className="w-4 h-4 mr-2" /> Comparar Selecionados
+              </Button>
+            </div>
+            <CardDescription>Relatórios gerados anteriormente ficam salvos aqui.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loadingHistory ? (
+              <div className="p-8 flex justify-center items-center text-muted-foreground">
+                <Loader2 className="w-6 h-6 animate-spin mr-2" /> Carregando...
+              </div>
+            ) : history.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                Nenhum relatório salvo no histórico ainda.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50 hover:bg-slate-50 border-b-2">
+                    <TableHead className="w-12"></TableHead>
+                    <TableHead className="font-bold text-slate-600">Data de Geração</TableHead>
+                    <TableHead className="font-bold text-slate-600">Nome do Relatório</TableHead>
+                    <TableHead className="font-bold text-slate-600">Cenário</TableHead>
+                    <TableHead className="font-bold text-slate-600 text-right">Ação</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {history.map((record) => (
+                    <TableRow
+                      key={record.id}
+                      className={selectedReports.includes(record.id) ? 'bg-blue-50/30' : ''}
+                    >
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedReports.includes(record.id)}
+                          onCheckedChange={() => toggleReportSelection(record.id)}
+                        />
                       </TableCell>
-                      <TableCell>{item.responsavel || 'Não informado'}</TableCell>
+                      <TableCell className="font-medium text-slate-600">
+                        {new Date(record.created).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </TableCell>
+                      <TableCell>{record.nome_relatorio}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            record.tipo_cenario === 'Projetado'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-slate-100 text-slate-700 border-slate-200',
+                          )}
+                        >
+                          {record.tipo_cenario}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-slate-500 hover:bg-slate-100"
+                          onClick={() => {
+                            setReportToSend(record.id)
+                            setEmailDialogOpen(true)
+                          }}
+                        >
+                          <Mail className="w-4 h-4 mr-2" /> Enviar
+                        </Button>
+                        {record.arquivo_pdf && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-[#003366] hover:bg-blue-50"
+                            asChild
+                          >
+                            <a
+                              href={record.arquivo_pdf}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                            >
+                              <Download className="w-4 h-4 mr-2" /> Baixar
+                            </a>
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {renderComparisonDialog()}
+
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Enviar Relatório por E-mail</DialogTitle>
+            <DialogDescription>
+              Insira o endereço de e-mail do destinatário para compartilhar este relatório PDF.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-2">
+            <Label htmlFor="email">E-mail do Destinatário</Label>
+            <Input
+              id="email"
+              type="email"
+              value={emailRecipient}
+              onChange={(e) => setEmailRecipient(e.target.value)}
+              placeholder="exemplo@email.com"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSendEmail}
+              disabled={!emailRecipient || isSendingEmail}
+              className="bg-[#003366] hover:bg-[#002244] text-white"
+            >
+              {isSendingEmail && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Enviar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
