@@ -29,16 +29,32 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      // Tenta o método padrão de autenticação do Supabase (GoTrue)
       const { error } = await signIn(email, password)
 
       if (error) {
-        toast({
-          title: 'Erro ao fazer login',
-          description: 'Credenciais inválidas.',
-          variant: 'destructive',
+        // Fallback: Tenta a Edge Function customizada caso o usuário esteja isolado
+        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('login', {
+          body: { email, password },
         })
-        setLoading(false)
-        return
+
+        if (edgeError || !edgeData?.success) {
+          toast({
+            title: 'Erro ao fazer login',
+            description: 'Credenciais inválidas.',
+            variant: 'destructive',
+          })
+          setLoading(false)
+          return
+        }
+
+        // Caso o login customizado retorne sucesso, tenta forçar a sessão local
+        if (edgeData.token) {
+          await supabase.auth.setSession({
+            access_token: edgeData.token,
+            refresh_token: edgeData.token,
+          })
+        }
       }
 
       const {
