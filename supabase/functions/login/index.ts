@@ -22,7 +22,7 @@ Deno.serve(async (req: Request) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-
+    
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Faltando variáveis de ambiente do Supabase')
       return new Response(JSON.stringify({ error: 'Erro interno de configuração do servidor' }), {
@@ -49,22 +49,22 @@ Deno.serve(async (req: Request) => {
     const jwtSecret =
       Deno.env.get('SUPABASE_JWT_SECRET') ??
       'super-secret-jwt-token-with-at-least-32-characters-long'
-
+    
     // Assina o token JWT customizado com claims compatíveis com o Supabase
     const token = jwt.sign(
-      {
+      { 
         aud: 'authenticated',
-        sub: data.usuario_id,
-        email: email,
+        sub: data.usuario_id, 
+        email: email, 
         role: 'authenticated', // Mantém 'authenticated' para o RLS funcionar
         user_metadata: {
           nome: data.usuario?.nome,
           tipo_usuario: data.tipo_usuario,
-          status: data.usuario?.status,
-        },
+          status: data.usuario?.status
+        }
       },
       jwtSecret,
-      { expiresIn: '1d' },
+      { expiresIn: '1d' }
     )
 
     return new Response(
@@ -78,7 +78,7 @@ Deno.serve(async (req: Request) => {
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      },
+      }
     )
   } catch (error: any) {
     console.error('Erro na edge function de login:', error)
