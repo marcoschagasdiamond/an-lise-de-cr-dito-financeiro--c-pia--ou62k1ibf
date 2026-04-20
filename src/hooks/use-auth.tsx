@@ -77,12 +77,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .select('tipo_usuario, status')
         .eq('id', user.id)
         .single()
-        .then(({ data }) => {
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Erro ao buscar perfil do usuário:', error)
+          }
           if (data) {
             setUser((prev) =>
               prev ? { ...prev, role: data.tipo_usuario, status: data.status } : null,
             )
           }
+          setLoading(false)
+        })
+        .catch((err) => {
+          console.error('Exceção ao buscar perfil:', err)
           setLoading(false)
         })
     }

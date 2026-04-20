@@ -85,13 +85,13 @@ const RootRedirect = () => {
 
   if (user) {
     // Redirecionamentos seguros com fallback
-    if (user.role === 'administrador' || user.tipo_usuario === 'admin') {
+    if (user.role === 'admin' || user.role === 'administrador') {
       return <Navigate to="/admin/dashboard" replace />
     }
-    if (user.role === 'parceiro' || user.tipo_usuario === 'parceiro') {
+    if (user.role === 'parceiro') {
       return <Navigate to="/portal/parceiro" replace />
     }
-    if (user.role === 'cliente' || user.tipo_usuario === 'cliente') {
+    if (user.role === 'cliente') {
       return <Navigate to="/portal-cliente/dashboard" replace />
     }
     // Fallback para usuário autenticado mas sem role definida clara
@@ -180,9 +180,7 @@ const App = () => (
 
                 {/* Protected routes - Cliente */}
                 <Route
-                  element={
-                    <ProtectedRoute allowedRoles={['cliente', 'administrador', '', undefined]} />
-                  }
+                  element={<ProtectedRoute allowedRoles={['cliente', 'admin', '', undefined]} />}
                 >
                   <Route path="/portal-cliente/dashboard" element={<ClientDashboard />} />
                   <Route
@@ -214,7 +212,7 @@ const App = () => (
                 </Route>
 
                 {/* Protected routes - Parceiro */}
-                <Route element={<ProtectedRoute allowedRoles={['parceiro', 'administrador']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['parceiro', 'admin']} />}>
                   <Route path="/portal/parceiro" element={<PortalParceiroDashboard />} />
                   <Route path="/portal-parceiro/gestao-clientes" element={<GestaoClientes />} />
                   <Route path="/portal-parceiro/anexar-documentos" element={<AnexarDocumentos />} />
@@ -232,17 +230,17 @@ const App = () => (
                 </Route>
 
                 {/* Protected routes - Responsavel */}
-                <Route element={<ProtectedRoute allowedRoles={['responsavel', 'administrador']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['responsavel', 'admin']} />}>
                   <Route path="/responsavel/alertas" element={<AlertasResponsavel />} />
                 </Route>
 
                 {/* Protected routes - Assistente */}
-                <Route element={<ProtectedRoute allowedRoles={['assistente', 'administrador']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['assistente', 'admin']} />}>
                   <Route path="/assistente/meus-clientes" element={<MeusClientesAssistente />} />
                 </Route>
 
                 {/* Protected routes - Admin */}
-                <Route element={<ProtectedRoute allowedRoles={['administrador']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                   <Route path="/admin" element={<Admin />}>
                     <Route index element={<Navigate to="/admin/dashboard" replace />} />
                     <Route path="dashboard" element={<AdminDashboard />} />

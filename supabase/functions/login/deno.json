@@ -1,5 +1,1 @@
-{
-  "imports": {
-    "npm:jsonwebtoken": "npm:jsonwebtoken@9.0.2"
-  }
-}
+{}

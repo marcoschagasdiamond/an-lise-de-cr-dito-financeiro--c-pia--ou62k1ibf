@@ -33,27 +33,38 @@ export default function LoginPage() {
       let { error } = await signIn(email, password)
 
       if (error) {
-        // Fallback: Sincroniza o usuário com o auth.users via Edge Function caso ele só exista na public.usuarios
-        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('login', {
-          body: { email, password },
-        })
-
-        if (edgeError || !edgeData?.success) {
-          toast({
-            title: 'Erro ao fazer login',
-            description: 'Credenciais inválidas.',
-            variant: 'destructive',
+        try {
+          // Fallback: Sincroniza o usuário com o auth.users via Edge Function caso ele só exista na public.usuarios
+          const { data: edgeData, error: edgeError } = await supabase.functions.invoke('login', {
+            body: { email, password },
           })
-          setLoading(false)
-          return
-        }
 
-        // Se a edge function sincronizou o usuário no auth.users, tentamos o signIn padrão novamente
-        const retry = await signIn(email, password)
-        if (retry.error) {
+          if (edgeError || !edgeData?.success) {
+            toast({
+              title: 'Erro ao fazer login',
+              description: edgeData?.error || 'Credenciais inválidas.',
+              variant: 'destructive',
+            })
+            setLoading(false)
+            return
+          }
+
+          // Se a edge function sincronizou o usuário no auth.users, tentamos o signIn padrão novamente
+          const retry = await signIn(email, password)
+          if (retry.error) {
+            toast({
+              title: 'Erro ao fazer login',
+              description: 'Não foi possível autenticar após a sincronização da conta.',
+              variant: 'destructive',
+            })
+            setLoading(false)
+            return
+          }
+        } catch (edgeErr) {
+          console.error('Edge function error:', edgeErr)
           toast({
             title: 'Erro ao fazer login',
-            description: 'Não foi possível autenticar após a sincronização da conta.',
+            description: 'Não foi possível conectar ao servidor de autenticação.',
             variant: 'destructive',
           })
           setLoading(false)

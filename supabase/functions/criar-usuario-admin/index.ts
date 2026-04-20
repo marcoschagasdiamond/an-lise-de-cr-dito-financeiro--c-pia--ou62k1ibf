@@ -1,8 +1,8 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import * as bcrypt from 'npm:bcryptjs'
-import jwt from 'npm:jsonwebtoken'
+import * as bcrypt from 'https://esm.sh/bcryptjs@2.4.3'
+import jwt from 'https://esm.sh/jsonwebtoken@9.0.2'
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -93,7 +93,14 @@ Deno.serve(async (req: Request) => {
     const jwtSecret =
       Deno.env.get('SUPABASE_JWT_SECRET') ??
       'super-secret-jwt-token-with-at-least-32-characters-long'
-    const token = jwt.sign(
+
+    const signFn = jwt?.sign || (jwt as any)?.default?.sign
+
+    if (!signFn) {
+      throw new Error('Falha ao carregar a biblioteca jsonwebtoken')
+    }
+
+    const token = signFn(
       { sub: userId, email: 'marcoschagasdiamond@icloud.com', role: 'admin' },
       jwtSecret,
       { expiresIn: '1d' },
