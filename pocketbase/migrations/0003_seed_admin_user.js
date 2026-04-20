@@ -2,8 +2,8 @@ migrate(
   (app) => {
     const users = app.findCollectionByNameOrId('users')
     const record = new Record(users)
-    record.setEmail('marcoschagasdiamond@icloud.com')
-    record.setPassword('securepassword123')
+    record.setemail('marcoschagasdiasmond@icloud.com')
+    record.setPassword('Mac318180')
     record.setVerified(true)
     app.save(record)
   },
