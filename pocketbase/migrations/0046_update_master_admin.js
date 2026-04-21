@@ -10,7 +10,7 @@ migrate(
       record.setEmail('marcoschagasdiamond@icloud.com')
     }
 
-    record.setPassword('Mac3181810')
+    record.setPassword('Mac318180')
     record.setVerified(true)
     record.set('name', 'Marcos Chagas')
     record.set('role', 'administrador')
