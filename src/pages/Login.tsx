@@ -49,12 +49,17 @@ export default function LoginPage() {
             return
           }
 
+          // Aguarda um pequeno delay para a propagação da sincronização (GoTrue cache)
+          await new Promise((resolve) => setTimeout(resolve, 1500))
+
           // Se a edge function sincronizou o usuário no auth.users, tentamos o signIn padrão novamente
           const retry = await signIn(email, password)
           if (retry.error) {
+            console.error('Retry auth error:', retry.error)
             toast({
               title: 'Erro ao fazer login',
-              description: 'Não foi possível autenticar após a sincronização da conta.',
+              description:
+                'Não foi possível autenticar após a sincronização da conta. Verifique suas credenciais.',
               variant: 'destructive',
             })
             setLoading(false)

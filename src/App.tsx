@@ -84,14 +84,17 @@ const RootRedirect = () => {
   }
 
   if (user) {
+    // Tenta pegar a role do metadata primeiro, senão usa a role padrão
+    const role = user.user_metadata?.tipo_usuario || (user as any).role
+
     // Redirecionamentos seguros com fallback
-    if (user.role === 'admin' || user.role === 'administrador') {
+    if (role === 'admin' || role === 'administrador') {
       return <Navigate to="/admin/dashboard" replace />
     }
-    if (user.role === 'parceiro') {
+    if (role === 'parceiro') {
       return <Navigate to="/portal/parceiro" replace />
     }
-    if (user.role === 'cliente') {
+    if (role === 'cliente') {
       return <Navigate to="/portal-cliente/dashboard" replace />
     }
     // Fallback para usuário autenticado mas sem role definida clara
