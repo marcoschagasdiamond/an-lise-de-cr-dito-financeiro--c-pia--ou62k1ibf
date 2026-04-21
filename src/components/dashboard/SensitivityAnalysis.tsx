@@ -26,8 +26,8 @@ export function SensitivityAnalysis({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-[#1f497d]">Simulação de Cenários</CardTitle>
-            <CardDescription>Análise de Sensibilidade - Impacto no EBITDA/EBIT</CardDescription>
+            <CardTitle className="text-[#1f497d]">Simulacao de Cenarios</CardTitle>
+            <CardDescription>Analise de Sensibilidade - Impacto no EBITDA/EBIT</CardDescription>
           </div>
           {isSimulating && (
             <Button variant="outline" size="sm" onClick={onReset} className="h-8 gap-2">
@@ -40,7 +40,7 @@ export function SensitivityAnalysis({
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Variação de Receita</Label>
+            <Label className="text-sm font-medium">Variacao de Receita</Label>
             <span
               className={`font-bold text-sm ${
                 revenueVar > 0
@@ -66,7 +66,7 @@ export function SensitivityAnalysis({
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Variação de Despesas</Label>
+            <Label className="text-sm font-medium">Variacao de Despesas</Label>
             <span
               className={`font-bold text-sm ${
                 expenseVar > 0
