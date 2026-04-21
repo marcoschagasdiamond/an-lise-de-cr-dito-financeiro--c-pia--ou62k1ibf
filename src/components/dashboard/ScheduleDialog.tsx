@@ -86,25 +86,25 @@ export function ScheduleDialog() {
           className="gap-2 bg-white dark:bg-slate-900 border-[#1f497d]/20 hover:bg-[#1f497d]/5"
         >
           <CalendarClock className="w-4 h-4 text-[#1f497d]" />
-          Agendar Relatório
+          Agendar Relatorio
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Envio Automático de Relatórios</DialogTitle>
+          <DialogTitle>Envio Automatico de Relatorios</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border">
             <div className="space-y-0.5">
               <Label className="text-base">Ativar Agendamento</Label>
-              <p className="text-sm text-muted-foreground">Envio periódico do sumário executivo.</p>
+              <p className="text-sm text-muted-foreground">Envio periodico do sumario executivo.</p>
             </div>
             <Switch checked={active} onCheckedChange={setActive} />
           </div>
 
           <div className="space-y-3">
-            <Label>Frequência de Envio</Label>
+            <Label>Frequencia de Envio</Label>
             <Select
               disabled={!active}
               value={frequency}
@@ -121,7 +121,7 @@ export function ScheduleDialog() {
           </div>
 
           <div className="space-y-3">
-            <Label>Destinatários (Stakeholders)</Label>
+            <Label>Destinatarios (Stakeholders)</Label>
             <ScrollArea className="h-[150px] border rounded-md p-3">
               {stakeholders.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center mt-4">
@@ -162,7 +162,7 @@ export function ScheduleDialog() {
         <DialogFooter>
           <Button onClick={handleSave} disabled={loading} className="w-full gap-2">
             <Save className="w-4 h-4" />
-            Salvar Configurações
+            Salvar Configuracoes
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -31,13 +31,13 @@ export function MainChart({ data, showSimulated }: MainChartProps) {
   return (
     <Card className="glass-card animate-slide-up shadow-sm">
       <CardHeader className="pb-2 flex flex-row items-center justify-between border-b bg-slate-50/50">
-        <CardTitle className="text-lg font-bold text-[#1f497d]">Evolução EBITDA e EBIT</CardTitle>
+        <CardTitle className="text-lg font-bold text-[#1f497d]">Evolucao EBITDA e EBIT</CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="h-[350px] w-full">
           {data.length === 0 ? (
             <div className="h-full flex items-center justify-center text-muted-foreground">
-              Nenhum dado financeiro disponível.
+              Nenhum dado financeiro disponivel.
             </div>
           ) : (
             <ChartContainer config={chartConfig} className="h-full w-full">
