@@ -40,7 +40,6 @@ export function ScheduleDialog() {
   const loadData = async () => {
     if (!user?.id) return
     const stData = await getStakeholders(user.id)
-    ')
     setStakeholders(stData)
 
     const sched = await getReportSchedule(user.id)
