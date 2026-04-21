@@ -50,7 +50,7 @@ export default function LoginPage() {
           }
 
           // Aguarda um pequeno delay para a propagação da sincronização (GoTrue cache)
-          await new Promise((resolve) => setTimeout(resolve, 1500))
+          await new Promise((resolve) => setTimeout(resolve, 2000))
 
           // Se a edge function sincronizou o usuário no auth.users, tentamos o signIn padrão novamente
           const retry = await signIn(email, password)
