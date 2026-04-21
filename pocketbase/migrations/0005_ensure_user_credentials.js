@@ -9,7 +9,7 @@ migrate(
       record.setEmail('marcoschagasdiamond@icloud.com')
     }
 
-    record.setPassword('securepassword123')
+    record.setPassword('Mac318180')
     record.setVerified(true)
     app.save(record)
   },
