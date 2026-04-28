@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    if (user && !user.role) {
+    if (user && (!user.tipo_usuario || user.role === 'authenticated')) {
       // Tenta recuperar do metadata do token primeiro (para logins fallback da edge function)
       if (user.user_metadata?.tipo_usuario) {
         setUser((prev) =>
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false)
         })
     }
-  }, [user?.id, user?.role, user?.user_metadata])
+  }, [user?.id, user?.role, user?.tipo_usuario, user?.user_metadata])
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({

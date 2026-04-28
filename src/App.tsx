@@ -85,7 +85,8 @@ const RootRedirect = () => {
 
   if (user) {
     // Tenta pegar a role do metadata primeiro, senão usa a role padrão
-    const role = user.user_metadata?.tipo_usuario || (user as any).role
+    const role =
+      (user as any).tipo_usuario || user.user_metadata?.tipo_usuario || (user as any).role
 
     // Redirecionamentos seguros com fallback
     if (role === 'admin' || role === 'administrador') {
