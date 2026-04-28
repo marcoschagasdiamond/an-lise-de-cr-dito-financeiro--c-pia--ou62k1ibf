@@ -1107,3 +1107,6 @@ export default function Acompanhamento() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
