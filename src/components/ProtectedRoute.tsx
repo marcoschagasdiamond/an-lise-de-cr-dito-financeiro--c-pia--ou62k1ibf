@@ -31,7 +31,10 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     }
 
     const roleAllowed =
-      !allowedRoles || allowedRoles.length === 0 || allowedRoles.includes(user.role)
+      !allowedRoles ||
+      allowedRoles.length === 0 ||
+      allowedRoles.includes(user.role) ||
+      allowedRoles.includes(user.tipo_usuario)
 
     if (!roleAllowed) {
       if (mounted) {
@@ -44,7 +47,12 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     const loadPermissions = async () => {
       try {
         let table = ''
-        if (user.tipo_usuario === 'admin' || user.role === 'administrador')
+        if (
+          user.tipo_usuario === 'admin' ||
+          user.tipo_usuario === 'administrador' ||
+          user.role === 'administrador' ||
+          user.role === 'admin'
+        )
           table = 'permissoes_admin'
         else if (user.tipo_usuario === 'parceiro' || user.role === 'parceiro')
           table = 'permissoes_parceiro'

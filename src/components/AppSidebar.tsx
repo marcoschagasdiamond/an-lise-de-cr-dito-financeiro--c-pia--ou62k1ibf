@@ -68,7 +68,13 @@ export function AppSidebar() {
     ],
   })
 
-  if (isVisitor || userRole === 'cliente' || userRole === 'administrador' || !userRole) {
+  if (
+    isVisitor ||
+    userRole === 'cliente' ||
+    userRole === 'administrador' ||
+    userRole === 'admin' ||
+    !userRole
+  ) {
     navGroups.push({
       label: 'ÁREA DO CLIENTE',
       items: [
@@ -106,7 +112,12 @@ export function AppSidebar() {
     })
   }
 
-  if (isVisitor || userRole === 'parceiro' || userRole === 'administrador') {
+  if (
+    isVisitor ||
+    userRole === 'parceiro' ||
+    userRole === 'administrador' ||
+    userRole === 'admin'
+  ) {
     navGroups.push({
       label: 'ÁREA DO PARCEIRO',
       items: [
@@ -130,7 +141,7 @@ export function AppSidebar() {
     })
   }
 
-  if (isVisitor || userRole === 'administrador') {
+  if (isVisitor || userRole === 'administrador' || userRole === 'admin') {
     navGroups.push({
       label: 'ADMINISTRAÇÃO',
       items: [

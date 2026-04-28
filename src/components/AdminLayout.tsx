@@ -27,7 +27,7 @@ export default function AdminLayout() {
     return <Navigate to="/admin/login" state={{ from: location }} replace />
   }
 
-  if (user.role !== 'administrador') {
+  if (user.role !== 'administrador' && user.role !== 'admin') {
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
         <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg dark:border-slate-800 dark:bg-[#0A1128]">

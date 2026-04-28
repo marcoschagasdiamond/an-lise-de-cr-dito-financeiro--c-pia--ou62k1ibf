@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase/client'
 
 interface AuthUser extends User {
   role?: string
+  tipo_usuario?: string
   status?: string
 }
 
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             ? {
                 ...prev,
                 role: user.user_metadata.tipo_usuario,
+                tipo_usuario: user.user_metadata.tipo_usuario,
                 status: user.user_metadata.status || 'ativo',
               }
             : null,
@@ -83,7 +85,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
           if (data) {
             setUser((prev) =>
-              prev ? { ...prev, role: data.tipo_usuario, status: data.status } : null,
+              prev
+                ? {
+                    ...prev,
+                    role: data.tipo_usuario,
+                    tipo_usuario: data.tipo_usuario,
+                    status: data.status,
+                  }
+                : null,
             )
           }
           setLoading(false)
