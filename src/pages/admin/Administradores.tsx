@@ -210,7 +210,12 @@ export default function AdminAdministradores() {
                         <TableCell>{adm.email}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
-                            {adm.permissoes?.map((p: string) => (
+                            {(Array.isArray(adm.permissoes)
+                              ? adm.permissoes
+                              : typeof adm.permissoes === 'object' && adm.permissoes !== null
+                                ? Object.keys(adm.permissoes)
+                                : []
+                            ).map((p: string) => (
                               <Badge key={p} variant="secondary" className="text-[10px]">
                                 {p.replace('gerenciar_', '')}
                               </Badge>
