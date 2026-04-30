@@ -22,10 +22,27 @@ import { cn } from '@/lib/utils'
 export default function DebtAnalysisPage() {
   const { balanceSheets, dre, debts } = useFinancialStore()
 
-  const currentBP = balanceSheets.find((b) => b.year === 2023)!
-  const currentDRE = dre.find((d) => d.year === 2023)!
+  const safeBalanceSheets = balanceSheets || []
+  const safeDre = dre || []
+  const safeDebts = debts || []
 
-  const totalDebt = debts.reduce((acc, d) => acc + d.amount, 0)
+  const currentBP = safeBalanceSheets.find((b) => b.year === 2023)
+  const currentDRE = safeDre.find((d) => d.year === 2023)
+
+  if (!currentBP || !currentDRE) {
+    return (
+      <div className="flex flex-col h-full overflow-y-auto">
+        <Header title="Mapa de Dívidas & Análise" />
+        <div className="p-6 md:p-8 max-w-7xl mx-auto w-full flex items-center justify-center min-h-[400px]">
+          <p className="text-muted-foreground">
+            Aguardando dados financeiros ou informações de 2023 indisponíveis.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const totalDebt = safeDebts.reduce((acc, d) => acc + d.amount, 0)
   const ebitda = calculateEBITDA(currentDRE)
   const liquidity = calculateLiquidity(currentBP)
   const rating = calculateRating(currentBP, currentDRE, totalDebt)
@@ -116,7 +133,7 @@ export default function DebtAnalysisPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {debts.map((debt) => (
+                {safeDebts.map((debt) => (
                   <TableRow key={debt.id}>
                     <TableCell className="font-medium">
                       <div className="flex flex-col">
