@@ -49,7 +49,6 @@ export function AppSidebar() {
   const userInitials = userName.substring(0, 2).toUpperCase()
   const userRole = user?.role
 
-  const isVisitor = !user
   const navGroups = []
 
   navGroups.push({
@@ -68,90 +67,73 @@ export function AppSidebar() {
     ],
   })
 
-  if (
-    isVisitor ||
-    userRole === 'cliente' ||
-    userRole === 'administrador' ||
-    userRole === 'admin' ||
-    !userRole
-  ) {
-    navGroups.push({
-      label: 'ÁREA DO CLIENTE',
-      items: [
-        { title: 'Dashboard Cliente', url: '/portal-cliente/dashboard', icon: LayoutDashboard },
-        { title: 'Meu Projeto', url: '/portal-cliente/meu-projeto', icon: FolderKanban },
-        {
-          title: 'Dashboard Executivo',
-          url: '/portal-cliente/dashboard-executivo',
-          icon: LineChart,
-        },
-        {
-          title: 'Análise Financeira',
-          url: '/portal-cliente/analise-financeira',
-          icon: FileBarChart,
-        },
-        { title: 'Cenários', url: '/portal-cliente/cenarios', icon: GitCompare },
-        { title: 'Análises Salvas', url: '/portal-cliente/analises-salvas', icon: ArchiveRestore },
-        {
-          title: 'Acompanhamento',
-          url: '/portal-cliente/acompanhamento-desempenho',
-          icon: Activity,
-        },
-        {
-          title: 'Simulador Financeiro',
-          url: '/portal-cliente/simulador-financeiro',
-          icon: Calculator,
-        },
-        {
-          title: 'Investimentos e Cenários',
-          url: '/portal-cliente/investimentos-cenarios',
-          icon: LineChart,
-        },
-        { title: 'Mapa de Dívidas', url: '/portal-cliente/mapa-dividas', icon: ReceiptText },
-      ],
-    })
-  }
+  navGroups.push({
+    label: 'ÁREA DO CLIENTE',
+    items: [
+      { title: 'Dashboard Cliente', url: '/portal-cliente/dashboard', icon: LayoutDashboard },
+      { title: 'Meu Projeto', url: '/portal-cliente/meu-projeto', icon: FolderKanban },
+      {
+        title: 'Dashboard Executivo',
+        url: '/portal-cliente/dashboard-executivo',
+        icon: LineChart,
+      },
+      {
+        title: 'Análise Financeira',
+        url: '/portal-cliente/analise-financeira',
+        icon: FileBarChart,
+      },
+      { title: 'Cenários', url: '/portal-cliente/cenarios', icon: GitCompare },
+      { title: 'Análises Salvas', url: '/portal-cliente/analises-salvas', icon: ArchiveRestore },
+      {
+        title: 'Acompanhamento',
+        url: '/portal-cliente/acompanhamento-desempenho',
+        icon: Activity,
+      },
+      {
+        title: 'Simulador Financeiro',
+        url: '/portal-cliente/simulador-financeiro',
+        icon: Calculator,
+      },
+      {
+        title: 'Investimentos e Cenários',
+        url: '/portal-cliente/investimentos-cenarios',
+        icon: LineChart,
+      },
+      { title: 'Mapa de Dívidas', url: '/portal-cliente/mapa-dividas', icon: ReceiptText },
+    ],
+  })
 
-  if (
-    isVisitor ||
-    userRole === 'parceiro' ||
-    userRole === 'administrador' ||
-    userRole === 'admin'
-  ) {
-    navGroups.push({
-      label: 'ÁREA DO PARCEIRO',
-      items: [
-        { title: 'Dashboard Parceiro', url: '/portal/parceiro', icon: LayoutDashboard },
-        { title: 'Cadastrar Cliente', url: '/area-parceiro/cadastrar-cliente', icon: UserPlus },
-        { title: 'Meus Clientes', url: '/area-parceiro/meus-clientes', icon: Users },
-        { title: 'Gestão de Clientes', url: '/portal-parceiro/gestao-clientes', icon: UsersRound },
-        {
-          title: 'Minhas Comissões',
-          url: '/area-parceiro/minhas-comissoes',
-          icon: CircleDollarSign,
-        },
-        { title: 'Anexar Documentos', url: '/portal-parceiro/anexar-documentos', icon: FileUp },
-        {
-          title: 'Pipeline de Demandas',
-          url: '/portal-parceiro/pipeline-demandas',
-          icon: KanbanSquare,
-        },
-        { title: 'CRM Parceiros', url: '/portal-parceiro/crm-parceiros', icon: Handshake },
-      ],
-    })
-  }
+  navGroups.push({
+    label: 'ÁREA DO PARCEIRO',
+    items: [
+      { title: 'Dashboard Parceiro', url: '/portal/parceiro', icon: LayoutDashboard },
+      { title: 'Cadastrar Cliente', url: '/area-parceiro/cadastrar-cliente', icon: UserPlus },
+      { title: 'Meus Clientes', url: '/area-parceiro/meus-clientes', icon: Users },
+      { title: 'Gestão de Clientes', url: '/portal-parceiro/gestao-clientes', icon: UsersRound },
+      {
+        title: 'Minhas Comissões',
+        url: '/area-parceiro/minhas-comissoes',
+        icon: CircleDollarSign,
+      },
+      { title: 'Anexar Documentos', url: '/portal-parceiro/anexar-documentos', icon: FileUp },
+      {
+        title: 'Pipeline de Demandas',
+        url: '/portal-parceiro/pipeline-demandas',
+        icon: KanbanSquare,
+      },
+      { title: 'CRM Parceiros', url: '/portal-parceiro/crm-parceiros', icon: Handshake },
+    ],
+  })
 
-  if (isVisitor || userRole === 'administrador' || userRole === 'admin') {
-    navGroups.push({
-      label: 'ADMINISTRAÇÃO',
-      items: [
-        { title: 'Dashboard Admin', url: '/admin/dashboard', icon: ShieldCheck },
-        { title: 'Aprovar Parceiros', url: '/admin/parceiros', icon: Handshake },
-        { title: 'Base de Clientes', url: '/admin/clientes', icon: UsersRound },
-        { title: 'Administradores', url: '/admin/administradores', icon: ShieldCheck },
-      ],
-    })
-  }
+  navGroups.push({
+    label: 'ADMINISTRAÇÃO',
+    items: [
+      { title: 'Dashboard Admin', url: '/admin/dashboard', icon: ShieldCheck },
+      { title: 'Aprovar Parceiros', url: '/admin/parceiros', icon: Handshake },
+      { title: 'Base de Clientes', url: '/admin/clientes', icon: UsersRound },
+      { title: 'Administradores', url: '/admin/administradores', icon: ShieldCheck },
+    ],
+  })
 
   navGroups.push({
     label: 'SISTEMA',

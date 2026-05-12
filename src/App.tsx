@@ -152,13 +152,14 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/cadastro-parceiro" element={<CadastroParceiro />} />
-              <Route path="/login-parceiro" element={<LoginParceiro />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-
               <Route element={<Layout />}>
+                {/* Auth routes now inside Layout */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/cadastro-parceiro" element={<CadastroParceiro />} />
+                <Route path="/login-parceiro" element={<LoginParceiro />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+
                 {/* Public routes */}
                 <Route path="/" element={<RootRedirect />} />
                 <Route path="/consult-plan/home" element={<ConsultHome />} />
