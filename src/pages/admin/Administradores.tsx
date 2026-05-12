@@ -92,28 +92,23 @@ export default function AdminAdministradores() {
 
     setSubmitting(true)
     try {
-      const newUserId = crypto.randomUUID()
-      const { error: userError } = await supabase.from('usuarios').insert({
-        id: newUserId,
-        email: formData.email,
-        senha_hash: formData.password,
-        nome: formData.nome,
-        tipo_usuario: 'admin',
-        status: 'ativo',
-      })
-      if (userError) throw userError
-
       const permissoes = Object.entries(formData.perms)
         .filter(([_, value]) => value)
         .map(([key]) => key)
 
-      const { error: adminError } = await supabase.from('administradores').insert({
-        usuario_id: newUserId,
-        nome: formData.nome,
-        email: formData.email,
-        permissoes,
+      const { data, error } = await supabase.functions.invoke('gerenciar-usuarios', {
+        body: {
+          action: 'create',
+          tipo_usuario: 'admin',
+          email: formData.email,
+          password: formData.password,
+          nome: formData.nome,
+          permissoes,
+        },
       })
-      if (adminError) throw adminError
+
+      if (error) throw error
+      if (data?.error) throw new Error(data.error)
 
       toast.success('Administrador cadastrado com sucesso!')
       setIsModalOpen(false)
@@ -126,23 +121,34 @@ export default function AdminAdministradores() {
       loadAdmins()
     } catch (err: any) {
       console.error(err)
-      toast.error(err?.response?.message || 'Erro ao cadastrar administrador.')
+      toast.error(err?.message || 'Erro ao cadastrar administrador.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleDelete = async (id: string, userId: string) => {
+  const handleDelete = async (id: string, userId: string, email: string) => {
+    if (email === 'marcoschagasdiamond@icloud.com') {
+      toast.error('Não é possível remover o administrador principal.')
+      return
+    }
+
     if (!confirm('Tem certeza que deseja remover este administrador? O acesso dele será revogado.'))
       return
+
     try {
-      await supabase.from('administradores').delete().eq('id', id)
       if (userId) {
-        await supabase.from('usuarios').delete().eq('id', userId)
+        const { error } = await supabase.functions.invoke('gerenciar-usuarios', {
+          body: { action: 'delete', id: userId },
+        })
+        if (error) throw error
+      } else {
+        await supabase.from('administradores').delete().eq('id', id)
       }
       toast.success('Administrador removido.')
       loadAdmins()
     } catch (err) {
+      console.error(err)
       toast.error('Erro ao remover administrador.')
     }
   }
@@ -226,16 +232,17 @@ export default function AdminAdministradores() {
                           {new Date(adm.data_criacao || '').toLocaleDateString('pt-BR')}
                         </TableCell>
                         <TableCell className="text-right">
-                          {user?.id !== adm.usuario_id && (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              title="Remover"
-                              onClick={() => handleDelete(adm.id, adm.usuario_id)}
-                            >
-                              <Trash2 className="w-4 h-4 text-red-600" />
-                            </Button>
-                          )}
+                          {user?.id !== adm.usuario_id &&
+                            adm.email !== 'marcoschagasdiamond@icloud.com' && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                title="Remover"
+                                onClick={() => handleDelete(adm.id, adm.usuario_id, adm.email)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </Button>
+                            )}
                         </TableCell>
                       </TableRow>
                     ))
