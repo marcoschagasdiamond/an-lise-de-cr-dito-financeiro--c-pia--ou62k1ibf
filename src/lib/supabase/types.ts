@@ -1,11 +1,17 @@
 // AVOID UPDATING THIS FILE DIRECTLY. It is automatically generated.
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.4'
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -42,11 +48,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'acompanhamento_projetos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "acompanhamento_projetos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -80,11 +86,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'administradores_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "administradores_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -121,11 +127,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'analises_salvas_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "analises_salvas_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -165,11 +171,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'balanco_patrimonial_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "balanco_patrimonial_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -200,11 +206,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'cenarios_financiamento_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "cenarios_financiamento_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -238,52 +244,92 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'cenarios_investimento_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "cenarios_investimento_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
       clientes: {
         Row: {
+          cidade: string | null
           cnpj: string | null
+          cpf: string | null
+          criado_em: string | null
           data_cadastro: string | null
+          descricao_projeto: string | null
+          email: string | null
           empresa_nome: string | null
           endereco: string | null
+          estado: string | null
           faturamento_anual: number | null
           id: string
+          nome: string | null
+          nome_responsavel: string | null
+          parceiro_id: string | null
+          prazo_desejado: string | null
           telefone: string | null
           usuario_id: string | null
+          valor_captacao: number | null
         }
         Insert: {
+          cidade?: string | null
           cnpj?: string | null
+          cpf?: string | null
+          criado_em?: string | null
           data_cadastro?: string | null
+          descricao_projeto?: string | null
+          email?: string | null
           empresa_nome?: string | null
           endereco?: string | null
+          estado?: string | null
           faturamento_anual?: number | null
           id?: string
+          nome?: string | null
+          nome_responsavel?: string | null
+          parceiro_id?: string | null
+          prazo_desejado?: string | null
           telefone?: string | null
           usuario_id?: string | null
+          valor_captacao?: number | null
         }
         Update: {
+          cidade?: string | null
           cnpj?: string | null
+          cpf?: string | null
+          criado_em?: string | null
           data_cadastro?: string | null
+          descricao_projeto?: string | null
+          email?: string | null
           empresa_nome?: string | null
           endereco?: string | null
+          estado?: string | null
           faturamento_anual?: number | null
           id?: string
+          nome?: string | null
+          nome_responsavel?: string | null
+          parceiro_id?: string | null
+          prazo_desejado?: string | null
           telefone?: string | null
           usuario_id?: string | null
+          valor_captacao?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: 'clientes_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "clientes_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -320,18 +366,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'comissoes_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "comissoes_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comissoes_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "comissoes_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -365,18 +411,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'crm_parceiros_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "crm_parceiros_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'crm_parceiros_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "crm_parceiros_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -404,11 +450,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dashboard_metricas_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dashboard_metricas_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -442,11 +488,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'diagnosticos_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "diagnosticos_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -480,11 +526,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'documentos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "documentos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -548,11 +594,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dre_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dre_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -625,11 +671,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dre_projetado_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dre_projetado_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -666,11 +712,49 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'fluxo_caixa_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "fluxo_caixa_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      formularios_preenchidos: {
+        Row: {
+          created_at: string | null
+          dados_json: Json | null
+          data_preenchimento: string | null
+          id: string
+          tipo_formulario: string | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dados_json?: Json | null
+          data_preenchimento?: string | null
+          id?: string
+          tipo_formulario?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dados_json?: Json | null
+          data_preenchimento?: string | null
+          id?: string
+          tipo_formulario?: string | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formularios_preenchidos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -716,11 +800,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'indicadores_financeiros_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "indicadores_financeiros_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -754,11 +838,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'investimentos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "investimentos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -801,11 +885,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'parametros_dre_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "parametros_dre_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -839,11 +923,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'parceiros_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "parceiros_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -874,11 +958,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_admin_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_admin_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -906,11 +990,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_cliente_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_cliente_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -938,11 +1022,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_parceiro_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_parceiro_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -976,18 +1060,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pipeline_demandas_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "pipeline_demandas_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pipeline_demandas_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "pipeline_demandas_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1027,11 +1111,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'projetos_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "projetos_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1059,11 +1143,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'relatorios_gerados_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "relatorios_gerados_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1094,11 +1178,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'simulacoes_financeiras_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "simulacoes_financeiras_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1158,33 +1242,57 @@ export type Database = {
       }
       usuarios: {
         Row: {
+          cidade: string | null
+          cnpj: string | null
+          cpf: string | null
           criado_em: string | null
           data_criacao: string | null
+          documento: string | null
           email: string
+          endereco: string | null
+          estado: string | null
           id: string
           nome: string | null
+          razao_social: string | null
           senha_hash: string | null
           status: string | null
+          telefone: string | null
           tipo_usuario: string | null
         }
         Insert: {
+          cidade?: string | null
+          cnpj?: string | null
+          cpf?: string | null
           criado_em?: string | null
           data_criacao?: string | null
+          documento?: string | null
           email: string
+          endereco?: string | null
+          estado?: string | null
           id?: string
           nome?: string | null
+          razao_social?: string | null
           senha_hash?: string | null
           status?: string | null
+          telefone?: string | null
           tipo_usuario?: string | null
         }
         Update: {
+          cidade?: string | null
+          cnpj?: string | null
+          cpf?: string | null
           criado_em?: string | null
           data_criacao?: string | null
+          documento?: string | null
           email?: string
+          endereco?: string | null
+          estado?: string | null
           id?: string
           nome?: string | null
+          razao_social?: string | null
           senha_hash?: string | null
           status?: string | null
+          telefone?: string | null
           tipo_usuario?: string | null
         }
         Relationships: []
@@ -1195,7 +1303,7 @@ export type Database = {
     }
     Functions: {
       get_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
-      'Marcos Chagas': {
+      "Marcos Chagas": {
         Args: { p_email: string; p_senha: string }
         Returns: {
           email: string
@@ -1219,31 +1327,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1252,23 +1362,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1277,23 +1387,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1302,36 +1412,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
@@ -1339,6 +1449,7 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
 
 // ====== DATABASE EXTENDED CONTEXT (auto-generated) ======
 // This section contains actual PostgreSQL column types, constraints, RLS policies,
@@ -1410,6 +1521,17 @@ export const Constants = {
 //   telefone: text (nullable)
 //   endereco: text (nullable)
 //   data_cadastro: timestamp with time zone (nullable, default: now())
+//   email: text (nullable)
+//   nome_responsavel: text (nullable)
+//   valor_captacao: numeric (nullable)
+//   prazo_desejado: text (nullable)
+//   descricao_projeto: text (nullable)
+//   parceiro_id: uuid (nullable)
+//   nome: text (nullable)
+//   cpf: text (nullable)
+//   cidade: text (nullable)
+//   estado: text (nullable)
+//   criado_em: timestamp with time zone (nullable, default: now())
 // Table: comissoes
 //   id: uuid (not null, default: gen_random_uuid())
 //   parceiro_id: uuid (nullable)
@@ -1497,6 +1619,14 @@ export const Constants = {
 //   saidas: jsonb (nullable)
 //   saldo_final: numeric (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
+// Table: formularios_preenchidos
+//   id: uuid (not null, default: gen_random_uuid())
+//   usuario_id: uuid (nullable)
+//   tipo_formulario: text (nullable)
+//   dados_json: jsonb (nullable)
+//   data_preenchimento: timestamp with time zone (nullable, default: now())
+//   created_at: timestamp with time zone (nullable, default: now())
+//   updated_at: timestamp with time zone (nullable, default: now())
 // Table: indicadores_financeiros
 //   id: uuid (not null, default: gen_random_uuid())
 //   projeto_id: uuid (nullable)
@@ -1609,6 +1739,14 @@ export const Constants = {
 //   status: text (nullable)
 //   data_criacao: timestamp with time zone (nullable, default: now())
 //   criado_em: timestamp with time zone (nullable, default: now())
+//   telefone: text (nullable)
+//   documento: text (nullable)
+//   endereco: text (nullable)
+//   cidade: text (nullable)
+//   estado: text (nullable)
+//   razao_social: text (nullable)
+//   cnpj: text (nullable)
+//   cpf: text (nullable)
 
 // --- CONSTRAINTS ---
 // Table: acompanhamento_projetos
@@ -1634,6 +1772,7 @@ export const Constants = {
 //   PRIMARY KEY cenarios_investimento_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY cenarios_investimento_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
 // Table: clientes
+//   FOREIGN KEY clientes_parceiro_id_fkey: FOREIGN KEY (parceiro_id) REFERENCES usuarios(id) ON DELETE CASCADE
 //   PRIMARY KEY clientes_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY clientes_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 // Table: comissoes
@@ -1664,6 +1803,10 @@ export const Constants = {
 // Table: fluxo_caixa
 //   PRIMARY KEY fluxo_caixa_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY fluxo_caixa_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+// Table: formularios_preenchidos
+//   PRIMARY KEY formularios_preenchidos_pkey: PRIMARY KEY (id)
+//   CHECK formularios_preenchidos_tipo_formulario_check: CHECK ((tipo_formulario = ANY (ARRAY['cliente'::text, 'parceiro'::text])))
+//   FOREIGN KEY formularios_preenchidos_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 // Table: indicadores_financeiros
 //   PRIMARY KEY indicadores_financeiros_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY indicadores_financeiros_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
@@ -1708,8 +1851,9 @@ export const Constants = {
 //   PRIMARY KEY usuario_pkey: PRIMARY KEY (id)
 // Table: usuarios
 //   UNIQUE usuarios_email_key: UNIQUE (email)
+//   FOREIGN KEY usuarios_id_fkey: FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
 //   PRIMARY KEY usuarios_pkey: PRIMARY KEY (id)
-//   CHECK usuarios_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text])))
+//   CHECK usuarios_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text, 'pendente'::text, 'aprovado'::text, 'rejeitado'::text])))
 //   CHECK usuarios_tipo_usuario_check: CHECK ((tipo_usuario = ANY (ARRAY['cliente'::text, 'parceiro'::text, 'admin'::text])))
 
 // --- ROW LEVEL SECURITY POLICIES ---
@@ -1738,9 +1882,19 @@ export const Constants = {
 //     USING: true
 //     WITH CHECK: true
 // Table: clientes
-//   Policy "authenticated_all_clientes" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
+//   Policy "allow_anonymous_insert_clientes" (INSERT, PERMISSIVE) roles={public}
 //     WITH CHECK: true
+//   Policy "allow_anonymous_select_clientes" (SELECT, PERMISSIVE) roles={public}
+//     USING: true
+//   Policy "clientes_delete_own" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: ((parceiro_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//   Policy "clientes_insert_own" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: ((parceiro_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//   Policy "clientes_read_own" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: ((parceiro_id = auth.uid()) OR (usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//   Policy "clientes_update_own" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: ((parceiro_id = auth.uid()) OR (usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//     WITH CHECK: ((parceiro_id = auth.uid()) OR (usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
 // Table: comissoes
 //   Policy "authenticated_all_comissoes" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -1773,6 +1927,14 @@ export const Constants = {
 //   Policy "authenticated_all_fluxo" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
 //     WITH CHECK: true
+// Table: formularios_preenchidos
+//   Policy "formularios_insert_own" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (usuario_id = auth.uid())
+//   Policy "formularios_read_own" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: ((usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])))
+//   Policy "formularios_update_own" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: (usuario_id = auth.uid())
+//     WITH CHECK: (usuario_id = auth.uid())
 // Table: indicadores_financeiros
 //   Policy "authenticated_all_indicadores" (ALL, PERMISSIVE) roles={authenticated}
 //     USING: true
@@ -1823,9 +1985,15 @@ export const Constants = {
 //   Policy "allow_anonymous_insert" (INSERT, PERMISSIVE) roles={public}
 //     WITH CHECK: true
 // Table: usuarios
-//   Policy "authenticated_all_usuarios" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
+//   Policy "usuarios_delete_admin" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//   Policy "usuarios_insert_all" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: true
+//   Policy "usuarios_read_own" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: ((auth.uid() = id) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//   Policy "usuarios_update_own" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: ((auth.uid() = id) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
+//     WITH CHECK: ((auth.uid() = id) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
 
 // --- WARNING: TABLES WITH RLS ENABLED BUT NO POLICIES ---
 // These tables have Row Level Security enabled but NO policies defined.
@@ -1843,12 +2011,12 @@ export const Constants = {
 //       RETURN QUERY SELECT TRUE, u.id, u.email, u.nome, u.tipo_usuario
 //       FROM usuarios u
 //       WHERE u.email = p_email AND u.senha = p_senha;
-//
+//       
 //       IF NOT FOUND THEN
 //           RETURN QUERY SELECT FALSE, NULL::UUID, NULL::VARCHAR, NULL::VARCHAR, NULL::VARCHAR;
 //       END IF;
 //   END;$function$
-//
+//   
 // FUNCTION get_auth_user_id_by_email(text)
 //   CREATE OR REPLACE FUNCTION public.get_auth_user_id_by_email(p_email text)
 //    RETURNS uuid
@@ -1862,7 +2030,7 @@ export const Constants = {
 //     RETURN v_id;
 //   END;
 //   $function$
-//
+//   
 // FUNCTION handle_new_user()
 //   CREATE OR REPLACE FUNCTION public.handle_new_user()
 //    RETURNS trigger
@@ -1870,24 +2038,42 @@ export const Constants = {
 //    SECURITY DEFINER
 //   AS $function$
 //   BEGIN
-//     INSERT INTO public.usuarios (id, email, nome, tipo_usuario, status)
-//     VALUES (
-//       NEW.id,
-//       NEW.email,
-//       COALESCE(NEW.raw_user_meta_data->>'name', NEW.raw_user_meta_data->>'nome', 'Usuário'),
-//       COALESCE(NEW.raw_user_meta_data->>'tipo_usuario', 'cliente'),
-//       'ativo'
+//     INSERT INTO public.usuarios (
+//       id, email, nome, tipo_usuario, status, cpf, cnpj, razao_social, telefone, endereco, cidade, estado
 //     )
-//     ON CONFLICT (id) DO NOTHING;
-//
+//     VALUES (
+//       NEW.id, 
+//       NEW.email, 
+//       COALESCE(NEW.raw_user_meta_data->>'nome', NEW.raw_user_meta_data->>'name', 'Usuário'), 
+//       COALESCE(NEW.raw_user_meta_data->>'tipo_usuario', 'cliente'), 
+//       COALESCE(NEW.raw_user_meta_data->>'status', 'pendente'),
+//       NEW.raw_user_meta_data->>'cpf',
+//       NEW.raw_user_meta_data->>'cnpj',
+//       NEW.raw_user_meta_data->>'razao_social',
+//       NEW.raw_user_meta_data->>'telefone',
+//       NEW.raw_user_meta_data->>'endereco',
+//       NEW.raw_user_meta_data->>'cidade',
+//       NEW.raw_user_meta_data->>'estado'
+//     )
+//     ON CONFLICT (id) DO UPDATE SET
+//       nome = EXCLUDED.nome,
+//       tipo_usuario = EXCLUDED.tipo_usuario,
+//       status = EXCLUDED.status,
+//       cpf = EXCLUDED.cpf,
+//       cnpj = EXCLUDED.cnpj,
+//       razao_social = EXCLUDED.razao_social,
+//       telefone = EXCLUDED.telefone,
+//       endereco = EXCLUDED.endereco,
+//       cidade = EXCLUDED.cidade,
+//       estado = EXCLUDED.estado;
+//     
 //     RETURN NEW;
 //   EXCEPTION
 //     WHEN unique_violation THEN
-//       -- Ignora violações de chave única (como email já existente) mantendo o fluxo seguro
 //       RETURN NEW;
 //   END;
 //   $function$
-//
+//   
 // FUNCTION validar_login(text, text)
 //   CREATE OR REPLACE FUNCTION public.validar_login(p_email text, p_senha text)
 //    RETURNS jsonb
@@ -1900,11 +2086,11 @@ export const Constants = {
 //   BEGIN
 //     -- (1) Buscar o usuário na tabela usuarios pelo email fornecido
 //     SELECT * INTO v_usuario FROM public.usuarios WHERE email = p_email LIMIT 1;
-//
+//   
 //     IF NOT FOUND THEN
 //       RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
 //     END IF;
-//
+//   
 //     -- (2) Comparar a senha fornecida com a senha_hash usando a função crypt do PostgreSQL
 //     -- (5) Garantir que a comparação de senha funcione corretamente com bcrypt gerado por gen_salt('bf')
 //     BEGIN
@@ -1918,12 +2104,12 @@ export const Constants = {
 //         v_valido := true;
 //       END IF;
 //     END;
-//
+//   
 //     IF v_valido THEN
 //       IF v_usuario.status IS NOT NULL AND v_usuario.status != 'ativo' THEN
 //         RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
 //       END IF;
-//
+//   
 //       -- (3) Se válido, retornar o usuario_id, tipo_usuario
 //       RETURN jsonb_build_object(
 //         'success', true,
@@ -1938,12 +2124,12 @@ export const Constants = {
 //         )
 //       );
 //     END IF;
-//
+//   
 //     -- (4) Se inválido, retornar erro 401 com mensagem "Credenciais inválidas" (tratado na Edge Function)
 //     RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
 //   END;
 //   $function$
-//
+//   
 
 // --- INDEXES ---
 // Table: acompanhamento_projetos
@@ -1955,4 +2141,6 @@ export const Constants = {
 // Table: usuario
 //   CREATE UNIQUE INDEX usuario_email_key ON public.usuario USING btree (email)
 // Table: usuarios
+//   CREATE UNIQUE INDEX usuarios_cpf_key ON public.usuarios USING btree (cpf) WHERE ((cpf IS NOT NULL) AND (cpf <> ''::text))
 //   CREATE UNIQUE INDEX usuarios_email_key ON public.usuarios USING btree (email)
+
