@@ -53,7 +53,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
           user.role === 'administrador' ||
           user.role === 'admin'
         )
-          table = 'permissoes_admin'
+          table = 'administradores'
         else if (user.tipo_usuario === 'parceiro' || user.role === 'parceiro')
           table = 'permissoes_parceiro'
         else if (user.tipo_usuario === 'cliente' || user.role === 'cliente')

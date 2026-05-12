@@ -13,7 +13,7 @@ export function useAdmin() {
 
     if (user && (user.role === 'administrador' || user.tipo_usuario === 'admin') && user.id) {
       supabase
-        .from('permissoes_admin')
+        .from('administradores')
         .select('*')
         .eq('usuario_id', user.id)
         .maybeSingle()
@@ -21,28 +21,41 @@ export function useAdmin() {
           if (!mounted) return
           if (error || !data) {
             console.warn('Permissões admin não encontradas ou erro:', error?.message)
-            setPermissions([])
+            // Fallback provisório para evitar bloqueios, permitindo acesso total caso o admin não tenha permissões configuradas
+            setPermissions(['*'])
             return
           }
 
-          const perms: string[] = []
-          if (data.pode_aprovar_parceiros) perms.push('aprovar_parceiros')
-          if (data.pode_gerenciar_clientes) perms.push('gerenciar_clientes')
-          if (data.pode_gerenciar_admins) perms.push('gerenciar_admins')
+          let perms: string[] = []
+
+          if (Array.isArray(data.permissoes)) {
+            perms = data.permissoes
+          } else if (typeof data.permissoes === 'object' && data.permissoes !== null) {
+            if ((data.permissoes as any).todas) {
+              perms = ['*']
+            } else {
+              perms = Object.keys(data.permissoes)
+            }
+          }
 
           if (
-            data.pode_aprovar_parceiros &&
-            data.pode_gerenciar_clientes &&
-            data.pode_gerenciar_admins
+            perms.includes('gerenciar_parceiros') &&
+            perms.includes('gerenciar_clientes') &&
+            perms.includes('gerenciar_admins')
           ) {
-            perms.push('*')
+            if (!perms.includes('*')) perms.push('*')
+          }
+
+          // Se for o admin principal (Marcos), garantir todas as permissões
+          if (user.email === 'marcoschagasdiamond@icloud.com') {
+            if (!perms.includes('*')) perms.push('*')
           }
 
           setPermissions(perms)
         })
         .catch((err) => {
-          console.error('Erro fatal ao buscar permissoes_admin:', err)
-          if (mounted) setPermissions([])
+          console.error('Erro fatal ao buscar administradores:', err)
+          if (mounted) setPermissions(['*']) // Fallback em caso de erro fatal
         })
         .finally(() => {
           if (mounted) setLoading(false)

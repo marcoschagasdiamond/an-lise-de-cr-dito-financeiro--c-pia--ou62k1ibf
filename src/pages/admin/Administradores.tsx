@@ -52,7 +52,7 @@ export default function AdminAdministradores() {
 
   useEffect(() => {
     if (!adminLoading && !hasPermission('gerenciar_admins')) {
-      toast.error('Acesso negado.')
+      toast.error('Acesso negado às configurações de administradores.')
       navigate('/admin/dashboard')
     }
   }, [adminLoading, hasPermission, navigate])

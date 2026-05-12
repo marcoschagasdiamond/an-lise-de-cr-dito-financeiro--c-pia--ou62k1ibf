@@ -244,7 +244,7 @@ const App = () => (
                 </Route>
 
                 {/* Protected routes - Admin */}
-                <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route element={<ProtectedRoute allowedRoles={['admin', 'administrador']} />}>
                   <Route path="/admin" element={<Admin />}>
                     <Route index element={<Navigate to="/admin/dashboard" replace />} />
                     <Route path="dashboard" element={<AdminDashboard />} />
