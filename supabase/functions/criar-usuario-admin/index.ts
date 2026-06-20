@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
     const jwtSecret =
       Deno.env.get('SUPABASE_JWT_SECRET') ??
       'super-secret-jwt-token-with-at-least-32-characters-long'
-
+      
     const signFn = jwt?.sign || (jwt as any)?.default?.sign
 
     if (!signFn) {
