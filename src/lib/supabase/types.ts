@@ -1,11 +1,17 @@
 // AVOID UPDATING THIS FILE DIRECTLY. It is automatically generated.
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '14.4'
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -42,11 +48,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'acompanhamento_projetos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "acompanhamento_projetos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -80,11 +86,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'administradores_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "administradores_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -121,11 +127,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'analises_salvas_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "analises_salvas_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -165,11 +171,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'balanco_patrimonial_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "balanco_patrimonial_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -200,11 +206,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'cenarios_financiamento_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "cenarios_financiamento_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -238,11 +244,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'cenarios_investimento_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "cenarios_investimento_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -312,18 +318,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'clientes_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "clientes_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'clientes_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "clientes_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -360,18 +366,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'comissoes_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "comissoes_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'comissoes_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "comissoes_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -405,18 +411,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'crm_parceiros_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "crm_parceiros_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'crm_parceiros_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "crm_parceiros_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -444,11 +450,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dashboard_metricas_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dashboard_metricas_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -482,11 +488,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'diagnosticos_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "diagnosticos_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -520,11 +526,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'documentos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "documentos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -588,11 +594,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dre_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dre_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -665,11 +671,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'dre_projetado_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "dre_projetado_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -706,11 +712,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'fluxo_caixa_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "fluxo_caixa_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -744,11 +750,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'formularios_preenchidos_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "formularios_preenchidos_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -794,11 +800,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'indicadores_financeiros_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "indicadores_financeiros_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -832,11 +838,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'investimentos_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "investimentos_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -879,11 +885,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'parametros_dre_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "parametros_dre_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -917,11 +923,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'parceiros_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "parceiros_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -952,11 +958,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_admin_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_admin_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -984,11 +990,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_cliente_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_cliente_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1016,11 +1022,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'permissoes_parceiro_usuario_id_fkey'
-            columns: ['usuario_id']
+            foreignKeyName: "permissoes_parceiro_usuario_id_fkey"
+            columns: ["usuario_id"]
             isOneToOne: false
-            referencedRelation: 'usuarios'
-            referencedColumns: ['id']
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1054,18 +1060,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pipeline_demandas_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "pipeline_demandas_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pipeline_demandas_parceiro_id_fkey'
-            columns: ['parceiro_id']
+            foreignKeyName: "pipeline_demandas_parceiro_id_fkey"
+            columns: ["parceiro_id"]
             isOneToOne: false
-            referencedRelation: 'parceiros'
-            referencedColumns: ['id']
+            referencedRelation: "parceiros"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1105,11 +1111,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'projetos_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "projetos_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1137,11 +1143,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'relatorios_gerados_projeto_id_fkey'
-            columns: ['projeto_id']
+            foreignKeyName: "relatorios_gerados_projeto_id_fkey"
+            columns: ["projeto_id"]
             isOneToOne: false
-            referencedRelation: 'projetos'
-            referencedColumns: ['id']
+            referencedRelation: "projetos"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1172,11 +1178,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'simulacoes_financeiras_cliente_id_fkey'
-            columns: ['cliente_id']
+            foreignKeyName: "simulacoes_financeiras_cliente_id_fkey"
+            columns: ["cliente_id"]
             isOneToOne: false
-            referencedRelation: 'clientes'
-            referencedColumns: ['id']
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1297,7 +1303,7 @@ export type Database = {
     }
     Functions: {
       get_auth_user_id_by_email: { Args: { p_email: string }; Returns: string }
-      'Marcos Chagas': {
+      "Marcos Chagas": {
         Args: { p_email: string; p_senha: string }
         Returns: {
           email: string
@@ -1321,31 +1327,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1354,23 +1362,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1379,23 +1387,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1404,36 +1412,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
@@ -1442,695 +1450,3 @@ export const Constants = {
   },
 } as const
 
-// ====== DATABASE EXTENDED CONTEXT (auto-generated) ======
-// This section contains actual PostgreSQL column types, constraints, RLS policies,
-// functions, triggers, indexes and materialized views not present in the type definitions above.
-// IMPORTANT: The TypeScript types above map UUID, TEXT, VARCHAR all to "string".
-// Use the COLUMN TYPES section below to know the real PostgreSQL type for each column.
-// Always use the correct PostgreSQL type when writing SQL migrations.
-
-// --- COLUMN TYPES (actual PostgreSQL types) ---
-// Use this to know the real database type when writing migrations.
-// "string" in TypeScript types above may be uuid, text, varchar, timestamptz, etc.
-// Table: acompanhamento_projetos
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   tipo_evento: text (nullable)
-//   descricao: text (nullable)
-//   data_evento: timestamp with time zone (nullable)
-//   responsavel: text (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   usuario_id: uuid (nullable)
-// Table: administradores
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (nullable)
-//   nome: text (nullable)
-//   permissoes: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   email: text (nullable)
-//   status: text (nullable, default: 'ativo'::text)
-// Table: analises_salvas
-//   id: uuid (not null, default: gen_random_uuid())
-//   cliente_id: uuid (nullable)
-//   nome_analise: text (nullable)
-//   tipo_analise: text (nullable)
-//   dados_analise: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   data_atualizacao: timestamp with time zone (nullable, default: now())
-//   usuario_id: uuid (nullable)
-// Table: balanco_patrimonial
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   ano: integer (nullable)
-//   ativo_circulante: jsonb (nullable)
-//   ativo_nao_circulante: jsonb (nullable)
-//   passivo_circulante: jsonb (nullable)
-//   passivo_nao_circulante: jsonb (nullable)
-//   patrimonio_liquido: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: cenarios_financiamento
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   tipo_cenario: text (nullable)
-//   ativo: boolean (nullable, default: true)
-//   dados_cenario: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: cenarios_investimento
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   nome_cenario: text (nullable)
-//   descricao: text (nullable)
-//   parametros: jsonb (nullable)
-//   resultados: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: clientes
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (nullable)
-//   empresa_nome: text (nullable)
-//   cnpj: text (nullable)
-//   faturamento_anual: numeric (nullable)
-//   telefone: text (nullable)
-//   endereco: text (nullable)
-//   data_cadastro: timestamp with time zone (nullable, default: now())
-//   email: text (nullable)
-//   nome_responsavel: text (nullable)
-//   valor_captacao: numeric (nullable)
-//   prazo_desejado: text (nullable)
-//   descricao_projeto: text (nullable)
-//   parceiro_id: uuid (nullable)
-//   nome: text (nullable)
-//   cpf: text (nullable)
-//   cidade: text (nullable)
-//   estado: text (nullable)
-//   criado_em: timestamp with time zone (nullable, default: now())
-// Table: comissoes
-//   id: uuid (not null, default: gen_random_uuid())
-//   parceiro_id: uuid (nullable)
-//   cliente_id: uuid (nullable)
-//   valor_comissao: numeric (nullable)
-//   percentual: numeric (nullable)
-//   status: text (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   data_pagamento: timestamp with time zone (nullable)
-// Table: crm_parceiros
-//   id: uuid (not null, default: gen_random_uuid())
-//   parceiro_id: uuid (nullable)
-//   cliente_id: uuid (nullable)
-//   historico_interacoes: jsonb (nullable)
-//   proxima_acao: text (nullable)
-//   data_proxima_acao: timestamp with time zone (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: dashboard_metricas
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   metrica_nome: text (nullable)
-//   valor: numeric (nullable)
-//   data_calculo: timestamp with time zone (nullable, default: now())
-// Table: diagnosticos
-//   id: uuid (not null, default: gen_random_uuid())
-//   cliente_id: uuid (nullable)
-//   tipo_diagnostico: text (nullable)
-//   descricao: text (nullable)
-//   riscos_identificados: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   data_atualizacao: timestamp with time zone (nullable, default: now())
-// Table: documentos
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   nome_documento: text (nullable)
-//   tipo_documento: text (nullable)
-//   url_storage: text (nullable)
-//   data_upload: timestamp with time zone (nullable, default: now())
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: dre
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   ano: integer (nullable)
-//   receita_bruta: numeric (nullable)
-//   deducoes: numeric (nullable)
-//   receita_liquida: numeric (nullable)
-//   custos_vendas: numeric (nullable)
-//   resultado_operacional_bruto: numeric (nullable)
-//   despesas_operacionais: jsonb (nullable)
-//   despesas_financeiras: jsonb (nullable)
-//   resultado_operacional: numeric (nullable)
-//   provisao_ir_csll: numeric (nullable)
-//   lucro_liquido: numeric (nullable)
-//   ebitda: numeric (nullable)
-//   ebitda_percentual: numeric (nullable)
-//   lucratividade: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: dre_projetado
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   ano: integer (nullable)
-//   receita_bruta: numeric (nullable)
-//   deducoes: numeric (nullable)
-//   receita_liquida: numeric (nullable)
-//   custos_vendas: numeric (nullable)
-//   resultado_operacional_bruto: numeric (nullable)
-//   despesas_operacionais: numeric (nullable)
-//   despesas_financeiras: numeric (nullable)
-//   resultado_operacional: numeric (nullable)
-//   provisao_ir_csll: numeric (nullable)
-//   lucro_liquido: numeric (nullable)
-//   ebitda: numeric (nullable)
-//   ebitda_percentual: numeric (nullable)
-//   lucratividade: numeric (nullable)
-//   tir: numeric (nullable)
-//   vpl_5anos: numeric (nullable)
-//   vpl_10anos: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: fluxo_caixa
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   ano: integer (nullable)
-//   saldo_inicial: numeric (nullable)
-//   entradas: jsonb (nullable)
-//   saidas: jsonb (nullable)
-//   saldo_final: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: formularios_preenchidos
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (nullable)
-//   tipo_formulario: text (nullable)
-//   dados_json: jsonb (nullable)
-//   data_preenchimento: timestamp with time zone (nullable, default: now())
-//   created_at: timestamp with time zone (nullable, default: now())
-//   updated_at: timestamp with time zone (nullable, default: now())
-// Table: indicadores_financeiros
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   ano: integer (nullable)
-//   tir: numeric (nullable)
-//   vpl_5anos: numeric (nullable)
-//   vpl_10anos: numeric (nullable)
-//   payback: numeric (nullable)
-//   margem_liquida: numeric (nullable)
-//   roe: numeric (nullable)
-//   roa: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: investimentos
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   tipo_investimento: text (nullable)
-//   valor: numeric (nullable)
-//   descricao: text (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   usuario_id: uuid (nullable)
-// Table: parametros_dre
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   receita_ano1: numeric (nullable)
-//   margem_deducoes: numeric (nullable)
-//   margem_custos: numeric (nullable)
-//   margem_despesas_op: numeric (nullable)
-//   margem_despesas_fin: numeric (nullable)
-//   aliquota_ir_csll: numeric (nullable)
-//   crescimento_anual: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: parceiros
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (nullable)
-//   nome_parceiro: text (nullable)
-//   cnpj: text (nullable)
-//   comissao_percentual: numeric (nullable)
-//   status: text (nullable)
-//   data_cadastro: timestamp with time zone (nullable, default: now())
-// Table: permissoes_admin
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (not null)
-//   pode_aprovar_parceiros: boolean (not null, default: false)
-//   pode_gerenciar_clientes: boolean (not null, default: false)
-//   pode_gerenciar_admins: boolean (not null, default: false)
-//   criado_em: timestamp with time zone (not null, default: now())
-// Table: permissoes_cliente
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (not null)
-//   pode_ver_projetos: boolean (not null, default: false)
-//   pode_enviar_documentos: boolean (not null, default: false)
-//   criado_em: timestamp with time zone (not null, default: now())
-// Table: permissoes_parceiro
-//   id: uuid (not null, default: gen_random_uuid())
-//   usuario_id: uuid (not null)
-//   pode_gerenciar_clientes: boolean (not null, default: false)
-//   pode_ver_comissoes: boolean (not null, default: false)
-//   criado_em: timestamp with time zone (not null, default: now())
-// Table: pipeline_demandas
-//   id: uuid (not null, default: gen_random_uuid())
-//   parceiro_id: uuid (nullable)
-//   cliente_id: uuid (nullable)
-//   status: text (nullable)
-//   valor_oportunidade: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   data_atualizacao: timestamp with time zone (nullable, default: now())
-// Table: projetos
-//   id: uuid (not null, default: gen_random_uuid())
-//   cliente_id: uuid (nullable)
-//   nome_projeto: text (nullable)
-//   apresentacao_empresa: text (nullable)
-//   apresentacao_projeto: text (nullable)
-//   mercado_justificativa: text (nullable)
-//   faturamento_anual: numeric (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   status: text (nullable)
-// Table: relatorios_gerados
-//   id: uuid (not null, default: gen_random_uuid())
-//   projeto_id: uuid (nullable)
-//   tipo_relatorio: text (nullable)
-//   url_arquivo: text (nullable)
-//   data_geracao: timestamp with time zone (nullable, default: now())
-// Table: simulacoes_financeiras
-//   id: uuid (not null, default: gen_random_uuid())
-//   cliente_id: uuid (nullable)
-//   tipo_simulacao: text (nullable)
-//   parametros: jsonb (nullable)
-//   resultado: jsonb (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-// Table: solicitacoes_parceria
-//   id: uuid (not null, default: gen_random_uuid())
-//   nome: text (not null)
-//   email: text (not null)
-//   empresa: text (nullable)
-//   mensagem: text (nullable)
-//   created_at: timestamp with time zone (not null, default: now())
-// Table: usuario
-//   id: uuid (not null, default: gen_random_uuid())
-//   email: character varying (not null)
-//   senha: character varying (not null)
-//   nome: character varying (not null)
-//   tipo_usuario: character varying (not null)
-//   data_criacao: timestamp without time zone (nullable, default: now())
-// Table: usuarios
-//   id: uuid (not null, default: gen_random_uuid())
-//   email: text (not null)
-//   senha_hash: text (nullable)
-//   nome: text (nullable)
-//   tipo_usuario: text (nullable)
-//   status: text (nullable)
-//   data_criacao: timestamp with time zone (nullable, default: now())
-//   criado_em: timestamp with time zone (nullable, default: now())
-//   telefone: text (nullable)
-//   documento: text (nullable)
-//   endereco: text (nullable)
-//   cidade: text (nullable)
-//   estado: text (nullable)
-//   razao_social: text (nullable)
-//   cnpj: text (nullable)
-//   cpf: text (nullable)
-
-// --- CONSTRAINTS ---
-// Table: acompanhamento_projetos
-//   PRIMARY KEY acompanhamento_projetos_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY acompanhamento_projetos_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-//   CHECK acompanhamento_projetos_tipo_evento_check: CHECK ((tipo_evento = ANY (ARRAY['diagnostico'::text, 'analise'::text, 'implementacao'::text, 'resultado'::text])))
-//   FOREIGN KEY acompanhamento_projetos_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES auth.users(id) ON DELETE CASCADE
-// Table: administradores
-//   PRIMARY KEY administradores_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY administradores_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: analises_salvas
-//   FOREIGN KEY analises_salvas_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   PRIMARY KEY analises_salvas_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY analises_salvas_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES auth.users(id) ON DELETE CASCADE
-// Table: balanco_patrimonial
-//   PRIMARY KEY balanco_patrimonial_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY balanco_patrimonial_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: cenarios_financiamento
-//   PRIMARY KEY cenarios_financiamento_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY cenarios_financiamento_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-//   CHECK cenarios_financiamento_tipo_cenario_check: CHECK ((tipo_cenario = ANY (ARRAY['emprestimo'::text, 'investidor'::text, 'cotas'::text])))
-// Table: cenarios_investimento
-//   PRIMARY KEY cenarios_investimento_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY cenarios_investimento_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: clientes
-//   FOREIGN KEY clientes_parceiro_id_fkey: FOREIGN KEY (parceiro_id) REFERENCES usuarios(id) ON DELETE CASCADE
-//   PRIMARY KEY clientes_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY clientes_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: comissoes
-//   FOREIGN KEY comissoes_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   FOREIGN KEY comissoes_parceiro_id_fkey: FOREIGN KEY (parceiro_id) REFERENCES parceiros(id) ON DELETE CASCADE
-//   PRIMARY KEY comissoes_pkey: PRIMARY KEY (id)
-//   CHECK comissoes_status_check: CHECK ((status = ANY (ARRAY['pago'::text, 'pendente'::text])))
-// Table: crm_parceiros
-//   FOREIGN KEY crm_parceiros_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   FOREIGN KEY crm_parceiros_parceiro_id_fkey: FOREIGN KEY (parceiro_id) REFERENCES parceiros(id) ON DELETE CASCADE
-//   PRIMARY KEY crm_parceiros_pkey: PRIMARY KEY (id)
-// Table: dashboard_metricas
-//   PRIMARY KEY dashboard_metricas_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY dashboard_metricas_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: diagnosticos
-//   FOREIGN KEY diagnosticos_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   PRIMARY KEY diagnosticos_pkey: PRIMARY KEY (id)
-//   CHECK diagnosticos_tipo_diagnostico_check: CHECK ((tipo_diagnostico = ANY (ARRAY['juridico'::text, 'tributario'::text, 'fiscal'::text, 'contabil'::text, 'financeiro'::text])))
-// Table: documentos
-//   PRIMARY KEY documentos_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY documentos_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: dre
-//   PRIMARY KEY dre_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY dre_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: dre_projetado
-//   PRIMARY KEY dre_projetado_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY dre_projetado_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: fluxo_caixa
-//   PRIMARY KEY fluxo_caixa_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY fluxo_caixa_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: formularios_preenchidos
-//   PRIMARY KEY formularios_preenchidos_pkey: PRIMARY KEY (id)
-//   CHECK formularios_preenchidos_tipo_formulario_check: CHECK ((tipo_formulario = ANY (ARRAY['cliente'::text, 'parceiro'::text])))
-//   FOREIGN KEY formularios_preenchidos_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: indicadores_financeiros
-//   PRIMARY KEY indicadores_financeiros_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY indicadores_financeiros_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: investimentos
-//   PRIMARY KEY investimentos_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY investimentos_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-//   FOREIGN KEY investimentos_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES auth.users(id) ON DELETE CASCADE
-// Table: parametros_dre
-//   PRIMARY KEY parametros_dre_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY parametros_dre_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: parceiros
-//   PRIMARY KEY parceiros_pkey: PRIMARY KEY (id)
-//   CHECK parceiros_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text, 'pendente'::text])))
-//   FOREIGN KEY parceiros_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: permissoes_admin
-//   PRIMARY KEY permissoes_admin_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY permissoes_admin_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: permissoes_cliente
-//   PRIMARY KEY permissoes_cliente_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY permissoes_cliente_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: permissoes_parceiro
-//   PRIMARY KEY permissoes_parceiro_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY permissoes_parceiro_usuario_id_fkey: FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-// Table: pipeline_demandas
-//   FOREIGN KEY pipeline_demandas_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   FOREIGN KEY pipeline_demandas_parceiro_id_fkey: FOREIGN KEY (parceiro_id) REFERENCES parceiros(id) ON DELETE CASCADE
-//   PRIMARY KEY pipeline_demandas_pkey: PRIMARY KEY (id)
-//   CHECK pipeline_demandas_status_check: CHECK ((status = ANY (ARRAY['prospeccao'::text, 'qualificacao'::text, 'proposta'::text, 'negociacao'::text, 'fechado'::text])))
-// Table: projetos
-//   FOREIGN KEY projetos_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   PRIMARY KEY projetos_pkey: PRIMARY KEY (id)
-// Table: relatorios_gerados
-//   PRIMARY KEY relatorios_gerados_pkey: PRIMARY KEY (id)
-//   FOREIGN KEY relatorios_gerados_projeto_id_fkey: FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
-// Table: simulacoes_financeiras
-//   FOREIGN KEY simulacoes_financeiras_cliente_id_fkey: FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
-//   PRIMARY KEY simulacoes_financeiras_pkey: PRIMARY KEY (id)
-// Table: solicitacoes_parceria
-//   PRIMARY KEY solicitacoes_parceria_pkey: PRIMARY KEY (id)
-// Table: usuario
-//   UNIQUE usuario_email_key: UNIQUE (email)
-//   PRIMARY KEY usuario_pkey: PRIMARY KEY (id)
-// Table: usuarios
-//   UNIQUE usuarios_email_key: UNIQUE (email)
-//   FOREIGN KEY usuarios_id_fkey: FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
-//   PRIMARY KEY usuarios_pkey: PRIMARY KEY (id)
-//   CHECK usuarios_status_check: CHECK ((status = ANY (ARRAY['ativo'::text, 'inativo'::text, 'pendente'::text, 'aprovado'::text, 'rejeitado'::text])))
-//   CHECK usuarios_tipo_usuario_check: CHECK ((tipo_usuario = ANY (ARRAY['cliente'::text, 'parceiro'::text, 'admin'::text])))
-
-// --- ROW LEVEL SECURITY POLICIES ---
-// Table: acompanhamento_projetos
-//   Policy "authenticated_all_acompanhamento_projetos" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: administradores
-//   Policy "authenticated_all_administradores" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: analises_salvas
-//   Policy "authenticated_all_analises_salvas" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: balanco_patrimonial
-//   Policy "authenticated_all_balanco" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: cenarios_financiamento
-//   Policy "authenticated_all_cenarios_fin" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: cenarios_investimento
-//   Policy "authenticated_all_cenarios_inv" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: clientes
-//   Policy "allow_anonymous_insert_clientes" (INSERT, PERMISSIVE) roles={public}
-//     WITH CHECK: true
-//   Policy "allow_anonymous_select_clientes" (SELECT, PERMISSIVE) roles={public}
-//     USING: true
-//   Policy "clientes_delete_own" (DELETE, PERMISSIVE) roles={authenticated}
-//     USING: ((parceiro_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//   Policy "clientes_insert_own" (INSERT, PERMISSIVE) roles={authenticated}
-//     WITH CHECK: ((parceiro_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//   Policy "clientes_read_own" (SELECT, PERMISSIVE) roles={authenticated}
-//     USING: ((parceiro_id = auth.uid()) OR (usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//   Policy "clientes_update_own" (UPDATE, PERMISSIVE) roles={authenticated}
-//     USING: ((parceiro_id = auth.uid()) OR (usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//     WITH CHECK: ((parceiro_id = auth.uid()) OR (usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-// Table: comissoes
-//   Policy "authenticated_all_comissoes" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: crm_parceiros
-//   Policy "authenticated_all_crm_parceiros" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: dashboard_metricas
-//   Policy "authenticated_all_dashboard_metricas" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: diagnosticos
-//   Policy "authenticated_all_diagnosticos" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: documentos
-//   Policy "authenticated_all_documentos" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: dre
-//   Policy "authenticated_all_dre" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: dre_projetado
-//   Policy "authenticated_all_dre_projetado" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: fluxo_caixa
-//   Policy "authenticated_all_fluxo" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: formularios_preenchidos
-//   Policy "formularios_insert_own" (INSERT, PERMISSIVE) roles={authenticated}
-//     WITH CHECK: (usuario_id = auth.uid())
-//   Policy "formularios_read_own" (SELECT, PERMISSIVE) roles={authenticated}
-//     USING: ((usuario_id = auth.uid()) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])))
-//   Policy "formularios_update_own" (UPDATE, PERMISSIVE) roles={authenticated}
-//     USING: (usuario_id = auth.uid())
-//     WITH CHECK: (usuario_id = auth.uid())
-// Table: indicadores_financeiros
-//   Policy "authenticated_all_indicadores" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: investimentos
-//   Policy "authenticated_all_investimentos" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: parametros_dre
-//   Policy "authenticated_all_parametros_dre" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: parceiros
-//   Policy "authenticated_all_parceiros" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: permissoes_admin
-//   Policy "authenticated_all_permissoes_admin" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: permissoes_cliente
-//   Policy "authenticated_all_permissoes_cliente" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: permissoes_parceiro
-//   Policy "authenticated_all_permissoes_parceiro" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: pipeline_demandas
-//   Policy "authenticated_all_pipeline_demandas" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: projetos
-//   Policy "authenticated_all_projetos" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: relatorios_gerados
-//   Policy "authenticated_all_relatorios_gerados" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: simulacoes_financeiras
-//   Policy "authenticated_all_simulacoes" (ALL, PERMISSIVE) roles={authenticated}
-//     USING: true
-//     WITH CHECK: true
-// Table: solicitacoes_parceria
-//   Policy "allow_admin_select" (SELECT, PERMISSIVE) roles={authenticated}
-//     USING: (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid())))
-//   Policy "allow_anonymous_insert" (INSERT, PERMISSIVE) roles={public}
-//     WITH CHECK: true
-// Table: usuarios
-//   Policy "usuarios_delete_admin" (DELETE, PERMISSIVE) roles={authenticated}
-//     USING: (((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//   Policy "usuarios_insert_all" (INSERT, PERMISSIVE) roles={authenticated}
-//     WITH CHECK: true
-//   Policy "usuarios_read_own" (SELECT, PERMISSIVE) roles={authenticated}
-//     USING: ((auth.uid() = id) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//   Policy "usuarios_update_own" (UPDATE, PERMISSIVE) roles={authenticated}
-//     USING: ((auth.uid() = id) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-//     WITH CHECK: ((auth.uid() = id) OR ((((current_setting('request.jwt.claims'::text, true))::jsonb -> 'user_metadata'::text) ->> 'tipo_usuario'::text) = ANY (ARRAY['admin'::text, 'administrador'::text])) OR (EXISTS ( SELECT 1    FROM administradores   WHERE (administradores.usuario_id = auth.uid()))))
-
-// --- WARNING: TABLES WITH RLS ENABLED BUT NO POLICIES ---
-// These tables have Row Level Security enabled but NO policies defined.
-// This means ALL queries (SELECT, INSERT, UPDATE, DELETE) will return ZERO rows
-// for non-superuser roles (including the anon and authenticated roles used by the app).
-// You MUST create RLS policies for these tables to allow data access.
-//   - usuario
-
-// --- DATABASE FUNCTIONS ---
-// FUNCTION Marcos Chagas(character varying, character varying)
-//   CREATE OR REPLACE FUNCTION public."Marcos Chagas"(p_email character varying, p_senha character varying)
-//    RETURNS TABLE(success boolean, usuario_id uuid, email character varying, nome character varying, tipo_usuario character varying)
-//    LANGUAGE plpgsql
-//   AS $function$BEGIN
-//       RETURN QUERY SELECT TRUE, u.id, u.email, u.nome, u.tipo_usuario
-//       FROM usuarios u
-//       WHERE u.email = p_email AND u.senha = p_senha;
-//
-//       IF NOT FOUND THEN
-//           RETURN QUERY SELECT FALSE, NULL::UUID, NULL::VARCHAR, NULL::VARCHAR, NULL::VARCHAR;
-//       END IF;
-//   END;$function$
-//
-// FUNCTION get_auth_user_id_by_email(text)
-//   CREATE OR REPLACE FUNCTION public.get_auth_user_id_by_email(p_email text)
-//    RETURNS uuid
-//    LANGUAGE plpgsql
-//    SECURITY DEFINER
-//   AS $function$
-//   DECLARE
-//     v_id uuid;
-//   BEGIN
-//     SELECT id INTO v_id FROM auth.users WHERE email = p_email LIMIT 1;
-//     RETURN v_id;
-//   END;
-//   $function$
-//
-// FUNCTION handle_new_user()
-//   CREATE OR REPLACE FUNCTION public.handle_new_user()
-//    RETURNS trigger
-//    LANGUAGE plpgsql
-//    SECURITY DEFINER
-//   AS $function$
-//   BEGIN
-//     INSERT INTO public.usuarios (
-//       id, email, nome, tipo_usuario, status, cpf, cnpj, razao_social, telefone, endereco, cidade, estado
-//     )
-//     VALUES (
-//       NEW.id,
-//       NEW.email,
-//       COALESCE(NEW.raw_user_meta_data->>'nome', NEW.raw_user_meta_data->>'name', 'Usuário'),
-//       COALESCE(NEW.raw_user_meta_data->>'tipo_usuario', 'cliente'),
-//       COALESCE(NEW.raw_user_meta_data->>'status', 'pendente'),
-//       NEW.raw_user_meta_data->>'cpf',
-//       NEW.raw_user_meta_data->>'cnpj',
-//       NEW.raw_user_meta_data->>'razao_social',
-//       NEW.raw_user_meta_data->>'telefone',
-//       NEW.raw_user_meta_data->>'endereco',
-//       NEW.raw_user_meta_data->>'cidade',
-//       NEW.raw_user_meta_data->>'estado'
-//     )
-//     ON CONFLICT (id) DO UPDATE SET
-//       nome = EXCLUDED.nome,
-//       tipo_usuario = EXCLUDED.tipo_usuario,
-//       status = EXCLUDED.status,
-//       cpf = EXCLUDED.cpf,
-//       cnpj = EXCLUDED.cnpj,
-//       razao_social = EXCLUDED.razao_social,
-//       telefone = EXCLUDED.telefone,
-//       endereco = EXCLUDED.endereco,
-//       cidade = EXCLUDED.cidade,
-//       estado = EXCLUDED.estado;
-//
-//     RETURN NEW;
-//   EXCEPTION
-//     WHEN unique_violation THEN
-//       RETURN NEW;
-//   END;
-//   $function$
-//
-// FUNCTION validar_login(text, text)
-//   CREATE OR REPLACE FUNCTION public.validar_login(p_email text, p_senha text)
-//    RETURNS jsonb
-//    LANGUAGE plpgsql
-//    SECURITY DEFINER
-//   AS $function$
-//   DECLARE
-//     v_usuario record;
-//     v_valido boolean := false;
-//   BEGIN
-//     -- (1) Buscar o usuário na tabela usuarios pelo email fornecido
-//     SELECT * INTO v_usuario FROM public.usuarios WHERE email = p_email LIMIT 1;
-//
-//     IF NOT FOUND THEN
-//       RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
-//     END IF;
-//
-//     -- (2) Comparar a senha fornecida com a senha_hash usando a função crypt do PostgreSQL
-//     -- (5) Garantir que a comparação de senha funcione corretamente com bcrypt gerado por gen_salt('bf')
-//     BEGIN
-//       IF crypt(p_senha, v_usuario.senha_hash) = v_usuario.senha_hash THEN
-//         v_valido := true;
-//       ELSIF v_usuario.senha_hash = p_senha THEN
-//         v_valido := true;
-//       END IF;
-//     EXCEPTION WHEN OTHERS THEN
-//       IF v_usuario.senha_hash = p_senha THEN
-//         v_valido := true;
-//       END IF;
-//     END;
-//
-//     IF v_valido THEN
-//       IF v_usuario.status IS NOT NULL AND v_usuario.status != 'ativo' THEN
-//         RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
-//       END IF;
-//
-//       -- (3) Se válido, retornar o usuario_id, tipo_usuario
-//       RETURN jsonb_build_object(
-//         'success', true,
-//         'usuario_id', v_usuario.id,
-//         'tipo_usuario', v_usuario.tipo_usuario,
-//         'usuario', jsonb_build_object(
-//           'id', v_usuario.id,
-//           'email', v_usuario.email,
-//           'nome', v_usuario.nome,
-//           'tipo_usuario', v_usuario.tipo_usuario,
-//           'status', v_usuario.status
-//         )
-//       );
-//     END IF;
-//
-//     -- (4) Se inválido, retornar erro 401 com mensagem "Credenciais inválidas" (tratado na Edge Function)
-//     RETURN jsonb_build_object('success', false, 'error', 'Credenciais inválidas');
-//   END;
-//   $function$
-//
-
-// --- INDEXES ---
-// Table: acompanhamento_projetos
-//   CREATE INDEX idx_acompanhamento_projetos_usuario_id ON public.acompanhamento_projetos USING btree (usuario_id)
-// Table: analises_salvas
-//   CREATE INDEX idx_analises_salvas_usuario_id ON public.analises_salvas USING btree (usuario_id)
-// Table: investimentos
-//   CREATE INDEX idx_investimentos_usuario_id ON public.investimentos USING btree (usuario_id)
-// Table: usuario
-//   CREATE UNIQUE INDEX usuario_email_key ON public.usuario USING btree (email)
-// Table: usuarios
-//   CREATE UNIQUE INDEX usuarios_cpf_key ON public.usuarios USING btree (cpf) WHERE ((cpf IS NOT NULL) AND (cpf <> ''::text))
-//   CREATE UNIQUE INDEX usuarios_email_key ON public.usuarios USING btree (email)
