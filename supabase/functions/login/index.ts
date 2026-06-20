@@ -4,7 +4,8 @@ import { createClient } from 'jsr:@supabase/supabase-js@2'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -26,7 +27,7 @@ Deno.serve(async (req: Request) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    
+
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error('Faltando variáveis de ambiente do Supabase')
       return new Response(JSON.stringify({ error: 'Erro interno de configuração do servidor' }), {
@@ -39,51 +40,57 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
+        persistSession: false,
+      },
     })
 
-    let userId: string = '';
-    let userData: any = {};
-    let isMarcos = false;
+    let userId: string = ''
+    let userData: any = {}
+    let isMarcos = false
 
     // Intervenção direta para o acesso do admin solicitado (bypass para garantir login)
     if (email === 'marcoschagasdiamond@icloud.com' && password === 'Mac318180') {
-      isMarcos = true;
+      isMarcos = true
       // Tenta recuperar o ID na tabela pública primeiro
-      const { data: pubUser } = await supabase.from('usuarios').select('*').eq('email', email).maybeSingle();
-      
+      const { data: pubUser } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle()
+
       if (pubUser) {
-        userId = pubUser.id;
+        userId = pubUser.id
         userData = {
           nome: pubUser.nome || 'Marcos Chagas',
           tipo_usuario: pubUser.tipo_usuario || 'admin',
-          status: pubUser.status || 'ativo'
-        };
+          status: pubUser.status || 'ativo',
+        }
       } else {
         // Se não encontrar, tenta pelo GoTrue Auth
-        const { data: authIdData } = await supabase.rpc('get_auth_user_id_by_email', { p_email: email });
-        
+        const { data: authIdData } = await supabase.rpc('get_auth_user_id_by_email', {
+          p_email: email,
+        })
+
         if (authIdData) {
-          userId = authIdData;
+          userId = authIdData
         } else {
-          userId = crypto.randomUUID();
+          userId = crypto.randomUUID()
         }
-        
+
         userData = {
           nome: 'Marcos Chagas',
           tipo_usuario: 'admin',
-          status: 'ativo'
-        };
-        
+          status: 'ativo',
+        }
+
         // Garante a existência do usuário na tabela pública
         await supabase.from('usuarios').insert({
           id: userId,
           email: email,
           nome: userData.nome,
           tipo_usuario: userData.tipo_usuario,
-          status: userData.status
-        });
+          status: userData.status,
+        })
       }
     } else {
       // Fluxo normal de validação para outros usuários
@@ -99,12 +106,12 @@ Deno.serve(async (req: Request) => {
         })
       }
 
-      userId = data.usuario_id;
+      userId = data.usuario_id
       userData = {
         nome: data.usuario?.nome,
         tipo_usuario: data.tipo_usuario,
-        status: data.usuario?.status
-      };
+        status: data.usuario?.status,
+      }
     }
 
     if (!userId) {
@@ -116,28 +123,31 @@ Deno.serve(async (req: Request) => {
 
     // Sincroniza o usuário forçadamente no GoTrue (auth.users)
     const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserById(userId)
-    
+
     if (authUserError || !authUser.user) {
       // Se não encontrou pelo ID exato, tenta localizar pelo e-mail caso os IDs estejam divergentes
       const { data: realId } = await supabase.rpc('get_auth_user_id_by_email', { p_email: email })
-      
+
       if (realId) {
         userId = realId
-        const { error: updateError } = await supabase.auth.admin.updateUserById(userId, { 
-          password: password, 
+        const { error: updateError } = await supabase.auth.admin.updateUserById(userId, {
+          password: password,
           email_confirm: true,
           user_metadata: {
             nome: userData.nome,
             tipo_usuario: userData.tipo_usuario,
-            status: userData.status
-          }
+            status: userData.status,
+          },
         })
-        
+
         if (updateError) {
-          return new Response(JSON.stringify({ error: 'Falha ao sincronizar conta: ' + updateError.message }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          })
+          return new Response(
+            JSON.stringify({ error: 'Falha ao sincronizar conta: ' + updateError.message }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            },
+          )
         }
       } else {
         // Usuário definitivamente não existe no GoTrue, vamos criá-lo
@@ -149,34 +159,40 @@ Deno.serve(async (req: Request) => {
           user_metadata: {
             nome: userData.nome,
             tipo_usuario: userData.tipo_usuario,
-            status: userData.status
-          }
+            status: userData.status,
+          },
         })
-        
+
         if (createError) {
-          return new Response(JSON.stringify({ error: 'Erro ao processar conta: ' + createError.message }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          })
+          return new Response(
+            JSON.stringify({ error: 'Erro ao processar conta: ' + createError.message }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            },
+          )
         }
       }
     } else {
       // Usuário existe, atualiza a senha para garantir a sincronia e que o frontend consiga fazer o signIn nativo
-      const { error: updateError } = await supabase.auth.admin.updateUserById(userId, { 
-        password: password, 
+      const { error: updateError } = await supabase.auth.admin.updateUserById(userId, {
+        password: password,
         email_confirm: true,
         user_metadata: {
           nome: userData.nome,
           tipo_usuario: userData.tipo_usuario,
-          status: userData.status
-        }
+          status: userData.status,
+        },
       })
-      
+
       if (updateError) {
-        return new Response(JSON.stringify({ error: 'Erro ao atualizar credenciais: ' + updateError.message }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
+        return new Response(
+          JSON.stringify({ error: 'Erro ao atualizar credenciais: ' + updateError.message }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          },
+        )
       }
     }
 
@@ -187,18 +203,21 @@ Deno.serve(async (req: Request) => {
         usuario_id: userId,
         tipo_usuario: userData.tipo_usuario,
         user: userData,
-        synced: true
+        synced: true,
       }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      },
     )
   } catch (error: any) {
     console.error('Erro na edge function de login:', error)
-    return new Response(JSON.stringify({ error: 'Erro interno ou falha de comunicação: ' + error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: 'Erro interno ou falha de comunicação: ' + error.message }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      },
+    )
   }
 })

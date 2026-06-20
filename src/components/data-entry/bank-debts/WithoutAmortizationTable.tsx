@@ -51,7 +51,7 @@ export function WithoutAmortizationTable() {
   return (
     <div className="space-y-4 w-full">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Dívidas Sem Tabela de Amortização</h3>
+        <h3 className="text-lg font-bold uppercase">SEM QUITAÇÃO DA OBRIGAÇÃO PRINCIPAL</h3>
         <Button onClick={handleFetch} disabled={loading} variant="outline" size="sm">
           {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Atualizar
@@ -61,10 +61,10 @@ export function WithoutAmortizationTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Banco</TableHead>
-              <TableHead>Modalidade</TableHead>
-              <TableHead className="text-right">Valor Total</TableHead>
-              <TableHead className="text-right">Saldo Devedor</TableHead>
+              <TableHead>instituição financeira</TableHead>
+              <TableHead>limite de crédito</TableHead>
+              <TableHead className="text-right">taxa de juros mensal</TableHead>
+              <TableHead className="text-right">média mensal saldo devedor</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
