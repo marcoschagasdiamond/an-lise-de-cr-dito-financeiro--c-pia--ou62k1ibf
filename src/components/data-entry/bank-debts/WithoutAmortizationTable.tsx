@@ -8,34 +8,50 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus, Trash2, Save } from 'lucide-react'
+
+interface DebtRow {
+  id: string
+  instituicao: string
+  limite_credito: string
+  taxa_juros: string
+  saldo_devedor: string
+}
 
 export function WithoutAmortizationTable() {
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<DebtRow[]>([])
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const { toast } = useToast()
 
   const handleFetch = useCallback(async () => {
     try {
       setLoading(true)
-      // Supabase fetch - checking for a generic table that might exist
-      // If table doesn't exist, the error will just show a toast and leave data empty
-      const { data: result, error } = await supabase.from('dividas_bancarias').select('*').limit(10)
 
-      if (error) {
-        // Just silently handle if the table doesn't exist yet to prevent crashes
-        console.warn('Erro ao buscar dívidas:', error)
-        setData([])
-        return
+      const { data: userData } = await supabase.auth.getUser()
+      if (userData?.user) {
+        const { data: existing, error } = await supabase
+          .from('analises_salvas')
+          .select('dados_analise')
+          .eq('usuario_id', userData.user.id)
+          .eq('tipo_analise', 'sem_quitacao')
+          .limit(1)
+          .maybeSingle()
+
+        if (!error && existing?.dados_analise) {
+          setData(existing.dados_analise as unknown as DebtRow[])
+          return
+        }
       }
 
-      setData(result || [])
+      setData([])
     } catch (err: any) {
       toast({
         title: 'Aviso',
-        description: 'Não foi possível carregar os dados. Verifique a conexão.',
+        description: 'Não foi possível carregar os dados.',
         variant: 'destructive',
       })
       setData([])
@@ -48,29 +64,124 @@ export function WithoutAmortizationTable() {
     handleFetch()
   }, [handleFetch])
 
+  const handleAddRow = () => {
+    setData((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        instituicao: '',
+        limite_credito: '',
+        taxa_juros: '',
+        saldo_devedor: '',
+      },
+    ])
+  }
+
+  const handleRemoveRow = (id: string) => {
+    setData((prev) => prev.filter((row) => row.id !== id))
+  }
+
+  const handleChange = (id: string, field: keyof DebtRow, value: string) => {
+    setData((prev) => prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)))
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      if (userData?.user) {
+        const { data: existing } = await supabase
+          .from('analises_salvas')
+          .select('id')
+          .eq('usuario_id', userData.user.id)
+          .eq('tipo_analise', 'sem_quitacao')
+          .limit(1)
+          .maybeSingle()
+
+        if (existing) {
+          await supabase
+            .from('analises_salvas')
+            .update({ dados_analise: data as any })
+            .eq('id', existing.id)
+        } else {
+          await supabase.from('analises_salvas').insert({
+            usuario_id: userData.user.id,
+            tipo_analise: 'sem_quitacao',
+            nome_analise: 'Dívidas sem quitação principal',
+            dados_analise: data as any,
+          })
+        }
+      }
+
+      toast({
+        title: 'Sucesso',
+        description: 'Dados salvos com sucesso.',
+      })
+    } catch (err) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar os dados.',
+        variant: 'destructive',
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="space-y-4 w-full">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold uppercase">SEM QUITAÇÃO DA OBRIGAÇÃO PRINCIPAL</h3>
-        <Button onClick={handleFetch} disabled={loading} variant="outline" size="sm">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-          Atualizar
-        </Button>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h3 className="text-lg font-bold uppercase text-slate-800 dark:text-slate-100">
+          SEM QUITAÇÃO DA OBRIGAÇÃO PRINCIPAL
+        </h3>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleAddRow}
+            variant="outline"
+            size="sm"
+            className="bg-slate-50 dark:bg-slate-900 border-slate-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Inserir linha
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={saving || loading}
+            size="sm"
+            className="bg-[#1e3a8a] hover:bg-[#1e3a8a]/90 text-white"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Salvar
+          </Button>
+        </div>
       </div>
-      <div className="border rounded-md w-full overflow-auto bg-card">
+      <div className="border border-slate-200 dark:border-slate-800 rounded-md w-full overflow-auto bg-card">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
             <TableRow>
-              <TableHead>instituição financeira</TableHead>
-              <TableHead>limite de crédito</TableHead>
-              <TableHead className="text-right">taxa de juros mensal</TableHead>
-              <TableHead className="text-right">média mensal saldo devedor</TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                Instituição financeira
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                Limite de crédito
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                Taxa de juros mensal
+              </TableHead>
+              <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                Média mensal saldo devedor
+              </TableHead>
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading && data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   <div className="flex items-center justify-center text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin mr-2" />
                     Carregando dados...
@@ -79,30 +190,55 @@ export function WithoutAmortizationTable() {
               </TableRow>
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                  Nenhuma dívida cadastrada para esta categoria.
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  Nenhuma linha adicionada. Clique em "Inserir linha" para começar.
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((item, index) => (
-                <TableRow key={item.id || index}>
-                  <TableCell className="font-medium">{item.banco || '-'}</TableCell>
-                  <TableCell>{item.modalidade || '-'}</TableCell>
-                  <TableCell className="text-right">
-                    {item.valor_total !== undefined && item.valor_total !== null
-                      ? new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        }).format(item.valor_total)
-                      : '-'}
+              data.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="p-2 min-w-[200px]">
+                    <Input
+                      value={item.instituicao}
+                      onChange={(e) => handleChange(item.id, 'instituicao', e.target.value)}
+                      placeholder="Ex: Banco do Brasil"
+                      className="h-8"
+                    />
                   </TableCell>
-                  <TableCell className="text-right">
-                    {item.saldo_devedor !== undefined && item.saldo_devedor !== null
-                      ? new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        }).format(item.saldo_devedor)
-                      : '-'}
+                  <TableCell className="p-2 min-w-[150px]">
+                    <Input
+                      value={item.limite_credito}
+                      onChange={(e) => handleChange(item.id, 'limite_credito', e.target.value)}
+                      placeholder="Ex: R$ 100.000,00"
+                      className="h-8"
+                    />
+                  </TableCell>
+                  <TableCell className="p-2 min-w-[150px]">
+                    <Input
+                      value={item.taxa_juros}
+                      onChange={(e) => handleChange(item.id, 'taxa_juros', e.target.value)}
+                      placeholder="Ex: 1,5%"
+                      className="h-8 text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="p-2 min-w-[180px]">
+                    <Input
+                      value={item.saldo_devedor}
+                      onChange={(e) => handleChange(item.id, 'saldo_devedor', e.target.value)}
+                      placeholder="Ex: R$ 50.000,00"
+                      className="h-8 text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="p-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-slate-400 hover:text-red-500"
+                      onClick={() => handleRemoveRow(item.id)}
+                      title="Remover linha"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
