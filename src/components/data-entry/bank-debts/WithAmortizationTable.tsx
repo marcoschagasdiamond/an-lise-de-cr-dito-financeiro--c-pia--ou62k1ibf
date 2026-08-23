@@ -229,7 +229,10 @@ export function WithAmortizationTable() {
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Quantidade total de períodos do financiamento</p>
+                      <p>
+                        Total de Período do contrato (PRAZO) incluindo os períodos de carência se
+                        modo diferido
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -243,7 +246,10 @@ export function WithAmortizationTable() {
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Quantidade de períodos de carência antes do início dos pagamentos</p>
+                      <p>
+                        Digite o total de períodos de carência, se no modo DIFERIDO; ou deixe em
+                        branco ou digite 0, se no modo Antecipado ou Postecipado
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -271,7 +277,7 @@ export function WithAmortizationTable() {
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Taxa de juros contratual anual do financiamento</p>
+                      <p>Taxa percentual de juros efetivos anuais contratada</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
