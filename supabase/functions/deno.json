@@ -1,6 +1,6 @@
 {
   "_versions": {
-    "criar-usuario-admin": 6,
+    "criar-usuario-admin": 7,
     "login": 15,
     "gerenciar-usuarios": 3,
     "enviar-email-aprovacao": 2

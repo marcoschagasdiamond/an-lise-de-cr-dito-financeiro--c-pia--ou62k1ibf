@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
 import { Loader2, Plus, Trash2, Save } from 'lucide-react'
@@ -178,37 +179,158 @@ export function WithAmortizationTable() {
           <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
             <TableRow>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                VALOR FINANCIAMENTO CONTRATADO
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        VALOR FINANCIAMENTO CONTRATADO
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Valor total do financiamento contratado junto à instituição financeira</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                SISTEMA DE AMORTIZAÇÃO
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        SISTEMA DE AMORTIZAÇÃO
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Sistema de amortização utilizado (ex: SAC, Price)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                MODALIDADE DE PAGAMENTO
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        MODALIDADE DE PAGAMENTO
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Forma de pagamento das prestações (ex: Mensal, Trimestral)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[150px]">
-                TOTAL DE PERÍODOS
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        TOTAL DE PERÍODOS
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Quantidade total de períodos do financiamento</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[150px]">
-                PERÍODOS CARÊNCIA
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        PERÍODOS CARÊNCIA
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Quantidade de períodos de carência antes do início dos pagamentos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[150px]">
-                PREST. RESTANTES
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        PREST. RESTANTES
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Quantidade de prestações restantes para quitação</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                % TAXA CONTRATUAL ANUAL
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        % TAXA CONTRATUAL ANUAL
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Taxa de juros contratual anual do financiamento</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[150px]">
-                INDEXADOR
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        INDEXADOR
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Índice utilizado para correção do contrato (ex: CDI, IPCA)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                % ESTIMADA ANUAL C/ INDEX
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        % ESTIMADA ANUAL C/ INDEX
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Taxa anual estimada incluindo o indexador</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                % EFETIVA MENSAL TOTAL
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        % EFETIVA MENSAL TOTAL
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Taxa efetiva mensal total, incluindo todos os encargos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 min-w-[200px]">
-                PRESTAÇÃO MENSAL C/ AMORTIZ
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        PRESTAÇÃO MENSAL C/ AMORTIZ
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Valor da prestação mensal incluindo amortização do principal</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
