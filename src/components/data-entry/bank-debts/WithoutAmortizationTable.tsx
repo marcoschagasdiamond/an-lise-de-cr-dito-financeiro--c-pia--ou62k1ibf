@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useToast } from '@/hooks/use-toast'
 import { supabase } from '@/lib/supabase/client'
 import { Loader2, Plus, Trash2, Save } from 'lucide-react'
@@ -164,16 +165,60 @@ export function WithoutAmortizationTable() {
           <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
             <TableRow>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                Instituição financeira
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        Instituição financeira
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Nome da instituição financeira credora</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                Limite de crédito
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        Limite de crédito
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Limite de crédito concedido pela instituição financeira</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
-                Taxa de juros mensal
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        Taxa de juros mensal
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Taxa de juros mensal cobrada pela instituição</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
-                Média mensal saldo devedor
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help underline decoration-dotted underline-offset-2">
+                        Média mensal saldo devedor
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Média mensal do limite utilizado, para base de cálculo dos juros pagos</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
