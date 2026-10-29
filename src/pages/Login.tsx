@@ -28,38 +28,59 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanPassword = password.trim()
+
+    if (!cleanEmail || !cleanPassword) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Informe seu e-mail e senha.',
+        variant: 'destructive',
+      })
+      setLoading(false)
+      return
+    }
+
     try {
       // Tenta o método padrão de autenticação do Supabase (GoTrue)
-      let { error } = await signIn(email, password)
+      let { error } = await signIn(cleanEmail, cleanPassword)
 
       if (error) {
+        // Se falhou no signIn nativo, tenta invocar a Edge Function como sincronizador / fallback
         try {
-          // Fallback: Sincroniza o usuário com o auth.users via Edge Function caso ele só exista na public.usuarios
           const { data: edgeData, error: edgeError } = await supabase.functions.invoke('login', {
-            body: { email, password },
+            body: { email: cleanEmail, password: cleanPassword },
           })
 
           if (edgeError || !edgeData?.success) {
+            const rawMessage = edgeData?.error || error.message || ''
+            const isInvalidCredentials =
+              rawMessage.toLowerCase().includes('invalid login credentials') ||
+              rawMessage.toLowerCase().includes('credenciais') ||
+              rawMessage.toLowerCase().includes('invalid grant') ||
+              rawMessage.toLowerCase().includes('incorret')
+
+            const userFriendlyMessage = isInvalidCredentials
+              ? 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.'
+              : rawMessage || 'Não foi possível autenticar. Tente novamente mais tarde.'
+
             toast({
-              title: 'Erro ao fazer login',
-              description: edgeData?.error || 'Credenciais inválidas.',
+              title: 'Erro ao entrar',
+              description: userFriendlyMessage,
               variant: 'destructive',
             })
             setLoading(false)
             return
           }
 
-          // Aguarda um pequeno delay para a propagação da sincronização (GoTrue cache)
-          await new Promise((resolve) => setTimeout(resolve, 2000))
-
-          // Se a edge function sincronizou o usuário no auth.users, tentamos o signIn padrão novamente
-          const retry = await signIn(email, password)
+          // Edge function sincronizou as credenciais no auth.users com sucesso, tenta o signIn novamente
+          const retry = await signIn(cleanEmail, cleanPassword)
           if (retry.error) {
             console.error('Retry auth error:', retry.error)
             toast({
-              title: 'Erro ao fazer login',
+              title: 'Erro ao entrar',
               description:
-                'Não foi possível autenticar após a sincronização da conta. Verifique suas credenciais.',
+                'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
               variant: 'destructive',
             })
             setLoading(false)
@@ -67,9 +88,15 @@ export default function LoginPage() {
           }
         } catch (edgeErr) {
           console.error('Edge function error:', edgeErr)
+          const isInvalidCredentials =
+            error.message?.toLowerCase().includes('invalid login credentials') ||
+            error.message?.toLowerCase().includes('invalid grant')
+
           toast({
-            title: 'Erro ao fazer login',
-            description: 'Não foi possível conectar ao servidor de autenticação.',
+            title: 'Erro ao entrar',
+            description: isInvalidCredentials
+              ? 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.'
+              : 'Não foi possível conectar ao servidor de autenticação. Tente novamente.',
             variant: 'destructive',
           })
           setLoading(false)
@@ -77,34 +104,36 @@ export default function LoginPage() {
         }
       }
 
+      // Obtém os dados do usuário autenticado
       const {
         data: { user },
       } = await supabase.auth.getUser()
 
       if (user) {
+        // Consulta resiliente com maybeSingle (não explode erro caso RLS restrinja ou demore)
         const { data: profile } = await supabase
           .from('usuarios')
           .select('status, tipo_usuario')
           .eq('id', user.id)
-          .single()
+          .maybeSingle()
 
-        const status = profile?.status || user.user_metadata?.status
-        const tipoUsuario = profile?.tipo_usuario || user.user_metadata?.tipo_usuario
+        const status = profile?.status || user.user_metadata?.status || 'ativo'
+        const tipoUsuario = profile?.tipo_usuario || user.user_metadata?.tipo_usuario || 'cliente'
 
-        if (status === 'pendente_aprovacao') {
+        if (status === 'pendente_aprovacao' || status === 'pendente') {
           await supabase.auth.signOut()
           toast({
             title: 'Aguardando Aprovação',
-            description: 'Sua solicitação aguarda aprovação.',
+            description: 'Sua solicitação está em análise e aguarda aprovação dos administradores.',
             variant: 'destructive',
           })
           setLoading(false)
           return
-        } else if (status === 'rejeitado') {
+        } else if (status === 'rejeitado' || status === 'inativo') {
           await supabase.auth.signOut()
           toast({
-            title: 'Cadastro Rejeitado',
-            description: 'Sua solicitação não foi aceita.',
+            title: 'Acesso Não Autorizado',
+            description: 'Sua conta está inativa ou não foi aprovada.',
             variant: 'destructive',
           })
           setLoading(false)
@@ -112,8 +141,9 @@ export default function LoginPage() {
         } else {
           toast({
             title: 'Login realizado com sucesso',
-            description: 'Redirecionando...',
+            description: 'Bem-vindo de volta! Redirecionando...',
           })
+
           if (tipoUsuario === 'admin' || tipoUsuario === 'administrador') {
             navigate('/admin/dashboard', { replace: true })
           } else if (tipoUsuario === 'parceiro') {
@@ -124,16 +154,16 @@ export default function LoginPage() {
         }
       } else {
         toast({
-          title: 'Erro ao fazer login',
-          description: 'Não foi possível obter dados do usuário.',
+          title: 'Erro ao entrar',
+          description: 'Não foi possível carregar a sessão do usuário. Tente novamente.',
           variant: 'destructive',
         })
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro no login:', err)
       toast({
-        title: 'Erro',
-        description: 'Ocorreu um erro inesperado.',
+        title: 'Erro inesperado',
+        description: err?.message || 'Ocorreu um erro ao processar sua solicitação.',
         variant: 'destructive',
       })
     } finally {

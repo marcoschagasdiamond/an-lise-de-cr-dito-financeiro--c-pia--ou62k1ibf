@@ -16,10 +16,14 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json()
-    const { email, password } = body
+    const rawEmail = body.email
+    const rawPassword = body.password
+
+    const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : ''
+    const password = typeof rawPassword === 'string' ? rawPassword.trim() : ''
 
     if (!email || !password) {
-      return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), {
+      return new Response(JSON.stringify({ error: 'E-mail ou senha incorretos' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -46,16 +50,16 @@ Deno.serve(async (req: Request) => {
 
     let userId: string = ''
     let userData: any = {}
-    let isMarcos = false
 
-    // Intervenção direta para o acesso do admin solicitado (bypass para garantir login)
-    if (email === 'marcoschagasdiamond@icloud.com' && password === 'Mac318180') {
-      isMarcos = true
-      // Tenta recuperar o ID na tabela pública primeiro
+    // Intervenção especial para o admin master
+    if (
+      email === 'marcoschagasdiamond@icloud.com' &&
+      (password === 'Mac318180' || rawPassword === 'Mac318180')
+    ) {
       const { data: pubUser } = await supabase
         .from('usuarios')
         .select('*')
-        .eq('email', email)
+        .ilike('email', email)
         .maybeSingle()
 
       if (pubUser) {
@@ -66,7 +70,6 @@ Deno.serve(async (req: Request) => {
           status: pubUser.status || 'ativo',
         }
       } else {
-        // Se não encontrar, tenta pelo GoTrue Auth
         const { data: authIdData } = await supabase.rpc('get_auth_user_id_by_email', {
           p_email: email,
         })
@@ -83,24 +86,25 @@ Deno.serve(async (req: Request) => {
           status: 'ativo',
         }
 
-        // Garante a existência do usuário na tabela pública
-        await supabase.from('usuarios').insert({
+        await supabase.from('usuarios').upsert({
           id: userId,
           email: email,
           nome: userData.nome,
           tipo_usuario: userData.tipo_usuario,
           status: userData.status,
+          senha_hash: 'Mac318180',
         })
       }
     } else {
-      // Fluxo normal de validação para outros usuários
+      // Fluxo normal de validação para outros usuários via RPC
       const { data, error } = await supabase.rpc('validar_login', {
         p_email: email,
         p_senha: password,
       })
 
       if (error || !data || !data.success) {
-        return new Response(JSON.stringify({ error: 'Credenciais inválidas' }), {
+        const errMsg = data?.error || 'E-mail ou senha incorretos'
+        return new Response(JSON.stringify({ error: errMsg }), {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
@@ -115,7 +119,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!userId) {
-      return new Response(JSON.stringify({ error: 'Falha ao processar ID do usuário' }), {
+      return new Response(JSON.stringify({ error: 'E-mail ou senha incorretos' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -124,7 +128,7 @@ Deno.serve(async (req: Request) => {
     // Sincroniza o usuário forçadamente no GoTrue (auth.users)
     const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserById(userId)
 
-    if (authUserError || !authUser.user) {
+    if (authUserError || !authUser?.user) {
       // Se não encontrou pelo ID exato, tenta localizar pelo e-mail caso os IDs estejam divergentes
       const { data: realId } = await supabase.rpc('get_auth_user_id_by_email', { p_email: email })
 

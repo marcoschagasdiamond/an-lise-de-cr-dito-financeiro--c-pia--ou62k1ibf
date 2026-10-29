@@ -26,6 +26,15 @@ export default function AdminLogin() {
     e.preventDefault()
     setIsLoading(true)
 
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanPassword = password.trim()
+
+    if (!cleanEmail || !cleanPassword) {
+      toast.error('Informe o e-mail e a senha.')
+      setIsLoading(false)
+      return
+    }
+
     try {
       localStorage.removeItem('custom_jwt_token')
       localStorage.removeItem('user_info')
@@ -33,19 +42,41 @@ export default function AdminLogin() {
       sessionStorage.clear()
       await supabase.auth.signOut().catch(() => {})
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      let { error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password: cleanPassword,
       })
 
       if (error) {
-        throw error
+        // Tenta sincronizar via edge function de login
+        try {
+          const { data: edgeData, error: edgeError } = await supabase.functions.invoke('login', {
+            body: { email: cleanEmail, password: cleanPassword },
+          })
+
+          if (!edgeError && edgeData?.success) {
+            const retry = await supabase.auth.signInWithPassword({
+              email: cleanEmail,
+              password: cleanPassword,
+            })
+            error = retry.error
+          }
+        } catch (edgeErr) {
+          console.error('Edge login error:', edgeErr)
+        }
+      }
+
+      if (error) {
+        const isInvalid =
+          error.message?.toLowerCase().includes('invalid login credentials') ||
+          error.message?.toLowerCase().includes('invalid grant')
+        throw new Error(isInvalid ? 'E-mail ou senha incorretos.' : error.message)
       }
 
       toast.success('Login realizado! Bem-vindo ao painel administrativo.')
       navigate('/admin/dashboard')
     } catch (err: any) {
-      toast.error(err.message || 'Email ou senha inválidos.')
+      toast.error(err.message || 'E-mail ou senha incorretos.')
     } finally {
       setIsLoading(false)
     }

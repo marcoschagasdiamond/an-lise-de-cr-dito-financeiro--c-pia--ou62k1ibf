@@ -31,12 +31,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const buildAuthUser = (baseUser: User | null): AuthUser | null => {
+      if (!baseUser) return null
+      const meta = baseUser.user_metadata || {}
+      const role = meta.tipo_usuario || baseUser.role || 'cliente'
+      return {
+        ...baseUser,
+        role,
+        tipo_usuario: role,
+        status: meta.status || 'ativo',
+      }
+    }
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       if (session?.user) {
-        setUser(session.user)
+        setUser(buildAuthUser(session.user))
       } else {
         setUser(null)
         setLoading(false)
@@ -46,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       if (session?.user) {
-        setUser(session.user)
+        setUser(buildAuthUser(session.user))
       } else {
         setUser(null)
         setLoading(false)
@@ -57,52 +69,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    if (user && (!user.tipo_usuario || user.role === 'authenticated')) {
-      // Tenta recuperar do metadata do token primeiro (para logins fallback da edge function)
-      if (user.user_metadata?.tipo_usuario) {
-        setUser((prev) =>
-          prev
-            ? {
-                ...prev,
-                role: user.user_metadata.tipo_usuario,
-                tipo_usuario: user.user_metadata.tipo_usuario,
-                status: user.user_metadata.status || 'ativo',
-              }
-            : null,
-        )
-        setLoading(false)
-        return
-      }
+    if (!user) return
 
-      supabase
-        .from('usuarios')
-        .select('tipo_usuario, status')
-        .eq('id', user.id)
-        .single()
-        .then(({ data, error }) => {
-          if (error) {
-            console.error('Erro ao buscar perfil do usuário:', error)
-          }
-          if (data) {
-            setUser((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    role: data.tipo_usuario,
-                    tipo_usuario: data.tipo_usuario,
-                    status: data.status,
-                  }
-                : null,
-            )
-          }
-          setLoading(false)
-        })
-        .catch((err) => {
-          console.error('Exceção ao buscar perfil:', err)
-          setLoading(false)
-        })
+    // Se o usuário já tiver perfil reconhecido pelo metadata, garanta loading false imediatamente
+    if (user.user_metadata?.tipo_usuario) {
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              role: user.user_metadata.tipo_usuario,
+              tipo_usuario: user.user_metadata.tipo_usuario,
+              status: user.user_metadata.status || prev.status || 'ativo',
+            }
+          : null,
+      )
+      setLoading(false)
+      return
     }
-  }, [user?.id, user?.role, user?.tipo_usuario, user?.user_metadata])
+
+    // Caso não tenha metadata, busca na tabela pública
+    supabase
+      .from('usuarios')
+      .select('tipo_usuario, status')
+      .eq('id', user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn('Aviso ao consultar perfil:', error.message)
+        }
+        if (data?.tipo_usuario) {
+          setUser((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  role: data.tipo_usuario,
+                  tipo_usuario: data.tipo_usuario,
+                  status: data.status || prev.status || 'ativo',
+                }
+              : null,
+          )
+        }
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.warn('Exceção na consulta de perfil:', err)
+        setLoading(false)
+      })
+  }, [user?.id, user?.user_metadata?.tipo_usuario, user?.user_metadata?.status])
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({

@@ -28,19 +28,33 @@ export default function LoginParceiro() {
     e.preventDefault()
     setLoading(true)
 
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanPassword = password.trim()
+
+    if (!cleanEmail || !cleanPassword) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Informe seu e-mail e senha.',
+        variant: 'destructive',
+      })
+      setLoading(false)
+      return
+    }
+
     try {
       let authSuccess = false
-      let userData = null
+      let userData: any = null
 
-      const { error: goTrueError } = await signIn(email, password)
+      const { error: goTrueError } = await signIn(cleanEmail, cleanPassword)
 
       if (!goTrueError) {
         authSuccess = true
         const { data } = await supabase
           .from('usuarios')
           .select('id, email, tipo_usuario, status')
-          .eq('email', email)
-          .single()
+          .ilike('email', cleanEmail)
+          .maybeSingle()
+
         userData = data
         if (data) {
           const userInfo = {
@@ -53,28 +67,22 @@ export default function LoginParceiro() {
         }
       } else {
         const { data, error } = await supabase.functions.invoke('login', {
-          body: { email, password },
+          body: { email: cleanEmail, password: cleanPassword },
         })
 
-        if (!error && !data?.error && data?.token) {
-          authSuccess = true
-          userData = data.user
-          localStorage.setItem('custom_jwt_token', data.token)
-
-          const userInfo = {
-            usuario_id: data.usuario_id,
-            email: email,
-            tipo_usuario: data.tipo_usuario,
+        if (!error && !data?.error && (data?.success || data?.token)) {
+          const retry = await signIn(cleanEmail, cleanPassword)
+          if (!retry.error) {
+            authSuccess = true
+            userData = data.user
           }
-          localStorage.setItem('user_info', JSON.stringify(userInfo))
-          window.dispatchEvent(new Event('auth-change'))
         }
       }
 
-      if (!authSuccess || !userData) {
+      if (!authSuccess) {
         toast({
           title: 'Erro ao fazer login',
-          description: 'Credenciais inválidas.',
+          description: 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.',
           variant: 'destructive',
         })
         setLoading(false)
