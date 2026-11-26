@@ -1,8 +1,8 @@
 {
   "_versions": {
-    "criar-usuario-admin": 9,
-    "login": 16,
-    "gerenciar-usuarios": 3,
-    "enviar-email-aprovacao": 2
+    "criar-usuario-admin": 10,
+    "login": 17,
+    "gerenciar-usuarios": 4,
+    "enviar-email-aprovacao": 3
   }
 }
