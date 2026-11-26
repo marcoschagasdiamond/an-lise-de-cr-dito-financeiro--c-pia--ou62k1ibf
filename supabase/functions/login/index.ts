@@ -52,7 +52,10 @@ Deno.serve(async (req: Request) => {
     let userData: any = {}
 
     // Intervenção especial para o admin master
-    if (email === 'marcoschagasdiamond@icloud.com' && (password === 'Mac318180' || rawPassword === 'Mac318180')) {
+    if (
+      email === 'marcoschagasdiamond@icloud.com' &&
+      (password === 'Mac318180' || rawPassword === 'Mac318180')
+    ) {
       const { data: pubUser } = await supabase
         .from('usuarios')
         .select('*')

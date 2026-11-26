@@ -5,7 +5,8 @@ import * as bcrypt from 'npm:bcryptjs@2.4.3'
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, x-supabase-client-platform, apikey, content-type',
 }
 
 Deno.serve(async (req: Request) => {
@@ -17,11 +18,23 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
+      auth: { autoRefreshToken: false, persistSession: false },
     })
 
     const body = await req.json()
-    const { action, id, email, password, nome, razao_social, cnpj, cpf, telefone, tipo_usuario, permissoes } = body
+    const {
+      action,
+      id,
+      email,
+      password,
+      nome,
+      razao_social,
+      cnpj,
+      cpf,
+      telefone,
+      tipo_usuario,
+      permissoes,
+    } = body
 
     if (action === 'create') {
       const tipo = tipo_usuario || 'parceiro'
@@ -34,8 +47,8 @@ Deno.serve(async (req: Request) => {
         user_metadata: {
           nome: nomeFinal,
           tipo_usuario: tipo,
-          status: tipo === 'admin' ? 'ativo' : 'pendente'
-        }
+          status: tipo === 'admin' ? 'ativo' : 'pendente',
+        },
       })
 
       if (error) throw error
@@ -50,7 +63,7 @@ Deno.serve(async (req: Request) => {
           cpf,
           telefone,
           status: tipo === 'admin' ? 'ativo' : 'pendente',
-          tipo_usuario: tipo
+          tipo_usuario: tipo,
         })
         .eq('id', userId)
         .select()
@@ -65,7 +78,7 @@ Deno.serve(async (req: Request) => {
           cpf,
           telefone,
           status: tipo === 'admin' ? 'ativo' : 'pendente',
-          tipo_usuario: tipo
+          tipo_usuario: tipo,
         })
       }
 
@@ -75,7 +88,7 @@ Deno.serve(async (req: Request) => {
           nome: nomeFinal,
           email: email,
           permissoes: permissoes || ['*'],
-          status: 'ativo'
+          status: 'ativo',
         })
       } else {
         await supabase.from('parceiros').insert({
@@ -83,7 +96,7 @@ Deno.serve(async (req: Request) => {
           nome_parceiro: nomeFinal,
           cnpj,
           status: 'pendente',
-          comissao_percentual: 0
+          comissao_percentual: 0,
         })
       }
 
@@ -97,7 +110,7 @@ Deno.serve(async (req: Request) => {
         const { error } = await supabase.auth.admin.updateUserById(id, { email })
         if (error) throw error
       }
-      
+
       const { error } = await supabase
         .from('usuarios')
         .update({
@@ -106,16 +119,17 @@ Deno.serve(async (req: Request) => {
           cnpj,
           cpf,
           telefone,
-          nome: razao_social || nome
+          nome: razao_social || nome,
         })
         .eq('id', id)
-        
+
       if (error) throw error
-      
-      await supabase.from('parceiros')
+
+      await supabase
+        .from('parceiros')
         .update({
           nome_parceiro: razao_social || nome,
-          cnpj
+          cnpj,
         })
         .eq('usuario_id', id)
 
@@ -135,7 +149,7 @@ Deno.serve(async (req: Request) => {
         .from('usuarios')
         .update({ senha_hash: hash })
         .eq('id', id)
-        
+
       if (dbError) throw dbError
 
       return new Response(JSON.stringify({ success: true }), {
@@ -146,7 +160,7 @@ Deno.serve(async (req: Request) => {
     if (action === 'delete') {
       const { error } = await supabase.auth.admin.deleteUser(id)
       if (error) throw error
-      
+
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
